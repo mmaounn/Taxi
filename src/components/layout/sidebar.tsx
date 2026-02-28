@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/drivers", label: "Drivers", icon: Users },
   { href: "/vehicles", label: "Vehicles", icon: Car },
   { href: "/settlements", label: "Settlements", icon: Receipt },
@@ -27,15 +27,16 @@ export function Sidebar() {
   return (
     <aside className="flex h-full w-64 flex-col border-r bg-white">
       <div className="flex h-16 items-center border-b px-6">
-        <Link href="/" className="text-lg font-bold text-gray-900">
-          Fleet Settlement
+        <Link href="/dashboard" className="text-lg font-bold text-gray-900">
+          meineflotte.at
         </Link>
       </div>
       <nav className="flex-1 space-y-1 p-4">
         {navItems.map((item) => {
           const isActive =
             pathname === item.href ||
-            (item.href !== "/" && pathname.startsWith(item.href));
+            (pathname.startsWith(item.href) && item.href !== "/dashboard") ||
+            (item.href === "/dashboard" && pathname === "/dashboard");
           return (
             <Link
               key={item.href}
@@ -54,7 +55,7 @@ export function Sidebar() {
         })}
       </nav>
       <div className="border-t p-4">
-        <p className="text-xs text-gray-400">H&H Drive Company OG</p>
+        <p className="text-xs text-gray-400">meineflotte.at</p>
       </div>
     </aside>
   );

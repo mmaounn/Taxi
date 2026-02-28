@@ -23,7 +23,7 @@ export default function DriverPortalLayout({
       <aside className="flex h-full w-64 flex-col border-r bg-white">
         <div className="flex h-16 items-center border-b px-6">
           <Link href="/driver-portal" className="text-lg font-bold text-gray-900">
-            Driver Portal
+            Fahrer-Portal
           </Link>
         </div>
         <nav className="flex-1 space-y-1 p-4">

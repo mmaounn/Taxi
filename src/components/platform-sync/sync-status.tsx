@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RefreshCw, CheckCircle, XCircle, Clock } from "lucide-react";
+import { RefreshCw, CheckCircle, XCircle, Clock, Users } from "lucide-react";
 import { toast } from "sonner";
 
 interface SyncLog {
@@ -119,6 +119,60 @@ function SyncStatusCard({
   );
 }
 
+function BoltDriverSyncCard({ boltConfigured }: { boltConfigured: boolean }) {
+  const [syncing, setSyncing] = useState(false);
+
+  async function handleSync() {
+    setSyncing(true);
+    try {
+      const res = await fetch("/api/platform-sync/bolt-drivers", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "Bolt driver sync failed");
+        return;
+      }
+      toast.success(
+        `Imported ${data.driversImported} drivers and ${data.vehiclesImported} vehicles from Bolt`
+      );
+    } catch {
+      toast.error("Bolt driver sync failed");
+    } finally {
+      setSyncing(false);
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Users className="h-5 w-5 text-green-600" />
+          Sync Drivers & Vehicles from Bolt
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="mb-4 text-sm text-gray-600">
+          Import active drivers and vehicles from your Bolt Fleet account. Existing
+          drivers will be updated, new ones will be created automatically.
+        </p>
+        <Button
+          onClick={handleSync}
+          disabled={!boltConfigured || syncing}
+          className="w-full"
+        >
+          <RefreshCw className={`mr-2 h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
+          {syncing
+            ? "Syncing drivers..."
+            : !boltConfigured
+            ? "Configure Bolt API first"
+            : "Sync Drivers & Vehicles"}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
 export function SyncStatusCards({
   syncLogs,
   boltConfigured,
@@ -156,31 +210,34 @@ export function SyncStatusCards({
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-3">
-      <SyncStatusCard
-        platform="BOLT"
-        label="Bolt"
-        color="bg-green-500"
-        apiEnabled={boltConfigured}
-        lastSync={getLastSync("BOLT")}
-        onSync={(from, to) => syncPlatform("BOLT", from, to)}
-      />
-      <SyncStatusCard
-        platform="UBER"
-        label="Uber"
-        color="bg-black"
-        apiEnabled={uberConfigured}
-        lastSync={getLastSync("UBER")}
-        onSync={(from, to) => syncPlatform("UBER", from, to)}
-      />
-      <SyncStatusCard
-        platform="FREENOW"
-        label="FreeNow"
-        color="bg-red-500"
-        apiEnabled={false}
-        lastSync={getLastSync("FREENOW")}
-        onSync={async () => {}}
-      />
+    <div className="space-y-4">
+      <BoltDriverSyncCard boltConfigured={boltConfigured} />
+      <div className="grid gap-4 md:grid-cols-3">
+        <SyncStatusCard
+          platform="BOLT"
+          label="Bolt"
+          color="bg-green-500"
+          apiEnabled={boltConfigured}
+          lastSync={getLastSync("BOLT")}
+          onSync={(from, to) => syncPlatform("BOLT", from, to)}
+        />
+        <SyncStatusCard
+          platform="UBER"
+          label="Uber"
+          color="bg-black"
+          apiEnabled={uberConfigured}
+          lastSync={getLastSync("UBER")}
+          onSync={(from, to) => syncPlatform("UBER", from, to)}
+        />
+        <SyncStatusCard
+          platform="FREENOW"
+          label="FreeNow"
+          color="bg-red-500"
+          apiEnabled={false}
+          lastSync={getLastSync("FREENOW")}
+          onSync={async () => {}}
+        />
+      </div>
     </div>
   );
 }

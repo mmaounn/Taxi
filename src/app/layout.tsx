@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Fleet Settlement - H&H Drive Company OG",
-  description: "Fleet driver settlement platform",
+  title: "meineflotte.at — Flottenabrechnung automatisiert",
+  description: "Automatisierte Fahrerabrechnung für Bolt, Uber und FreeNow.",
 };
 
 export default function RootLayout({
@@ -24,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="de">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

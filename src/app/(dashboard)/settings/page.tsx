@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 
 interface PartnerSettings {
   companyName: string;
@@ -32,10 +33,44 @@ interface PartnerSettings {
   uberOrgId: string | null;
 }
 
+type ValidationStatus = "idle" | "loading" | "valid" | "invalid";
+
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const { register, handleSubmit, reset, setValue, watch } = useForm<PartnerSettings>();
+  const [boltStatus, setBoltStatus] = useState<ValidationStatus>("idle");
+  const [uberStatus, setUberStatus] = useState<ValidationStatus>("idle");
+  const { register, handleSubmit, reset, setValue, watch, getValues } = useForm<PartnerSettings>();
+
+  async function testCredentials(platform: "bolt" | "uber") {
+    const setStatus = platform === "bolt" ? setBoltStatus : setUberStatus;
+    const clientId = platform === "bolt" ? getValues("boltClientId") : getValues("uberClientId");
+    const clientSecret = platform === "bolt" ? getValues("boltClientSecret") : getValues("uberClientSecret");
+
+    if (!clientId || !clientSecret) {
+      toast.error(`Bitte ${platform === "bolt" ? "Bolt" : "Uber"} Client ID und Secret eingeben`);
+      return;
+    }
+
+    setStatus("loading");
+    try {
+      const res = await fetch("/api/validate-credentials", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ platform, clientId, clientSecret }),
+      });
+      const data = await res.json();
+      setStatus(data.valid ? "valid" : "invalid");
+      if (data.valid) {
+        toast.success(`${platform === "bolt" ? "Bolt" : "Uber"}-Verbindung erfolgreich`);
+      } else {
+        toast.error(data.error || "Validierung fehlgeschlagen");
+      }
+    } catch {
+      setStatus("invalid");
+      toast.error("Verbindung fehlgeschlagen");
+    }
+  }
 
   useEffect(() => {
     fetch("/api/settings")
@@ -167,23 +202,57 @@ export default function SettingsPage() {
             <p className="text-sm text-gray-500">
               Leave fields empty to keep existing values. Credentials are stored securely.
             </p>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Bolt Client ID</Label>
-                <Input {...register("boltClientId")} placeholder="Enter to update" />
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Bolt Client ID</Label>
+                  <Input {...register("boltClientId")} placeholder="Enter to update" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Bolt Client Secret</Label>
+                  <Input type="password" {...register("boltClientSecret")} placeholder="Enter to update" />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label>Bolt Client Secret</Label>
-                <Input type="password" {...register("boltClientSecret")} placeholder="Enter to update" />
+              <div className="flex items-center gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => testCredentials("bolt")}
+                  disabled={boltStatus === "loading"}
+                >
+                  {boltStatus === "loading" && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Bolt testen
+                </Button>
+                {boltStatus === "valid" && <CheckCircle className="h-5 w-5 text-green-500" />}
+                {boltStatus === "invalid" && <XCircle className="h-5 w-5 text-red-500" />}
               </div>
-              <div className="space-y-2">
-                <Label>Uber Client ID</Label>
-                <Input {...register("uberClientId")} placeholder="Enter to update" />
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Uber Client ID</Label>
+                  <Input {...register("uberClientId")} placeholder="Enter to update" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Uber Client Secret</Label>
+                  <Input type="password" {...register("uberClientSecret")} placeholder="Enter to update" />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label>Uber Client Secret</Label>
-                <Input type="password" {...register("uberClientSecret")} placeholder="Enter to update" />
+              <div className="flex items-center gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => testCredentials("uber")}
+                  disabled={uberStatus === "loading"}
+                >
+                  {uberStatus === "loading" && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Uber testen
+                </Button>
+                {uberStatus === "valid" && <CheckCircle className="h-5 w-5 text-green-500" />}
+                {uberStatus === "invalid" && <XCircle className="h-5 w-5 text-red-500" />}
               </div>
+
               <div className="space-y-2">
                 <Label>Uber Organization ID</Label>
                 <Input {...register("uberOrgId")} />

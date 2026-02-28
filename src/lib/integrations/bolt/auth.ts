@@ -4,6 +4,7 @@ interface BoltTokenResponse {
   access_token: string;
   token_type: string;
   expires_in: number;
+  scope: string;
 }
 
 const tokenCache = new Map<string, { token: string; expiresAt: number }>();
@@ -19,14 +20,14 @@ export async function getBoltAccessToken(partnerId: string): Promise<string> {
     throw new Error("Bolt API credentials not configured");
   }
 
-  const res = await fetch("https://fleet-owner-api.bolt.eu/v1/oauth/token", {
+  const res = await fetch("https://oidc.bolt.eu/token", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
       grant_type: "client_credentials",
       client_id: partner.boltClientId,
       client_secret: partner.boltClientSecret,
-      scope: "fleet:read",
+      scope: "fleet-integration:api",
     }),
   });
 

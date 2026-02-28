@@ -44,7 +44,7 @@ export function Header() {
             {session?.user?.role}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/login" })}>
+          <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>
             <LogOut className="mr-2 h-4 w-4" />
             Sign Out
           </DropdownMenuItem>

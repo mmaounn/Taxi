@@ -1,0 +1,30 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { SettlementDetail } from "@/components/settlements/settlement-detail";
+
+export default function DriverSettlementDetailPage() {
+  const { id } = useParams<{ id: string }>();
+  const [settlement, setSettlement] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`/api/settlements/${id}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setSettlement(data);
+        setLoading(false);
+      });
+  }, [id]);
+
+  if (loading) return <div className="py-8 text-center">Loading...</div>;
+  if (!settlement)
+    return <div className="py-8 text-center text-red-600">Settlement not found</div>;
+
+  return (
+    <div className="mx-auto max-w-4xl">
+      <SettlementDetail settlement={settlement} readOnly />
+    </div>
+  );
+}

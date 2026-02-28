@@ -185,7 +185,7 @@ export default function RegisterPage() {
             <CardHeader className="text-center">
               <CardTitle>Unternehmen registrieren</CardTitle>
               <CardDescription>
-                Erstellen Sie Ihr Konto bei meineflotte.at
+                Erstellen Sie Ihr Konto bei <span className="text-orange-600">meine</span>flotte.at
               </CardDescription>
             </CardHeader>
             <CardContent>

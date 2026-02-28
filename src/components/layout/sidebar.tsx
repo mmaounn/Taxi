@@ -28,7 +28,7 @@ export function Sidebar() {
     <aside className="flex h-full w-64 flex-col border-r bg-white">
       <div className="flex h-16 items-center border-b px-6">
         <Link href="/dashboard" className="text-lg font-bold text-gray-900">
-          meineflotte.at
+          <span className="text-orange-600">meine</span>flotte.at
         </Link>
       </div>
       <nav className="flex-1 space-y-1 p-4">
@@ -55,7 +55,7 @@ export function Sidebar() {
         })}
       </nav>
       <div className="border-t p-4">
-        <p className="text-xs text-gray-400">meineflotte.at</p>
+        <p className="text-xs text-gray-400"><span className="text-orange-600">meine</span>flotte.at</p>
       </div>
     </aside>
   );

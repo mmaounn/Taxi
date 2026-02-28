@@ -110,7 +110,7 @@ export default function LandingPage() {
             Deine Flottenabrechnung, automatisiert.
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
-            Verbinden Sie Bolt, Uber und FreeNow — meineflotte.at berechnet
+            Verbinden Sie Bolt, Uber und FreeNow — <span className="text-orange-600">meine</span>flotte.at berechnet
             Fahrerabrechnungen, Provisionen und Bargeldsalden automatisch.
           </p>
           <div className="mt-10 flex items-center justify-center gap-4">

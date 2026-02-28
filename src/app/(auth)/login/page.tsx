@@ -54,7 +54,7 @@ function LoginForm() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold">meineflotte.at</CardTitle>
+        <CardTitle className="text-2xl font-bold"><span className="text-orange-600">meine</span>flotte.at</CardTitle>
         <CardDescription>Melde dich bei deinem Konto an</CardDescription>
       </CardHeader>
       <CardContent>

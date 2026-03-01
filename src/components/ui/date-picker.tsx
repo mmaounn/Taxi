@@ -35,7 +35,9 @@ function DatePicker({
 
   const date = React.useMemo(() => {
     if (!value) return undefined;
-    const parsed = parse(value, "yyyy-MM-dd", new Date());
+    // Handle both "yyyy-MM-dd" and ISO datetime "2026-04-15T00:00:00.000Z"
+    const dateStr = value.length > 10 ? value.slice(0, 10) : value;
+    const parsed = parse(dateStr, "yyyy-MM-dd", new Date());
     return isValid(parsed) ? parsed : undefined;
   }, [value]);
 

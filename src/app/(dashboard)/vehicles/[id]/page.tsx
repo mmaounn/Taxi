@@ -21,7 +21,34 @@ interface VehicleData {
   monthlyRentalCost: number | null;
   insuranceMonthlyCost: number | null;
   otherMonthlyCosts: number | null;
+  insuranceExpiry: string | null;
+  registrationExpiry: string | null;
+  nextServiceDate: string | null;
+  nextInspectionDate: string | null;
   drivers: { id: string; firstName: string; lastName: string; status: string }[];
+}
+
+function ExpiryBadge({ date }: { date: string | null }) {
+  if (!date) return null;
+  const d = new Date(date);
+  const now = new Date();
+  const daysUntil = Math.ceil((d.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+  if (daysUntil <= 0) {
+    return <Badge variant="secondary" className="ml-2 bg-red-100 text-red-800">Abgelaufen</Badge>;
+  }
+  if (daysUntil <= 7) {
+    return <Badge variant="secondary" className="ml-2 bg-orange-100 text-orange-800">Noch {daysUntil}T</Badge>;
+  }
+  if (daysUntil <= 30) {
+    return <Badge variant="secondary" className="ml-2 bg-yellow-100 text-yellow-800">Noch {daysUntil}T</Badge>;
+  }
+  return null;
+}
+
+function formatDate(date: string | null): string {
+  if (!date) return "—";
+  return new Date(date).toLocaleDateString("de-AT");
 }
 
 export default function VehicleDetailPage() {
@@ -57,6 +84,10 @@ export default function VehicleDetailPage() {
             monthlyRentalCost: vehicle.monthlyRentalCost ?? undefined,
             insuranceMonthlyCost: vehicle.insuranceMonthlyCost ?? undefined,
             otherMonthlyCosts: vehicle.otherMonthlyCosts ?? undefined,
+            insuranceExpiry: vehicle.insuranceExpiry || undefined,
+            registrationExpiry: vehicle.registrationExpiry || undefined,
+            nextServiceDate: vehicle.nextServiceDate || undefined,
+            nextInspectionDate: vehicle.nextInspectionDate || undefined,
           }}
         />
       </div>
@@ -88,6 +119,30 @@ export default function VehicleDetailPage() {
           </Link>
         </Button>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Ablaufdaten Dokumente</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm md:grid-cols-4">
+          <div>
+            <p className="text-gray-500">Versicherung</p>
+            <p className="font-medium">{formatDate(vehicle.insuranceExpiry)} <ExpiryBadge date={vehicle.insuranceExpiry} /></p>
+          </div>
+          <div>
+            <p className="text-gray-500">Zulassung</p>
+            <p className="font-medium">{formatDate(vehicle.registrationExpiry)} <ExpiryBadge date={vehicle.registrationExpiry} /></p>
+          </div>
+          <div>
+            <p className="text-gray-500">Nächster Service</p>
+            <p className="font-medium">{formatDate(vehicle.nextServiceDate)} <ExpiryBadge date={vehicle.nextServiceDate} /></p>
+          </div>
+          <div>
+            <p className="text-gray-500">§57a (Pickerl)</p>
+            <p className="font-medium">{formatDate(vehicle.nextInspectionDate)} <ExpiryBadge date={vehicle.nextInspectionDate} /></p>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>

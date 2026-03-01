@@ -10,6 +10,7 @@ import {
   Receipt,
   RefreshCw,
   Settings,
+  BarChart3,
 } from "lucide-react";
 
 const navItems = [
@@ -17,6 +18,7 @@ const navItems = [
   { href: "/drivers", label: "Drivers", icon: Users },
   { href: "/vehicles", label: "Vehicles", icon: Car },
   { href: "/settlements", label: "Settlements", icon: Receipt },
+  { href: "/reports", label: "Reports", icon: BarChart3 },
   { href: "/platform-sync", label: "Platform Sync", icon: RefreshCw },
   { href: "/settings", label: "Settings", icon: Settings },
 ];

@@ -28,8 +28,14 @@ const styles = StyleSheet.create({
 });
 
 function formatEur(val: number | null | undefined): string {
-  if (val == null) return "€0.00";
-  return `€${Number(val).toFixed(2)}`;
+  if (val == null) return "€0,00";
+  const num = Number(val);
+  const abs = Math.abs(num);
+  const formatted = abs.toLocaleString("de-AT", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  return num < 0 ? `-€${formatted}` : `€${formatted}`;
 }
 
 interface SettlementPDFProps {
@@ -56,6 +62,8 @@ interface SettlementPDFProps {
     vehicleRentalDeduction?: number | null;
     fuelCostDeduction?: number | null;
     insuranceDeduction?: number | null;
+    lineItemsTotal?: number | null;
+    lineItems?: { type: string; description: string; amount: number; isAutoApplied: boolean }[];
     cashCollectedByDriver?: number | null;
     driverNetEarnings?: number | null;
     payoutAmount?: number | null;
@@ -140,6 +148,18 @@ export function SettlementPDF({ settlement, companyName }: SettlementPDFProps) {
           <View style={styles.row}><Text style={styles.label}>Vehicle Rental</Text><Text>-{formatEur(s.vehicleRentalDeduction)}</Text></View>
           <View style={styles.row}><Text style={styles.label}>Insurance</Text><Text>-{formatEur(s.insuranceDeduction)}</Text></View>
           <View style={styles.row}><Text style={styles.label}>Fuel Costs</Text><Text>-{formatEur(s.fuelCostDeduction)}</Text></View>
+          {s.lineItems && s.lineItems.length > 0 && (
+            <>
+              {s.lineItems.map((li, i) => (
+                <View key={i} style={styles.row}>
+                  <Text style={styles.label}>{li.description}{li.isAutoApplied ? " (auto)" : ""}</Text>
+                  <Text style={li.type === "BONUS" ? styles.positiveAmount : styles.negativeAmount}>
+                    {li.type === "DEDUCTION" ? "-" : "+"}{formatEur(li.amount)}
+                  </Text>
+                </View>
+              ))}
+            </>
+          )}
           <View style={styles.totalRow}><Text style={styles.totalLabel}>Driver Net Earnings</Text><Text style={styles.totalValue}>{formatEur(s.driverNetEarnings)}</Text></View>
         </View>
 

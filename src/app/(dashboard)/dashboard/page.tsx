@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { StatsCards } from "@/components/dashboard/stats-cards";
 import { RevenueChart } from "@/components/dashboard/revenue-chart";
+import { ExpiryAlerts } from "@/components/dashboard/expiry-alerts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
+import { formatEur } from "@/lib/format";
 
 interface DashboardData {
   stats: {
@@ -38,16 +41,64 @@ const statusColors: Record<string, string> = {
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
+
+  const loadDashboard = useCallback(() => {
+    return fetch("/api/dashboard")
+      .then((r) => r.json())
+      .then((d) => setData(d));
+  }, []);
 
   useEffect(() => {
-    fetch("/api/dashboard")
-      .then((r) => r.json())
-      .then((d) => {
-        setData(d);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+    loadDashboard()
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [loadDashboard]);
+
+  // Auto-sync Bolt data in background on mount
+  useEffect(() => {
+    let cancelled = false;
+
+    async function autoSync() {
+      try {
+        const settingsRes = await fetch("/api/settings");
+        if (!settingsRes.ok) return;
+        const settings = await settingsRes.json();
+
+        const boltConfigured = !!(settings.partner?.boltClientId && settings.partner?.boltClientSecret);
+        if (!boltConfigured) return;
+
+        setSyncing(true);
+        const syncRes = await fetch("/api/platform-sync/bolt-all", { method: "POST" });
+        const result = await syncRes.json();
+
+        if (cancelled) return;
+
+        if (syncRes.ok) {
+          const parts = [];
+          if (result.driversImported) parts.push(`${result.driversImported} drivers`);
+          if (result.vehiclesImported) parts.push(`${result.vehiclesImported} vehicles`);
+          if (result.ridesImported) parts.push(`${result.ridesImported} rides`);
+          if (parts.length > 0) {
+            toast.success(`Bolt sync: ${parts.join(", ")}`);
+          } else {
+            toast.info("Bolt sync: already up to date");
+          }
+          // Refresh dashboard data after sync
+          await loadDashboard().catch(() => {});
+        } else {
+          toast.error(result.error || "Bolt auto-sync failed");
+        }
+      } catch {
+        // Silent fail — auto-sync is best-effort
+      } finally {
+        if (!cancelled) setSyncing(false);
+      }
+    }
+
+    autoSync();
+    return () => { cancelled = true; };
+  }, [loadDashboard]);
 
   if (loading) return <div className="py-8 text-center">Loading...</div>;
   if (!data) {
@@ -61,7 +112,17 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Dashboard</h1>
+        {syncing && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <RefreshCw className="h-4 w-4 animate-spin" />
+            Syncing with Bolt...
+          </div>
+        )}
+      </div>
+
+      <ExpiryAlerts />
 
       <StatsCards stats={data.stats} />
 
@@ -109,7 +170,7 @@ export default function DashboardPage() {
                               : "text-red-600"
                           }`}
                         >
-                          €{Number(s.payoutAmount).toFixed(2)}
+                          {formatEur(Number(s.payoutAmount))}
                         </span>
                       )}
                     </div>

@@ -4,10 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Header } from "@/components/layout/header";
-import { LayoutDashboard, Receipt } from "lucide-react";
+import { LayoutDashboard, Receipt, Car } from "lucide-react";
 
 const navItems = [
   { href: "/driver-portal", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/driver-portal/rides", label: "Fahrten", icon: Car },
   { href: "/driver-portal/settlements", label: "Settlements", icon: Receipt },
 ];
 

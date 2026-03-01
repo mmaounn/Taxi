@@ -9,8 +9,39 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SettlementBreakdown } from "./settlement-breakdown";
-import { CheckCircle, Download, RefreshCw, DollarSign } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { CheckCircle, Download, RefreshCw, DollarSign, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { formatEur } from "@/lib/format";
+
+interface LineItemData {
+  id: string;
+  type: string;
+  description: string;
+  amount: number;
+  isAutoApplied: boolean;
+}
 
 interface SettlementData {
   id: string;
@@ -24,6 +55,7 @@ interface SettlementData {
   calculatedAt: string | null;
   approvedAt: string | null;
   paidAt: string | null;
+  lineItems?: LineItemData[];
   driver: {
     firstName: string;
     lastName: string;
@@ -51,6 +83,10 @@ export function SettlementDetail({
     initial.cashCollectedByDriver?.toString() || "0"
   );
   const [saving, setSaving] = useState(false);
+  const [lineItemDialogOpen, setLineItemDialogOpen] = useState(false);
+  const [newLineItemType, setNewLineItemType] = useState<string>("BONUS");
+  const [newLineItemDesc, setNewLineItemDesc] = useState("");
+  const [newLineItemAmount, setNewLineItemAmount] = useState("");
 
   const statusColors: Record<string, string> = {
     DRAFT: "bg-gray-100 text-gray-800",
@@ -175,6 +211,148 @@ export function SettlementDetail({
 
       {/* Breakdown */}
       <SettlementBreakdown settlement={settlement as never} />
+
+      {/* Bonuses & Deductions */}
+      {!readOnly && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-sm">Bonuses & Deductions</CardTitle>
+            <Dialog open={lineItemDialogOpen} onOpenChange={setLineItemDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Plus className="mr-1 h-4 w-4" />
+                  Add
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add Bonus / Deduction</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Type</Label>
+                    <Select value={newLineItemType} onValueChange={setNewLineItemType}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="BONUS">Bonus</SelectItem>
+                        <SelectItem value="DEDUCTION">Deduction</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Description</Label>
+                    <Input
+                      value={newLineItemDesc}
+                      onChange={(e) => setNewLineItemDesc(e.target.value)}
+                      placeholder="e.g. Weekend bonus, Fuel advance"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Amount (EUR)</Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      value={newLineItemAmount}
+                      onChange={(e) => setNewLineItemAmount(e.target.value)}
+                    />
+                  </div>
+                  <Button
+                    onClick={async () => {
+                      if (!newLineItemDesc || !newLineItemAmount) {
+                        toast.error("Fill in all fields");
+                        return;
+                      }
+                      const res = await fetch(`/api/settlements/${settlement.id}/line-items`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          type: newLineItemType,
+                          description: newLineItemDesc,
+                          amount: parseFloat(newLineItemAmount),
+                        }),
+                      });
+                      if (res.ok) {
+                        toast.success("Line item added");
+                        setLineItemDialogOpen(false);
+                        setNewLineItemDesc("");
+                        setNewLineItemAmount("");
+                        // Reload settlement
+                        const detailRes = await fetch(`/api/settlements/${settlement.id}`);
+                        if (detailRes.ok) setSettlement(await detailRes.json());
+                      } else {
+                        toast.error("Failed to add line item");
+                      }
+                    }}
+                    disabled={saving}
+                  >
+                    Add Line Item
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </CardHeader>
+          <CardContent>
+            {(!settlement.lineItems || settlement.lineItems.length === 0) ? (
+              <p className="text-sm text-gray-500">No bonuses or deductions</p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
+                    <TableHead className="w-[60px]"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {settlement.lineItems.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell>
+                        <Badge variant="secondary" className={item.type === "BONUS" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
+                          {item.type}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {item.description}
+                        {item.isAutoApplied && (
+                          <span className="ml-2 text-xs text-gray-400">(auto)</span>
+                        )}
+                      </TableCell>
+                      <TableCell className={`text-right font-medium ${item.type === "BONUS" ? "text-green-600" : "text-red-600"}`}>
+                        {item.type === "DEDUCTION" ? "-" : "+"}{formatEur(Number(item.amount))}
+                      </TableCell>
+                      <TableCell>
+                        {!item.isAutoApplied && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={async () => {
+                              const res = await fetch(
+                                `/api/settlements/${settlement.id}/line-items?lineItemId=${item.id}`,
+                                { method: "DELETE" }
+                              );
+                              if (res.ok) {
+                                toast.success("Line item removed");
+                                const detailRes = await fetch(`/api/settlements/${settlement.id}`);
+                                if (detailRes.ok) setSettlement(await detailRes.json());
+                              }
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 text-red-500" />
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Notes & Cash */}
       {!readOnly && (

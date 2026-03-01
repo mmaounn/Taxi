@@ -70,6 +70,11 @@ enum SettlementFrequency {
   MONTHLY
 }
 
+enum LineItemType {
+  BONUS
+  DEDUCTION
+}
+
 model User {
   id                 String    @id @default(cuid())
   email              String    @unique
@@ -107,11 +112,13 @@ model Partner {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users       User[]
-  drivers     Driver[]
-  vehicles    Vehicle[]
-  settlements Settlement[]
-  syncLogs    SyncLog[]
+  users              User[]
+  drivers            Driver[]
+  vehicles           Vehicle[]
+  settlements        Settlement[]
+  syncLogs           SyncLog[]
+  lineItemTemplates  LineItemTemplate[]
+  driverBalances     DriverBalance[]
 }
 
 model Driver {
@@ -126,6 +133,7 @@ model Driver {
   bankBic             String?
   taxiLicenseNumber   String?
   taxiLicenseExpiry   DateTime?
+  driversLicenseExpiry DateTime?
   commissionModel     CommissionModel     @default(PERCENTAGE)
   commissionRate      Decimal?            @db.Decimal(5, 2)
   fixedFee            Decimal?            @db.Decimal(10, 2)
@@ -140,11 +148,13 @@ model Driver {
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
 
-  partner     Partner      @relation(fields: [partnerId], references: [id])
-  vehicle     Vehicle?     @relation(fields: [vehicleId], references: [id])
-  settlements Settlement[]
-  rideData    RideData[]
-  users       User[]
+  partner            Partner              @relation(fields: [partnerId], references: [id])
+  vehicle            Vehicle?             @relation(fields: [vehicleId], references: [id])
+  settlements        Settlement[]
+  rideData           RideData[]
+  users              User[]
+  lineItemTemplates  LineItemTemplate[]
+  driverBalances     DriverBalance[]
 }
 
 model Vehicle {
@@ -158,6 +168,8 @@ model Vehicle {
   monthlyRentalCost    Decimal?      @db.Decimal(10, 2)
   insuranceMonthlyCost Decimal?      @db.Decimal(10, 2)
   otherMonthlyCosts    Decimal?      @db.Decimal(10, 2)
+  insuranceExpiry      DateTime?
+  registrationExpiry   DateTime?
   status               VehicleStatus @default(ACTIVE)
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt
@@ -201,6 +213,9 @@ model Settlement {
   // Combined
   totalPlatformNet Decimal? @db.Decimal(10, 2)
 
+  // Line items (bonuses/deductions)
+  lineItemsTotal Decimal? @db.Decimal(10, 2)
+
   // Fleet owner deductions
   partnerCommissionAmount Decimal? @db.Decimal(10, 2)
   vehicleRentalDeduction  Decimal? @db.Decimal(10, 2)
@@ -229,9 +244,11 @@ model Settlement {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  driver   Driver   @relation(fields: [driverId], references: [id])
-  partner  Partner  @relation(fields: [partnerId], references: [id])
-  rideData RideData[]
+  driver       Driver               @relation(fields: [driverId], references: [id])
+  partner      Partner              @relation(fields: [partnerId], references: [id])
+  rideData     RideData[]
+  lineItems    SettlementLineItem[]
+  driverBalance DriverBalance?
 
   @@unique([driverId, periodStart, periodEnd])
 }
@@ -272,4 +289,58 @@ model SyncLog {
   status          String     @default("running")
 
   partner Partner @relation(fields: [partnerId], references: [id])
+}
+
+model SettlementLineItem {
+  id            String       @id @default(cuid())
+  settlementId  String
+  type          LineItemType
+  description   String
+  amount        Decimal      @db.Decimal(10, 2)
+  isAutoApplied Boolean      @default(false)
+  templateId    String?
+  createdAt     DateTime     @default(now())
+
+  settlement Settlement        @relation(fields: [settlementId], references: [id])
+  template   LineItemTemplate? @relation(fields: [templateId], references: [id])
+}
+
+model LineItemTemplate {
+  id          String       @id @default(cuid())
+  partnerId   String
+  type        LineItemType
+  description String
+  amount      Decimal      @db.Decimal(10, 2)
+  scope       String       @default("MANUAL") // MANUAL, ALL_DRIVERS, SPECIFIC_DRIVER
+  driverId    String?
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  partner   Partner              @relation(fields: [partnerId], references: [id])
+  driver    Driver?              @relation(fields: [driverId], references: [id])
+  lineItems SettlementLineItem[]
+}
+
+model DriverBalance {
+  id              String    @id @default(cuid())
+  driverId        String
+  partnerId       String
+  settlementId    String?   @unique
+  periodStart     DateTime
+  periodEnd       DateTime
+  openingBalance  Decimal   @db.Decimal(10, 2) @default(0)
+  settlementNet   Decimal   @db.Decimal(10, 2) @default(0)
+  lineItemsTotal  Decimal   @db.Decimal(10, 2) @default(0)
+  cashCollected   Decimal   @db.Decimal(10, 2) @default(0)
+  payoutMade      Decimal   @db.Decimal(10, 2) @default(0)
+  adjustments     Decimal   @db.Decimal(10, 2) @default(0)
+  closingBalance  Decimal   @db.Decimal(10, 2) @default(0)
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  driver     Driver      @relation(fields: [driverId], references: [id])
+  partner    Partner     @relation(fields: [partnerId], references: [id])
+  settlement Settlement? @relation(fields: [settlementId], references: [id])
 }

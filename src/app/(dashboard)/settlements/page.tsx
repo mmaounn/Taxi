@@ -13,7 +13,8 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SettlementTable } from "@/components/settlements/settlement-table";
-import { Calculator } from "lucide-react";
+import { SepaExportDialog } from "@/components/settlements/sepa-export-dialog";
+import { Calculator, CreditCard, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 
 interface Driver {
@@ -22,8 +23,11 @@ interface Driver {
   lastName: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Settlement = any;
+
 export default function SettlementsPage() {
-  const [settlements, setSettlements] = useState([]);
+  const [settlements, setSettlements] = useState<Settlement[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [loading, setLoading] = useState(true);
   const [calculating, setCalculating] = useState(false);
@@ -45,6 +49,11 @@ export default function SettlementsPage() {
     return d.toISOString().split("T")[0];
   });
 
+  // Multi-select for SEPA/batch operations
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [sepaDialogOpen, setSepaDialogOpen] = useState(false);
+  const [markingPaid, setMarkingPaid] = useState(false);
+
   useEffect(() => {
     Promise.all([
       fetch("/api/settlements").then((r) => r.json()),
@@ -62,7 +71,10 @@ export default function SettlementsPage() {
     if (statusFilter !== "all") params.set("status", statusFilter);
 
     const res = await fetch(`/api/settlements?${params}`);
-    if (res.ok) setSettlements(await res.json());
+    if (res.ok) {
+      setSettlements(await res.json());
+      setSelectedIds(new Set());
+    }
   }
 
   useEffect(() => {
@@ -101,7 +113,41 @@ export default function SettlementsPage() {
     setCalculating(false);
   }
 
+  async function handleMarkPaid() {
+    if (selectedIds.size === 0) return;
+
+    // Check all selected are APPROVED
+    const selected = settlements.filter((s: Settlement) => selectedIds.has(s.id));
+    const nonApproved = selected.filter((s: Settlement) => s.status !== "APPROVED");
+    if (nonApproved.length > 0) {
+      toast.error(`${nonApproved.length} settlement(s) are not APPROVED`);
+      return;
+    }
+
+    setMarkingPaid(true);
+    const res = await fetch("/api/settlements/mark-paid", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ settlementIds: Array.from(selectedIds) }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      toast.success(`${data.updated} settlement(s) marked as paid`);
+      await fetchSettlements();
+    } else {
+      const data = await res.json();
+      toast.error(data.error || "Failed to mark as paid");
+    }
+    setMarkingPaid(false);
+  }
+
   if (loading) return <div className="py-8 text-center">Loading...</div>;
+
+  const selectedCount = selectedIds.size;
+  const hasApprovedSelected = settlements.some(
+    (s: Settlement) => selectedIds.has(s.id) && s.status === "APPROVED"
+  );
 
   return (
     <div className="space-y-6">
@@ -192,7 +238,59 @@ export default function SettlementsPage() {
         </Select>
       </div>
 
-      <SettlementTable settlements={settlements} />
+      {/* Action Bar (visible when items selected) */}
+      {selectedCount > 0 && (
+        <div className="flex items-center gap-3 rounded-lg border bg-gray-50 p-3">
+          <span className="text-sm font-medium">
+            {selectedCount} selected
+          </span>
+          <div className="flex gap-2 ml-auto">
+            {hasApprovedSelected && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSepaDialogOpen(true)}
+                >
+                  <CreditCard className="mr-1 h-4 w-4" />
+                  Generate SEPA File
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleMarkPaid}
+                  disabled={markingPaid}
+                >
+                  <CheckCircle className="mr-1 h-4 w-4" />
+                  Mark as Paid
+                </Button>
+              </>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedIds(new Set())}
+            >
+              Clear
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <SettlementTable
+        settlements={settlements}
+        selectable
+        selectedIds={selectedIds}
+        onSelectionChange={setSelectedIds}
+      />
+
+      {/* SEPA Export Dialog */}
+      <SepaExportDialog
+        open={sepaDialogOpen}
+        onOpenChange={setSepaDialogOpen}
+        settlementIds={Array.from(selectedIds)}
+        onExported={fetchSettlements}
+      />
     </div>
   );
 }

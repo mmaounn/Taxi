@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Edit, Eye } from "lucide-react";
+import { formatEur } from "@/lib/format";
 
 interface Vehicle {
   id: string;
@@ -71,7 +72,7 @@ export function VehicleTable({ vehicles }: { vehicles: Vehicle[] }) {
               </TableCell>
               <TableCell>
                 {vehicle.monthlyRentalCost != null
-                  ? `€${Number(vehicle.monthlyRentalCost).toFixed(2)}`
+                  ? formatEur(Number(vehicle.monthlyRentalCost))
                   : "—"}
               </TableCell>
               <TableCell>

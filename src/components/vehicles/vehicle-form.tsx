@@ -15,7 +15,26 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { vehicleCreateSchema, type VehicleCreateInput } from "@/lib/validators/vehicle";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+
+function ExpiryBadge({ dateStr }: { dateStr: string | undefined }) {
+  if (!dateStr) return null;
+  const date = new Date(dateStr);
+  const now = new Date();
+  const daysUntil = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+  if (daysUntil <= 0) {
+    return <Badge variant="secondary" className="ml-2 bg-red-100 text-red-800">Expired</Badge>;
+  }
+  if (daysUntil <= 7) {
+    return <Badge variant="secondary" className="ml-2 bg-orange-100 text-orange-800">{daysUntil}d left</Badge>;
+  }
+  if (daysUntil <= 30) {
+    return <Badge variant="secondary" className="ml-2 bg-yellow-100 text-yellow-800">{daysUntil}d left</Badge>;
+  }
+  return null;
+}
 
 interface VehicleFormProps {
   initialData?: VehicleCreateInput & { id?: string; status?: string };
@@ -106,6 +125,36 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
               </Select>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Document Expiry Dates</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="insuranceExpiry">
+              Insurance Expiry
+              <ExpiryBadge dateStr={watch("insuranceExpiry" as keyof VehicleCreateInput) as string | undefined} />
+            </Label>
+            <Input
+              id="insuranceExpiry"
+              type="date"
+              {...register("insuranceExpiry" as keyof VehicleCreateInput)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="registrationExpiry">
+              Registration Expiry
+              <ExpiryBadge dateStr={watch("registrationExpiry" as keyof VehicleCreateInput) as string | undefined} />
+            </Label>
+            <Input
+              id="registrationExpiry"
+              type="date"
+              {...register("registrationExpiry" as keyof VehicleCreateInput)}
+            />
+          </div>
         </CardContent>
       </Card>
 

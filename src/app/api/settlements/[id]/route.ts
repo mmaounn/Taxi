@@ -42,6 +42,9 @@ export async function GET(
       rideData: {
         orderBy: { completedAt: "desc" },
       },
+      lineItems: {
+        orderBy: { createdAt: "asc" },
+      },
     },
   });
 

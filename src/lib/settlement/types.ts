@@ -37,6 +37,9 @@ export interface SettlementResult {
   fuelCostDeduction: Decimal;
   insuranceDeduction: Decimal;
 
+  // Line items
+  lineItemsTotal: Decimal;
+
   // Cash
   cashCollectedByDriver: Decimal;
 
@@ -47,4 +50,12 @@ export interface SettlementResult {
   // Stats
   totalRides: number;
   completedRides: number;
+
+  // Auto-applied templates
+  autoTemplates: {
+    id: string;
+    type: string;
+    description: string;
+    amount: unknown;
+  }[];
 }

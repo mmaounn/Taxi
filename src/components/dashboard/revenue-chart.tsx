@@ -11,6 +11,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import { formatEur, formatEurShort } from "@/lib/format";
 
 interface WeeklyRevenue {
   week: string;
@@ -35,9 +36,9 @@ export function RevenueChart({ data }: { data: WeeklyRevenue[] }) {
             <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="week" fontSize={12} />
-              <YAxis fontSize={12} tickFormatter={(v) => `€${v}`} />
+              <YAxis fontSize={12} tickFormatter={(v) => formatEurShort(v)} />
               <Tooltip
-                formatter={(value) => `€${Number(value).toFixed(2)}`}
+                formatter={(value) => formatEur(Number(value))}
               />
               <Legend />
               <Bar dataKey="bolt" fill="#22c55e" name="Bolt" />

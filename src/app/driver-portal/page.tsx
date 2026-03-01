@@ -5,24 +5,27 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, Receipt, TrendingUp } from "lucide-react";
+import { BalanceWidget } from "@/components/driver-portal/balance-widget";
+import { IncomeChart } from "@/components/driver-portal/income-chart";
+import { Car, Receipt, Banknote, TrendingUp } from "lucide-react";
+import { formatEur } from "@/lib/format";
 
-interface DriverDashboardData {
-  currentPeriodEarnings: number;
-  lastSettlement: {
+interface PortalDashboardData {
+  balance: number;
+  stats: {
+    totalRides: number;
+    avgFare: number;
+    cashCollected: number;
+    tips: number;
+  };
+  weeklyIncome: { week: string; bolt: number; uber: number; freenow: number }[];
+  latestSettlement: {
     id: string;
-    status: string;
     periodStart: string;
     periodEnd: string;
-    payoutAmount: number | null;
-    driverNetEarnings: number | null;
+    payoutAmount: number;
+    status: string;
   } | null;
-  totalSettlements: number;
-}
-
-function formatEur(val: number | null): string {
-  if (val == null) return "€0.00";
-  return `€${Number(val).toFixed(2)}`;
 }
 
 const statusColors: Record<string, string> = {
@@ -35,28 +38,28 @@ const statusColors: Record<string, string> = {
 
 export default function DriverPortalPage() {
   const { data: session } = useSession();
-  const [data, setData] = useState<DriverDashboardData | null>(null);
+  const [data, setData] = useState<PortalDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch driver's own settlements
-    fetch("/api/settlements?limit=1")
+    fetch("/api/driver-portal/dashboard")
       .then((r) => r.json())
-      .then((settlements) => {
-        const lastSettlement = settlements[0] || null;
-        setData({
-          currentPeriodEarnings: lastSettlement
-            ? Number(lastSettlement.driverNetEarnings || 0)
-            : 0,
-          lastSettlement,
-          totalSettlements: settlements.length,
-        });
+      .then((d) => {
+        setData(d);
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, []);
 
   if (loading) return <div className="py-8 text-center">Loading...</div>;
+  if (!data) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold">Welcome</h1>
+        <p className="text-gray-600">No data available yet.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -64,84 +67,101 @@ export default function DriverPortalPage() {
         Welcome{session?.user?.name ? `, ${session.user.name}` : ""}
       </h1>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      {/* Balance + Stats Grid */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+        <div className="lg:col-span-1">
+          <BalanceWidget balance={data.balance} />
+        </div>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Current Period Earnings
+              Total Rides
             </CardTitle>
-            <DollarSign className="h-4 w-4 text-green-600" />
+            <Car className="h-4 w-4 text-blue-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{data.stats.totalRides}</div>
+            <p className="text-xs text-muted-foreground">Last 8 weeks</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Avg Fare
+            </CardTitle>
+            <TrendingUp className="h-4 w-4 text-green-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatEur(data.stats.avgFare)}</div>
+            <p className="text-xs text-muted-foreground">Per ride</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Tips
+            </CardTitle>
+            <Banknote className="h-4 w-4 text-yellow-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatEur(data.stats.tips)}</div>
+            <p className="text-xs text-muted-foreground">Last 8 weeks</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Cash Collected
+            </CardTitle>
+            <Receipt className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatEur(data?.currentPeriodEarnings ?? 0)}
+              {formatEur(data.stats.cashCollected)}
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Last Settlement
-            </CardTitle>
-            <Receipt className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            {data?.lastSettlement ? (
-              <div>
-                <div className="text-2xl font-bold">
-                  {formatEur(data.lastSettlement.payoutAmount)}
-                </div>
-                <Badge
-                  variant="secondary"
-                  className={statusColors[data.lastSettlement.status]}
-                >
-                  {data.lastSettlement.status}
-                </Badge>
-              </div>
-            ) : (
-              <p className="text-gray-500">No settlements yet</p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Total Settlements
-            </CardTitle>
-            <TrendingUp className="h-4 w-4 text-purple-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{data?.totalSettlements ?? 0}</div>
+            <p className="text-xs text-muted-foreground">Last 8 weeks</p>
           </CardContent>
         </Card>
       </div>
 
-      {data?.lastSettlement && (
+      {/* Income Chart */}
+      <IncomeChart data={data.weeklyIncome} />
+
+      {/* Latest Settlement */}
+      {data.latestSettlement && (
         <Card>
           <CardHeader>
             <CardTitle className="text-sm">Latest Settlement</CardTitle>
           </CardHeader>
           <CardContent>
             <Link
-              href={`/driver-portal/settlements/${data.lastSettlement.id}`}
+              href={`/driver-portal/settlements/${data.latestSettlement.id}`}
               className="flex items-center justify-between rounded-md border p-4 transition-colors hover:bg-gray-50"
             >
               <div>
                 <p className="font-medium">
-                  {new Date(data.lastSettlement.periodStart).toLocaleDateString("de-AT")}{" "}
-                  — {new Date(data.lastSettlement.periodEnd).toLocaleDateString("de-AT")}
+                  {new Date(data.latestSettlement.periodStart).toLocaleDateString("de-AT")}{" "}
+                  — {new Date(data.latestSettlement.periodEnd).toLocaleDateString("de-AT")}
                 </p>
                 <Badge
                   variant="secondary"
-                  className={statusColors[data.lastSettlement.status]}
+                  className={statusColors[data.latestSettlement.status]}
                 >
-                  {data.lastSettlement.status}
+                  {data.latestSettlement.status}
                 </Badge>
               </div>
-              <span className="text-lg font-bold text-green-600">
-                {formatEur(data.lastSettlement.payoutAmount)}
+              <span
+                className={`text-lg font-bold ${
+                  data.latestSettlement.payoutAmount >= 0
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
+                {formatEur(data.latestSettlement.payoutAmount)}
               </span>
             </Link>
           </CardContent>

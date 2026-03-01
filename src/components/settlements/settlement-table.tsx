@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -12,6 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Eye } from "lucide-react";
+import { formatEurOrDash } from "@/lib/format";
 
 interface Settlement {
   id: string;
@@ -32,11 +34,6 @@ const statusColors: Record<string, string> = {
   DISPUTED: "bg-red-100 text-red-800",
 };
 
-function formatEur(val: number | null): string {
-  if (val == null) return "—";
-  return `€${Number(val).toFixed(2)}`;
-}
-
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("de-AT");
 }
@@ -44,9 +41,15 @@ function formatDate(dateStr: string): string {
 export function SettlementTable({
   settlements,
   basePath = "/settlements",
+  selectable = false,
+  selectedIds,
+  onSelectionChange,
 }: {
   settlements: Settlement[];
   basePath?: string;
+  selectable?: boolean;
+  selectedIds?: Set<string>;
+  onSelectionChange?: (ids: Set<string>) => void;
 }) {
   if (settlements.length === 0) {
     return (
@@ -56,11 +59,45 @@ export function SettlementTable({
     );
   }
 
+  const allSelected =
+    selectable &&
+    selectedIds &&
+    settlements.length > 0 &&
+    settlements.every((s) => selectedIds.has(s.id));
+
+  function toggleAll() {
+    if (!onSelectionChange) return;
+    if (allSelected) {
+      onSelectionChange(new Set());
+    } else {
+      onSelectionChange(new Set(settlements.map((s) => s.id)));
+    }
+  }
+
+  function toggleOne(id: string) {
+    if (!onSelectionChange || !selectedIds) return;
+    const next = new Set(selectedIds);
+    if (next.has(id)) {
+      next.delete(id);
+    } else {
+      next.add(id);
+    }
+    onSelectionChange(next);
+  }
+
   return (
     <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
+            {selectable && (
+              <TableHead className="w-[40px]">
+                <Checkbox
+                  checked={allSelected}
+                  onCheckedChange={toggleAll}
+                />
+              </TableHead>
+            )}
             <TableHead>Period</TableHead>
             <TableHead>Driver</TableHead>
             <TableHead>Status</TableHead>
@@ -73,6 +110,14 @@ export function SettlementTable({
         <TableBody>
           {settlements.map((s) => (
             <TableRow key={s.id}>
+              {selectable && (
+                <TableCell>
+                  <Checkbox
+                    checked={selectedIds?.has(s.id) ?? false}
+                    onCheckedChange={() => toggleOne(s.id)}
+                  />
+                </TableCell>
+              )}
               <TableCell className="text-sm">
                 {formatDate(s.periodStart)} — {formatDate(s.periodEnd)}
               </TableCell>
@@ -85,10 +130,10 @@ export function SettlementTable({
                 </Badge>
               </TableCell>
               <TableCell className="text-right">
-                {formatEur(s.totalPlatformNet)}
+                {formatEurOrDash(s.totalPlatformNet)}
               </TableCell>
               <TableCell className="text-right">
-                {formatEur(s.partnerCommissionAmount)}
+                {formatEurOrDash(s.partnerCommissionAmount)}
               </TableCell>
               <TableCell
                 className={`text-right font-medium ${
@@ -97,7 +142,7 @@ export function SettlementTable({
                     : "text-red-600"
                 }`}
               >
-                {formatEur(s.payoutAmount)}
+                {formatEurOrDash(s.payoutAmount)}
               </TableCell>
               <TableCell>
                 <Button variant="ghost" size="icon" asChild>

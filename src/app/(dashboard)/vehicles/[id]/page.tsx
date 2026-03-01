@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Edit } from "lucide-react";
+import { formatEur } from "@/lib/format";
 
 interface VehicleData {
   id: string;
@@ -96,15 +97,15 @@ export default function VehicleDetailPage() {
           <CardContent className="space-y-2 text-sm">
             <p>
               <span className="font-medium">Rental:</span>{" "}
-              {vehicle.monthlyRentalCost != null ? `€${Number(vehicle.monthlyRentalCost).toFixed(2)}` : "—"}
+              {vehicle.monthlyRentalCost != null ? formatEur(Number(vehicle.monthlyRentalCost)) : "—"}
             </p>
             <p>
               <span className="font-medium">Insurance:</span>{" "}
-              {vehicle.insuranceMonthlyCost != null ? `€${Number(vehicle.insuranceMonthlyCost).toFixed(2)}` : "—"}
+              {vehicle.insuranceMonthlyCost != null ? formatEur(Number(vehicle.insuranceMonthlyCost)) : "—"}
             </p>
             <p>
               <span className="font-medium">Other:</span>{" "}
-              {vehicle.otherMonthlyCosts != null ? `€${Number(vehicle.otherMonthlyCosts).toFixed(2)}` : "—"}
+              {vehicle.otherMonthlyCosts != null ? formatEur(Number(vehicle.otherMonthlyCosts)) : "—"}
             </p>
           </CardContent>
         </Card>

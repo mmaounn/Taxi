@@ -10,6 +10,7 @@ export const driverCreateSchema = z.object({
   bankBic: z.string().optional(),
   taxiLicenseNumber: z.string().optional(),
   taxiLicenseExpiry: z.string().optional(),
+  driversLicenseExpiry: z.string().optional(),
   commissionModel: z.enum(["PERCENTAGE", "FIXED", "HYBRID", "PER_RIDE"]),
   commissionRate: z.coerce.number().min(0).max(100).optional(),
   fixedFee: z.coerce.number().min(0).optional(),

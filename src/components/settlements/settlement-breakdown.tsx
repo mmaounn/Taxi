@@ -2,10 +2,14 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { formatEur } from "@/lib/format";
 
-function formatEur(val: number | null | undefined): string {
-  if (val == null) return "€0.00";
-  return `€${Number(val).toFixed(2)}`;
+interface LineItem {
+  id: string;
+  type: string;
+  description: string;
+  amount: number;
+  isAutoApplied: boolean;
 }
 
 interface BreakdownProps {
@@ -33,6 +37,8 @@ interface BreakdownProps {
     vehicleRentalDeduction: number | null;
     fuelCostDeduction: number | null;
     insuranceDeduction: number | null;
+    lineItemsTotal: number | null;
+    lineItems?: LineItem[];
     cashCollectedByDriver: number | null;
     driverNetEarnings: number | null;
     payoutAmount: number | null;
@@ -139,6 +145,21 @@ export function SettlementBreakdown({ settlement: s }: BreakdownProps) {
           <Row label="Vehicle Rental" value={formatEur(s.vehicleRentalDeduction)} negative />
           <Row label="Insurance" value={formatEur(s.insuranceDeduction)} negative />
           <Row label="Fuel Costs" value={formatEur(s.fuelCostDeduction)} negative />
+          {s.lineItems && s.lineItems.length > 0 && (
+            <>
+              <Separator className="my-2" />
+              <p className="text-xs font-medium text-gray-500 py-1">Bonuses & Deductions</p>
+              {s.lineItems.map((item) => (
+                <Row
+                  key={item.id}
+                  label={`${item.description}${item.isAutoApplied ? " (auto)" : ""}`}
+                  value={formatEur(item.amount)}
+                  negative={item.type === "DEDUCTION"}
+                />
+              ))}
+              <Row label="Line Items Total" value={formatEur(s.lineItemsTotal)} negative={Number(s.lineItemsTotal || 0) < 0} />
+            </>
+          )}
           <TotalRow label="Driver Net Earnings" value={formatEur(s.driverNetEarnings)} />
           <Separator className="my-2" />
           <Row label="Cash Collected by Driver" value={formatEur(s.cashCollectedByDriver)} negative />

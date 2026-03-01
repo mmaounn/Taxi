@@ -9,6 +9,8 @@ export const vehicleCreateSchema = z.object({
   monthlyRentalCost: z.coerce.number().min(0).optional(),
   insuranceMonthlyCost: z.coerce.number().min(0).optional(),
   otherMonthlyCosts: z.coerce.number().min(0).optional(),
+  insuranceExpiry: z.string().optional(),
+  registrationExpiry: z.string().optional(),
 });
 
 export const vehicleUpdateSchema = vehicleCreateSchema.partial().extend({

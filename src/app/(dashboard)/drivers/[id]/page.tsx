@@ -1,13 +1,39 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useSearchParams } from "next/navigation";
-import { DriverForm } from "@/components/drivers/driver-form";
+import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { Edit } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
+import { Save, Wallet, Plus } from "lucide-react";
+import { toast } from "sonner";
+import { formatEur } from "@/lib/format";
 
 interface DriverData {
   id: string;
@@ -20,6 +46,7 @@ interface DriverData {
   bankBic: string | null;
   taxiLicenseNumber: string | null;
   taxiLicenseExpiry: string | null;
+  driversLicenseExpiry: string | null;
   commissionModel: string;
   commissionRate: number | null;
   fixedFee: number | null;
@@ -34,66 +61,146 @@ interface DriverData {
   vehicle: { licensePlate: string; make: string | null; model: string | null } | null;
 }
 
+const statusColors: Record<string, string> = {
+  ACTIVE: "bg-green-100 text-green-800",
+  INACTIVE: "bg-gray-100 text-gray-800",
+  SUSPENDED: "bg-red-100 text-red-800",
+};
+
+function ExpiryBadge({ dateStr }: { dateStr: string | null }) {
+  if (!dateStr) return null;
+  const date = new Date(dateStr);
+  const now = new Date();
+  const daysUntil = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+  if (daysUntil <= 0) {
+    return <Badge variant="secondary" className="ml-2 bg-red-100 text-red-800">Expired</Badge>;
+  }
+  if (daysUntil <= 7) {
+    return <Badge variant="secondary" className="ml-2 bg-orange-100 text-orange-800">{daysUntil}d left</Badge>;
+  }
+  if (daysUntil <= 30) {
+    return <Badge variant="secondary" className="ml-2 bg-yellow-100 text-yellow-800">{daysUntil}d left</Badge>;
+  }
+  return null;
+}
+
 export default function DriverDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const searchParams = useSearchParams();
-  const isEditing = searchParams.get("edit") === "true";
+  const router = useRouter();
   const [driver, setDriver] = useState<DriverData | null>(null);
-  const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  // Local-only editable fields
+  const [taxId, setTaxId] = useState("");
+  const [bankIban, setBankIban] = useState("");
+  const [bankBic, setBankBic] = useState("");
+  const [taxiLicenseNumber, setTaxiLicenseNumber] = useState("");
+  const [taxiLicenseExpiry, setTaxiLicenseExpiry] = useState("");
+  const [driversLicenseExpiry, setDriversLicenseExpiry] = useState("");
+  const [commissionModel, setCommissionModel] = useState("PERCENTAGE");
+  const [commissionRate, setCommissionRate] = useState("");
+  const [fixedFee, setFixedFee] = useState("");
+  const [hybridThreshold, setHybridThreshold] = useState("");
+  const [perRideFee, setPerRideFee] = useState("");
+  const [settlementFrequency, setSettlementFrequency] = useState("WEEKLY");
+
+  // Balance state
+  const [balanceData, setBalanceData] = useState<{
+    currentBalance: number;
+    history: {
+      id: string;
+      periodStart: string;
+      periodEnd: string;
+      openingBalance: number;
+      settlementNet: number;
+      adjustments: number;
+      closingBalance: number;
+      notes: string | null;
+    }[];
+  } | null>(null);
+  const [adjustDialogOpen, setAdjustDialogOpen] = useState(false);
+  const [adjustAmount, setAdjustAmount] = useState("");
+  const [adjustNotes, setAdjustNotes] = useState("");
+
+  function loadBalance() {
+    fetch(`/api/drivers/${id}/balance`)
+      .then((r) => r.json())
+      .then((data) => setBalanceData(data))
+      .catch(() => {});
+  }
 
   useEffect(() => {
-    Promise.all([
-      fetch(`/api/drivers/${id}`).then((r) => r.json()),
-      fetch("/api/vehicles?status=ACTIVE").then((r) => r.json()),
-    ]).then(([d, v]) => {
-      setDriver(d);
-      setVehicles(v);
-      setLoading(false);
-    });
+    loadBalance();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  useEffect(() => {
+    fetch(`/api/drivers/${id}`)
+      .then((r) => r.json())
+      .then((d: DriverData) => {
+        setDriver(d);
+        setTaxId(d.taxId || "");
+        setBankIban(d.bankIban || "");
+        setBankBic(d.bankBic || "");
+        setTaxiLicenseNumber(d.taxiLicenseNumber || "");
+        setTaxiLicenseExpiry(
+          d.taxiLicenseExpiry ? new Date(d.taxiLicenseExpiry).toISOString().split("T")[0] : ""
+        );
+        setDriversLicenseExpiry(
+          d.driversLicenseExpiry ? new Date(d.driversLicenseExpiry).toISOString().split("T")[0] : ""
+        );
+        setCommissionModel(d.commissionModel);
+        setCommissionRate(d.commissionRate != null ? String(d.commissionRate) : "");
+        setFixedFee(d.fixedFee != null ? String(d.fixedFee) : "");
+        setHybridThreshold(d.hybridThreshold != null ? String(d.hybridThreshold) : "");
+        setPerRideFee(d.perRideFee != null ? String(d.perRideFee) : "");
+        setSettlementFrequency(d.settlementFrequency);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [id]);
+
+  async function handleSave() {
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/drivers/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          taxId: taxId || undefined,
+          bankIban: bankIban || undefined,
+          bankBic: bankBic || undefined,
+          taxiLicenseNumber: taxiLicenseNumber || undefined,
+          taxiLicenseExpiry: taxiLicenseExpiry || undefined,
+          driversLicenseExpiry: driversLicenseExpiry || undefined,
+          commissionModel,
+          commissionRate: commissionRate ? Number(commissionRate) : undefined,
+          fixedFee: fixedFee ? Number(fixedFee) : undefined,
+          hybridThreshold: hybridThreshold ? Number(hybridThreshold) : undefined,
+          perRideFee: perRideFee ? Number(perRideFee) : undefined,
+          settlementFrequency,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        toast.error(err.error || "Failed to save");
+        return;
+      }
+
+      toast.success("Driver settings saved");
+      router.refresh();
+    } catch {
+      toast.error("Failed to save");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   if (loading) return <div className="py-8 text-center">Loading...</div>;
   if (!driver) return <div className="py-8 text-center text-red-600">Driver not found</div>;
-
-  if (isEditing) {
-    return (
-      <div className="mx-auto max-w-3xl space-y-6">
-        <h1 className="text-2xl font-bold">Edit Driver</h1>
-        <DriverForm
-          initialData={{
-            ...driver,
-            email: driver.email || "",
-            phone: driver.phone || undefined,
-            taxId: driver.taxId || undefined,
-            bankIban: driver.bankIban || undefined,
-            bankBic: driver.bankBic || undefined,
-            taxiLicenseNumber: driver.taxiLicenseNumber || undefined,
-            taxiLicenseExpiry: driver.taxiLicenseExpiry
-              ? new Date(driver.taxiLicenseExpiry).toISOString().split("T")[0]
-              : undefined,
-            commissionModel: driver.commissionModel as "PERCENTAGE" | "FIXED" | "HYBRID" | "PER_RIDE",
-            commissionRate: driver.commissionRate ?? undefined,
-            fixedFee: driver.fixedFee ?? undefined,
-            hybridThreshold: driver.hybridThreshold ?? undefined,
-            perRideFee: driver.perRideFee ?? undefined,
-            settlementFrequency: driver.settlementFrequency as "WEEKLY" | "BIWEEKLY" | "MONTHLY",
-            boltDriverId: driver.boltDriverId || undefined,
-            uberDriverUuid: driver.uberDriverUuid || undefined,
-            freenowDriverId: driver.freenowDriverId || undefined,
-            vehicleId: driver.vehicleId || undefined,
-          }}
-          vehicles={vehicles}
-        />
-      </div>
-    );
-  }
-
-  const statusColors: Record<string, string> = {
-    ACTIVE: "bg-green-100 text-green-800",
-    INACTIVE: "bg-gray-100 text-gray-800",
-    SUSPENDED: "bg-red-100 text-red-800",
-  };
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -106,68 +213,296 @@ export default function DriverDetailPage() {
             {driver.status}
           </Badge>
         </div>
-        <Button asChild>
-          <Link href={`/drivers/${id}?edit=true`}>
-            <Edit className="mr-2 h-4 w-4" />
-            Edit
-          </Link>
-        </Button>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Contact</CardTitle>
+      {/* Kontostand (Balance) */}
+      {balanceData && (
+        <Card className="border-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="flex items-center gap-2">
+              <Wallet className="h-5 w-5" />
+              Kontostand
+            </CardTitle>
+            <Dialog open={adjustDialogOpen} onOpenChange={setAdjustDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Plus className="mr-1 h-4 w-4" />
+                  Adjustment
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Manual Balance Adjustment</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Amount (EUR) — positive to credit, negative to debit</Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={adjustAmount}
+                      onChange={(e) => setAdjustAmount(e.target.value)}
+                      placeholder="e.g. 50.00 or -25.00"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Notes</Label>
+                    <Textarea
+                      value={adjustNotes}
+                      onChange={(e) => setAdjustNotes(e.target.value)}
+                      placeholder="Reason for adjustment"
+                      rows={2}
+                    />
+                  </div>
+                  <Button
+                    onClick={async () => {
+                      const amt = parseFloat(adjustAmount);
+                      if (!amt || amt === 0) {
+                        toast.error("Enter a valid amount");
+                        return;
+                      }
+                      const res = await fetch(`/api/drivers/${id}/balance`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ amount: amt, notes: adjustNotes || undefined }),
+                      });
+                      if (res.ok) {
+                        toast.success("Adjustment added");
+                        setAdjustDialogOpen(false);
+                        setAdjustAmount("");
+                        setAdjustNotes("");
+                        loadBalance();
+                      } else {
+                        toast.error("Failed to add adjustment");
+                      }
+                    }}
+                  >
+                    Save Adjustment
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </CardHeader>
-          <CardContent className="space-y-2 text-sm">
-            <p><span className="font-medium">Email:</span> {driver.email || "—"}</p>
-            <p><span className="font-medium">Phone:</span> {driver.phone || "—"}</p>
-            <p><span className="font-medium">Tax ID:</span> {driver.taxId || "—"}</p>
-          </CardContent>
-        </Card>
+          <CardContent>
+            <div className={`text-3xl font-bold mb-4 ${balanceData.currentBalance >= 0 ? "text-green-600" : "text-red-600"}`}>
+              {formatEur(balanceData.currentBalance)}
+            </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Banking</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm">
-            <p><span className="font-medium">IBAN:</span> {driver.bankIban || "—"}</p>
-            <p><span className="font-medium">BIC:</span> {driver.bankBic || "—"}</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Commission</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm">
-            <p><span className="font-medium">Model:</span> {driver.commissionModel}</p>
-            {driver.commissionRate != null && (
-              <p><span className="font-medium">Rate:</span> {Number(driver.commissionRate)}%</p>
+            {balanceData.history.length > 0 && (
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Period</TableHead>
+                      <TableHead className="text-right">Opening</TableHead>
+                      <TableHead className="text-right">Settlement</TableHead>
+                      <TableHead className="text-right">Adjust.</TableHead>
+                      <TableHead className="text-right">Closing</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {balanceData.history.slice(0, 5).map((entry) => (
+                      <TableRow key={entry.id}>
+                        <TableCell className="text-xs">
+                          {entry.adjustments !== 0 && entry.settlementNet === 0
+                            ? entry.notes || "Adjustment"
+                            : `${new Date(entry.periodStart).toLocaleDateString("de-AT")} — ${new Date(entry.periodEnd).toLocaleDateString("de-AT")}`}
+                        </TableCell>
+                        <TableCell className="text-right text-xs">{formatEur(entry.openingBalance)}</TableCell>
+                        <TableCell className="text-right text-xs">{formatEur(entry.settlementNet)}</TableCell>
+                        <TableCell className="text-right text-xs">
+                          {entry.adjustments !== 0 ? (
+                            <span className={entry.adjustments > 0 ? "text-green-600" : "text-red-600"}>
+                              {entry.adjustments > 0 ? "+" : ""}{formatEur(entry.adjustments)}
+                            </span>
+                          ) : "—"}
+                        </TableCell>
+                        <TableCell className={`text-right text-xs font-medium ${entry.closingBalance >= 0 ? "text-green-600" : "text-red-600"}`}>
+                          {formatEur(entry.closingBalance)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             )}
-            {driver.fixedFee != null && (
-              <p><span className="font-medium">Fixed Fee:</span> €{Number(driver.fixedFee).toFixed(2)}</p>
-            )}
-            <p><span className="font-medium">Frequency:</span> {driver.settlementFrequency}</p>
           </CardContent>
         </Card>
+      )}
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Vehicle & Platform IDs</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm">
+      {/* Bolt-synced data — read-only */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Driver Info</CardTitle>
+            <Badge variant="outline" className="text-xs">Synced from Bolt</Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <span className="font-medium text-muted-foreground">Name</span>
+            <p>{driver.firstName} {driver.lastName}</p>
+          </div>
+          <div>
+            <span className="font-medium text-muted-foreground">Email</span>
+            <p>{driver.email || "—"}</p>
+          </div>
+          <div>
+            <span className="font-medium text-muted-foreground">Phone</span>
+            <p>{driver.phone || "—"}</p>
+          </div>
+          <div>
+            <span className="font-medium text-muted-foreground">Status</span>
+            <p>{driver.status}</p>
+          </div>
+          <div>
+            <span className="font-medium text-muted-foreground">Vehicle</span>
             <p>
-              <span className="font-medium">Vehicle:</span>{" "}
               {driver.vehicle
                 ? `${driver.vehicle.licensePlate} (${driver.vehicle.make || ""} ${driver.vehicle.model || ""})`
                 : "—"}
             </p>
-            <p><span className="font-medium">Bolt ID:</span> {driver.boltDriverId || "—"}</p>
-            <p><span className="font-medium">Uber UUID:</span> {driver.uberDriverUuid || "—"}</p>
-            <p><span className="font-medium">FreeNow ID:</span> {driver.freenowDriverId || "—"}</p>
-          </CardContent>
-        </Card>
+          </div>
+          <div>
+            <span className="font-medium text-muted-foreground">Bolt ID</span>
+            <p className="font-mono text-xs">{driver.boltDriverId || "—"}</p>
+          </div>
+          {driver.uberDriverUuid && (
+            <div>
+              <span className="font-medium text-muted-foreground">Uber UUID</span>
+              <p className="font-mono text-xs">{driver.uberDriverUuid}</p>
+            </div>
+          )}
+          {driver.freenowDriverId && (
+            <div>
+              <span className="font-medium text-muted-foreground">FreeNow ID</span>
+              <p className="font-mono text-xs">{driver.freenowDriverId}</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Separator />
+
+      {/* Local-only data — editable */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Bank Details</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="bankIban">IBAN</Label>
+            <Input id="bankIban" value={bankIban} onChange={(e) => setBankIban(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="bankBic">BIC</Label>
+            <Input id="bankBic" value={bankBic} onChange={(e) => setBankBic(e.target.value)} />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Tax & License</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="taxId">Tax ID</Label>
+            <Input id="taxId" value={taxId} onChange={(e) => setTaxId(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="taxiLicenseNumber">License Number</Label>
+            <Input id="taxiLicenseNumber" value={taxiLicenseNumber} onChange={(e) => setTaxiLicenseNumber(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="taxiLicenseExpiry">
+              Taxi License Expiry
+              <ExpiryBadge dateStr={taxiLicenseExpiry} />
+            </Label>
+            <Input id="taxiLicenseExpiry" type="date" value={taxiLicenseExpiry} onChange={(e) => setTaxiLicenseExpiry(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="driversLicenseExpiry">
+              Driver&apos;s License Expiry
+              <ExpiryBadge dateStr={driversLicenseExpiry} />
+            </Label>
+            <Input id="driversLicenseExpiry" type="date" value={driversLicenseExpiry} onChange={(e) => setDriversLicenseExpiry(e.target.value)} />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Commission Settings</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Commission Model</Label>
+              <Select value={commissionModel} onValueChange={setCommissionModel}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="PERCENTAGE">Percentage</SelectItem>
+                  <SelectItem value="FIXED">Fixed Fee</SelectItem>
+                  <SelectItem value="HYBRID">Hybrid</SelectItem>
+                  <SelectItem value="PER_RIDE">Per Ride</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Settlement Frequency</Label>
+              <Select value={settlementFrequency} onValueChange={setSettlementFrequency}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="WEEKLY">Weekly</SelectItem>
+                  <SelectItem value="BIWEEKLY">Biweekly</SelectItem>
+                  <SelectItem value="MONTHLY">Monthly</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <Separator />
+
+          {(commissionModel === "PERCENTAGE" || commissionModel === "HYBRID") && (
+            <div className="space-y-2">
+              <Label htmlFor="commissionRate">Commission Rate (%)</Label>
+              <Input id="commissionRate" type="number" step="0.01" value={commissionRate} onChange={(e) => setCommissionRate(e.target.value)} />
+            </div>
+          )}
+          {(commissionModel === "FIXED" || commissionModel === "HYBRID") && (
+            <div className="space-y-2">
+              <Label htmlFor="fixedFee">Fixed Fee (EUR)</Label>
+              <Input id="fixedFee" type="number" step="0.01" value={fixedFee} onChange={(e) => setFixedFee(e.target.value)} />
+            </div>
+          )}
+          {commissionModel === "HYBRID" && (
+            <div className="space-y-2">
+              <Label htmlFor="hybridThreshold">Threshold (EUR)</Label>
+              <Input id="hybridThreshold" type="number" step="0.01" value={hybridThreshold} onChange={(e) => setHybridThreshold(e.target.value)} />
+            </div>
+          )}
+          {commissionModel === "PER_RIDE" && (
+            <div className="space-y-2">
+              <Label htmlFor="perRideFee">Per Ride Fee (EUR)</Label>
+              <Input id="perRideFee" type="number" step="0.01" value={perRideFee} onChange={(e) => setPerRideFee(e.target.value)} />
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <div className="flex gap-4">
+        <Button onClick={handleSave} disabled={saving}>
+          <Save className="mr-2 h-4 w-4" />
+          {saving ? "Saving..." : "Save Settings"}
+        </Button>
+        <Button variant="outline" onClick={() => router.back()}>
+          Back
+        </Button>
       </div>
     </div>
   );

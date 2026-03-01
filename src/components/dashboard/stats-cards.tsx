@@ -2,16 +2,13 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, Users, Receipt, Banknote } from "lucide-react";
+import { formatEur } from "@/lib/format";
 
 interface StatsData {
   totalRevenue: number;
   activeDrivers: number;
   pendingSettlements: number;
   cashOutstanding: number;
-}
-
-function formatEur(val: number): string {
-  return `€${val.toFixed(2)}`;
 }
 
 export function StatsCards({ stats }: { stats: StatsData }) {

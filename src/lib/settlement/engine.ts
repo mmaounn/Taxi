@@ -2,6 +2,7 @@ import Decimal from "decimal.js";
 import { db } from "@/lib/db";
 import { RideSource } from "@prisma/client";
 import { calculatePartnerCommission, prorateMonthlyToperiod } from "./models";
+import { createBalanceEntry } from "./balance";
 import type { PlatformBreakdown, SettlementInput, SettlementResult } from "./types";
 
 /**
@@ -182,12 +183,36 @@ export async function calculateSettlement(
     )
     .toDecimalPlaces(2);
 
-  // Driver net earnings = totalPlatformNet - partnerCommission - vehicleCosts - insurance
+  // Fetch auto-apply line item templates
+  const autoTemplates = await db.lineItemTemplate.findMany({
+    where: {
+      partnerId: input.partnerId,
+      isActive: true,
+      OR: [
+        { scope: "ALL_DRIVERS" },
+        { scope: "SPECIFIC_DRIVER", driverId: input.driverId },
+      ],
+    },
+  });
+
+  // Calculate line items total from templates
+  let lineItemsTotal = new Decimal(0);
+  for (const template of autoTemplates) {
+    const amount = new Decimal(template.amount.toString());
+    if (template.type === "BONUS") {
+      lineItemsTotal = lineItemsTotal.plus(amount);
+    } else {
+      lineItemsTotal = lineItemsTotal.minus(amount);
+    }
+  }
+
+  // Driver net earnings = totalPlatformNet - partnerCommission - vehicleCosts - insurance + lineItems
   const driverNetEarnings = totalPlatformNet
     .minus(partnerCommissionAmount)
     .minus(vehicleRentalDeduction)
     .minus(insuranceDeduction)
     .minus(fuelCostDeduction)
+    .plus(lineItemsTotal)
     .toDecimalPlaces(2);
 
   // Payout = driverNetEarnings - cashCollectedByDriver
@@ -205,11 +230,13 @@ export async function calculateSettlement(
     vehicleRentalDeduction,
     fuelCostDeduction,
     insuranceDeduction,
+    lineItemsTotal,
     cashCollectedByDriver,
     driverNetEarnings,
     payoutAmount,
     totalRides: rides.length,
     completedRides,
+    autoTemplates,
   };
 }
 
@@ -220,6 +247,46 @@ export async function createOrUpdateSettlement(
   input: SettlementInput
 ): Promise<string> {
   const result = await calculateSettlement(input);
+
+  const settlementData = {
+    status: "CALCULATED" as const,
+    // Bolt
+    boltGrossRevenue: result.bolt?.grossRevenue.toNumber() ?? null,
+    boltCommission: result.bolt?.commission.toNumber() ?? null,
+    boltCashServiceFee: result.bolt?.cashServiceFee?.toNumber() ?? null,
+    boltTips: result.bolt?.tips.toNumber() ?? null,
+    boltBonuses: result.bolt?.bonuses.toNumber() ?? null,
+    boltReimbursements: result.bolt?.reimbursements?.toNumber() ?? null,
+    boltNetAmount: result.bolt?.netAmount.toNumber() ?? null,
+    // Uber
+    uberGrossRevenue: result.uber?.grossRevenue.toNumber() ?? null,
+    uberServiceFee: result.uber?.serviceFee?.toNumber() ?? null,
+    uberCityFees: result.uber?.cityFees?.toNumber() ?? null,
+    uberTips: result.uber?.tips.toNumber() ?? null,
+    uberPromotions: result.uber?.promotions?.toNumber() ?? null,
+    uberNetAmount: result.uber?.netAmount.toNumber() ?? null,
+    // FreeNow
+    freenowGrossRevenue: result.freenow?.grossRevenue.toNumber() ?? null,
+    freenowCommission: result.freenow?.commission.toNumber() ?? null,
+    freenowTips: result.freenow?.tips.toNumber() ?? null,
+    freenowBonuses: result.freenow?.bonuses.toNumber() ?? null,
+    freenowNetAmount: result.freenow?.netAmount.toNumber() ?? null,
+    // Combined
+    totalPlatformNet: result.totalPlatformNet.toNumber(),
+    // Deductions
+    partnerCommissionAmount: result.partnerCommissionAmount.toNumber(),
+    vehicleRentalDeduction: result.vehicleRentalDeduction.toNumber(),
+    fuelCostDeduction: result.fuelCostDeduction.toNumber(),
+    insuranceDeduction: result.insuranceDeduction.toNumber(),
+    // Line items
+    lineItemsTotal: result.lineItemsTotal.toNumber(),
+    // Cash
+    cashCollectedByDriver: result.cashCollectedByDriver.toNumber(),
+    // Final
+    driverNetEarnings: result.driverNetEarnings.toNumber(),
+    payoutAmount: result.payoutAmount.toNumber(),
+    calculatedAt: new Date(),
+  };
 
   // Link rides to this settlement
   const settlement = await db.settlement.upsert({
@@ -235,73 +302,28 @@ export async function createOrUpdateSettlement(
       partnerId: input.partnerId,
       periodStart: input.periodStart,
       periodEnd: input.periodEnd,
-      status: "CALCULATED",
-      // Bolt
-      boltGrossRevenue: result.bolt?.grossRevenue.toNumber() ?? null,
-      boltCommission: result.bolt?.commission.toNumber() ?? null,
-      boltCashServiceFee: result.bolt?.cashServiceFee?.toNumber() ?? null,
-      boltTips: result.bolt?.tips.toNumber() ?? null,
-      boltBonuses: result.bolt?.bonuses.toNumber() ?? null,
-      boltReimbursements: result.bolt?.reimbursements?.toNumber() ?? null,
-      boltNetAmount: result.bolt?.netAmount.toNumber() ?? null,
-      // Uber
-      uberGrossRevenue: result.uber?.grossRevenue.toNumber() ?? null,
-      uberServiceFee: result.uber?.serviceFee?.toNumber() ?? null,
-      uberCityFees: result.uber?.cityFees?.toNumber() ?? null,
-      uberTips: result.uber?.tips.toNumber() ?? null,
-      uberPromotions: result.uber?.promotions?.toNumber() ?? null,
-      uberNetAmount: result.uber?.netAmount.toNumber() ?? null,
-      // FreeNow
-      freenowGrossRevenue: result.freenow?.grossRevenue.toNumber() ?? null,
-      freenowCommission: result.freenow?.commission.toNumber() ?? null,
-      freenowTips: result.freenow?.tips.toNumber() ?? null,
-      freenowBonuses: result.freenow?.bonuses.toNumber() ?? null,
-      freenowNetAmount: result.freenow?.netAmount.toNumber() ?? null,
-      // Combined
-      totalPlatformNet: result.totalPlatformNet.toNumber(),
-      // Deductions
-      partnerCommissionAmount: result.partnerCommissionAmount.toNumber(),
-      vehicleRentalDeduction: result.vehicleRentalDeduction.toNumber(),
-      fuelCostDeduction: result.fuelCostDeduction.toNumber(),
-      insuranceDeduction: result.insuranceDeduction.toNumber(),
-      // Cash
-      cashCollectedByDriver: result.cashCollectedByDriver.toNumber(),
-      // Final
-      driverNetEarnings: result.driverNetEarnings.toNumber(),
-      payoutAmount: result.payoutAmount.toNumber(),
-      calculatedAt: new Date(),
+      ...settlementData,
     },
-    update: {
-      status: "CALCULATED",
-      boltGrossRevenue: result.bolt?.grossRevenue.toNumber() ?? null,
-      boltCommission: result.bolt?.commission.toNumber() ?? null,
-      boltCashServiceFee: result.bolt?.cashServiceFee?.toNumber() ?? null,
-      boltTips: result.bolt?.tips.toNumber() ?? null,
-      boltBonuses: result.bolt?.bonuses.toNumber() ?? null,
-      boltReimbursements: result.bolt?.reimbursements?.toNumber() ?? null,
-      boltNetAmount: result.bolt?.netAmount.toNumber() ?? null,
-      uberGrossRevenue: result.uber?.grossRevenue.toNumber() ?? null,
-      uberServiceFee: result.uber?.serviceFee?.toNumber() ?? null,
-      uberCityFees: result.uber?.cityFees?.toNumber() ?? null,
-      uberTips: result.uber?.tips.toNumber() ?? null,
-      uberPromotions: result.uber?.promotions?.toNumber() ?? null,
-      uberNetAmount: result.uber?.netAmount.toNumber() ?? null,
-      freenowGrossRevenue: result.freenow?.grossRevenue.toNumber() ?? null,
-      freenowCommission: result.freenow?.commission.toNumber() ?? null,
-      freenowTips: result.freenow?.tips.toNumber() ?? null,
-      freenowBonuses: result.freenow?.bonuses.toNumber() ?? null,
-      freenowNetAmount: result.freenow?.netAmount.toNumber() ?? null,
-      totalPlatformNet: result.totalPlatformNet.toNumber(),
-      partnerCommissionAmount: result.partnerCommissionAmount.toNumber(),
-      vehicleRentalDeduction: result.vehicleRentalDeduction.toNumber(),
-      fuelCostDeduction: result.fuelCostDeduction.toNumber(),
-      insuranceDeduction: result.insuranceDeduction.toNumber(),
-      cashCollectedByDriver: result.cashCollectedByDriver.toNumber(),
-      driverNetEarnings: result.driverNetEarnings.toNumber(),
-      payoutAmount: result.payoutAmount.toNumber(),
-      calculatedAt: new Date(),
-    },
+    update: settlementData,
   });
+
+  // Clear existing auto-applied line items and recreate from templates
+  await db.settlementLineItem.deleteMany({
+    where: { settlementId: settlement.id, isAutoApplied: true },
+  });
+
+  if (result.autoTemplates.length > 0) {
+    await db.settlementLineItem.createMany({
+      data: result.autoTemplates.map((t) => ({
+        settlementId: settlement.id,
+        type: t.type as "BONUS" | "DEDUCTION",
+        description: t.description,
+        amount: Number(t.amount),
+        isAutoApplied: true,
+        templateId: t.id,
+      })),
+    });
+  }
 
   // Link rides to settlement
   await db.rideData.updateMany({
@@ -314,6 +336,9 @@ export async function createOrUpdateSettlement(
     },
     data: { settlementId: settlement.id },
   });
+
+  // Create/update balance entry for this settlement
+  await createBalanceEntry(settlement.id);
 
   return settlement.id;
 }

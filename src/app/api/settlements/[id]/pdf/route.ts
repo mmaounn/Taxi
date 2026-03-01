@@ -37,6 +37,9 @@ export async function GET(
           commissionRate: true,
         },
       },
+      lineItems: {
+        orderBy: { createdAt: "asc" },
+      },
     },
   });
 
@@ -75,6 +78,13 @@ export async function GET(
       fuelCostDeduction: toNum(settlement.fuelCostDeduction),
       insuranceDeduction: toNum(settlement.insuranceDeduction),
       cashCollectedByDriver: toNum(settlement.cashCollectedByDriver),
+      lineItemsTotal: toNum(settlement.lineItemsTotal),
+      lineItems: settlement.lineItems.map((li) => ({
+        type: li.type,
+        description: li.description,
+        amount: Number(li.amount),
+        isAutoApplied: li.isAutoApplied,
+      })),
       driverNetEarnings: toNum(settlement.driverNetEarnings),
       payoutAmount: toNum(settlement.payoutAmount),
       driver: {

@@ -31,7 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CheckCircle, Download, RefreshCw, DollarSign, Plus, Trash2 } from "lucide-react";
+import { CheckCircle, Download, RefreshCw, Euro, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatEur } from "@/lib/format";
 
@@ -200,7 +200,7 @@ export function SettlementDetail({
                 onClick={() => updateSettlement({ status: "PAID" })}
                 disabled={saving}
               >
-                <DollarSign className="mr-1 h-4 w-4" />
+                <Euro className="mr-1 h-4 w-4" />
                 Als bezahlt markieren
               </Button>
             )}

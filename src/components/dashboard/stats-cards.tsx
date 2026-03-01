@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, Users, Receipt, Banknote } from "lucide-react";
+import { Euro, Users, Receipt, Banknote } from "lucide-react";
 import { formatEur } from "@/lib/format";
 
 interface StatsData {
@@ -16,7 +16,7 @@ export function StatsCards({ stats }: { stats: StatsData }) {
     {
       title: "Gesamtumsatz (Diese Woche)",
       value: formatEur(stats.totalRevenue),
-      icon: DollarSign,
+      icon: Euro,
       color: "text-green-600",
     },
     {

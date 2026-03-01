@@ -115,10 +115,11 @@ export async function PUT(
   }
 
   if (data.cashCollectedByDriver !== undefined) {
-    updateData.cashCollectedByDriver = data.cashCollectedByDriver;
+    const cash = data.cashCollectedByDriver ?? 0;
+    updateData.cashCollectedByDriver = cash;
     // Recalculate payout when cash changes
     const driverNet = Number(existing.driverNetEarnings || 0);
-    updateData.payoutAmount = driverNet - data.cashCollectedByDriver;
+    updateData.payoutAmount = driverNet - cash;
   }
 
   if (data.notes !== undefined) updateData.notes = data.notes;

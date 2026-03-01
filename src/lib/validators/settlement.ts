@@ -11,8 +11,8 @@ export const settlementCreateSchema = z.object({
 export const settlementUpdateSchema = z.object({
   status: z.enum(["DRAFT", "CALCULATED", "APPROVED", "PAID", "DISPUTED"]).optional(),
   cashCollectedByDriver: z.preprocess(
-    (v) => (v === "" || v === null || v === undefined ? undefined : parseDecimalInput(v as string)),
-    z.number().min(0).optional(),
+    (v) => (v === "" || v === null || v === undefined ? null : parseDecimalInput(v as string)),
+    z.number().min(0).nullable().optional(),
   ),
   notes: z.string().optional(),
   payoutReference: z.string().optional(),

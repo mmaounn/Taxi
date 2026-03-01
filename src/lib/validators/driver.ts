@@ -3,8 +3,8 @@ import { parseDecimalInput } from "@/lib/format";
 
 const optionalDecimal = (max?: number) =>
   z.preprocess(
-    (v) => (v === "" || v === null || v === undefined ? undefined : parseDecimalInput(v as string)),
-    max !== undefined ? z.number().min(0).max(max).optional() : z.number().min(0).optional(),
+    (v) => (v === "" || v === null || v === undefined ? null : parseDecimalInput(v as string)),
+    max !== undefined ? z.number().min(0).max(max).nullable().optional() : z.number().min(0).nullable().optional(),
   );
 
 export const driverCreateSchema = z.object({

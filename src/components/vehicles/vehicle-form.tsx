@@ -79,7 +79,9 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
     });
 
     if (!res.ok) {
-      toast.error("Fahrzeug konnte nicht gespeichert werden");
+      const err = await res.json().catch(() => null);
+      console.error("Vehicle save error:", res.status, err);
+      toast.error(err?.error ? `Fehler: ${JSON.stringify(err.error)}` : "Fahrzeug konnte nicht gespeichert werden");
       return;
     }
 

@@ -40,6 +40,24 @@ function stripFormatting(display: string): string {
   return display.replace(/\./g, "");
 }
 
+/**
+ * Normalize an incoming value to the internal raw format (comma-decimal).
+ * Handles values from the database that use dot as decimal separator.
+ *
+ * "1234.56" → "1234,56"  (dot-decimal from JS number.toString())
+ * "1234,56" → "1234,56"  (already in correct format)
+ * "1234"    → "1234"     (no decimal)
+ * ""        → ""
+ */
+function normalizeValue(val: string): string {
+  if (!val) return "";
+  // If value has a dot but no comma, the dot is a decimal separator (from Number.toString())
+  if (val.includes(".") && !val.includes(",")) {
+    return val.replace(".", ",");
+  }
+  return val;
+}
+
 interface CurrencyInputProps
   extends Omit<React.ComponentProps<typeof Input>, "value" | "onChange" | "type"> {
   value: string;
@@ -57,8 +75,10 @@ export function CurrencyInput({
   allowNegative = false,
   ...props
 }: CurrencyInputProps) {
-  // Format the initial/external value for display
-  const displayValue = React.useMemo(() => formatAustrian(value), [value]);
+  // Normalize incoming value (convert dot-decimal from DB to comma-decimal)
+  const normalized = React.useMemo(() => normalizeValue(value), [value]);
+  // Format for display with thousands separators
+  const displayValue = React.useMemo(() => formatAustrian(normalized), [normalized]);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const input = e.target.value;

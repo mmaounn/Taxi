@@ -1,4 +1,19 @@
 /**
+ * Format a number with "." as thousands separator and "," as decimal.
+ * Uses manual formatting to avoid inconsistent toLocaleString behavior
+ * across environments (some use non-breaking space instead of dot).
+ */
+function formatDecimal(abs: number, minFrac: number, maxFrac: number): string {
+  const fixed = abs.toFixed(maxFrac);
+  const [intPart, decPart] = fixed.split(".");
+  const withThousands = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  if (minFrac === 0 && (!decPart || parseFloat(`0.${decPart}`) === 0)) {
+    return withThousands;
+  }
+  return `${withThousands},${decPart}`;
+}
+
+/**
  * Format a number as EUR in Austrian locale.
  * Uses "." as thousands separator and "," as decimal separator.
  * Examples: €1.234,56 | €0,00 | -€50,00
@@ -7,10 +22,7 @@ export function formatEur(val: number | null | undefined): string {
   if (val == null) return "€0,00";
   const num = Number(val);
   const abs = Math.abs(num);
-  const formatted = abs.toLocaleString("de-AT", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
+  const formatted = formatDecimal(abs, 2, 2);
   return num < 0 ? `-€${formatted}` : `€${formatted}`;
 }
 
@@ -19,10 +31,10 @@ export function formatEur(val: number | null | undefined): string {
  */
 export function formatEurValue(val: number | null | undefined): string {
   if (val == null) return "0,00";
-  return Number(val).toLocaleString("de-AT", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
+  const num = Number(val);
+  const abs = Math.abs(num);
+  const formatted = formatDecimal(abs, 2, 2);
+  return num < 0 ? `-${formatted}` : formatted;
 }
 
 /**
@@ -30,7 +42,7 @@ export function formatEurValue(val: number | null | undefined): string {
  * Examples: €1.234 | €500
  */
 export function formatEurShort(val: number): string {
-  return `€${Math.round(val).toLocaleString("de-AT")}`;
+  return `€${formatDecimal(Math.abs(Math.round(val)), 0, 0)}`;
 }
 
 /**

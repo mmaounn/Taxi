@@ -107,10 +107,10 @@ export function SettlementDetail({
     if (res.ok) {
       const updated = await res.json();
       setSettlement({ ...settlement, ...updated });
-      toast.success("Settlement updated");
+      toast.success("Abrechnung aktualisiert");
       router.refresh();
     } else {
-      toast.error("Update failed");
+      toast.error("Aktualisierung fehlgeschlagen");
     }
     setSaving(false);
   }
@@ -124,13 +124,13 @@ export function SettlementDetail({
     });
 
     if (res.ok) {
-      toast.success("Settlement recalculated");
+      toast.success("Abrechnung neu berechnet");
       router.refresh();
       // Reload data
       const detailRes = await fetch(`/api/settlements/${settlement.id}`);
       if (detailRes.ok) setSettlement(await detailRes.json());
     } else {
-      toast.error("Recalculation failed");
+      toast.error("Neuberechnung fehlgeschlagen");
     }
     setSaving(false);
   }
@@ -164,7 +164,7 @@ export function SettlementDetail({
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={handleRecalculate} disabled={saving}>
               <RefreshCw className="mr-1 h-4 w-4" />
-              Recalculate
+              Neu berechnen
             </Button>
             <Button
               variant="outline"
@@ -183,7 +183,7 @@ export function SettlementDetail({
                 disabled={saving}
               >
                 <CheckCircle className="mr-1 h-4 w-4" />
-                Approve
+                Genehmigen
               </Button>
             )}
             {settlement.status === "APPROVED" && (
@@ -193,7 +193,7 @@ export function SettlementDetail({
                 disabled={saving}
               >
                 <DollarSign className="mr-1 h-4 w-4" />
-                Mark Paid
+                Als bezahlt markieren
               </Button>
             )}
           </div>
@@ -216,41 +216,41 @@ export function SettlementDetail({
       {!readOnly && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-sm">Bonuses & Deductions</CardTitle>
+            <CardTitle className="text-sm">Boni & Abzüge</CardTitle>
             <Dialog open={lineItemDialogOpen} onOpenChange={setLineItemDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm">
                   <Plus className="mr-1 h-4 w-4" />
-                  Add
+                  Hinzufügen
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Add Bonus / Deduction</DialogTitle>
+                  <DialogTitle>Bonus / Abzug hinzufügen</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Type</Label>
+                    <Label>Typ</Label>
                     <Select value={newLineItemType} onValueChange={setNewLineItemType}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="BONUS">Bonus</SelectItem>
-                        <SelectItem value="DEDUCTION">Deduction</SelectItem>
+                        <SelectItem value="DEDUCTION">Abzug</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Description</Label>
+                    <Label>Beschreibung</Label>
                     <Input
                       value={newLineItemDesc}
                       onChange={(e) => setNewLineItemDesc(e.target.value)}
-                      placeholder="e.g. Weekend bonus, Fuel advance"
+                      placeholder="z.B. Wochenendbonus, Kraftstoffvorschuss"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Amount (EUR)</Label>
+                    <Label>Betrag (EUR)</Label>
                     <Input
                       type="number"
                       step="0.01"
@@ -262,7 +262,7 @@ export function SettlementDetail({
                   <Button
                     onClick={async () => {
                       if (!newLineItemDesc || !newLineItemAmount) {
-                        toast.error("Fill in all fields");
+                        toast.error("Bitte alle Felder ausfüllen");
                         return;
                       }
                       const res = await fetch(`/api/settlements/${settlement.id}/line-items`, {
@@ -275,7 +275,7 @@ export function SettlementDetail({
                         }),
                       });
                       if (res.ok) {
-                        toast.success("Line item added");
+                        toast.success("Position hinzugefügt");
                         setLineItemDialogOpen(false);
                         setNewLineItemDesc("");
                         setNewLineItemAmount("");
@@ -283,12 +283,12 @@ export function SettlementDetail({
                         const detailRes = await fetch(`/api/settlements/${settlement.id}`);
                         if (detailRes.ok) setSettlement(await detailRes.json());
                       } else {
-                        toast.error("Failed to add line item");
+                        toast.error("Position konnte nicht hinzugefügt werden");
                       }
                     }}
                     disabled={saving}
                   >
-                    Add Line Item
+                    Position hinzufügen
                   </Button>
                 </div>
               </DialogContent>
@@ -296,14 +296,14 @@ export function SettlementDetail({
           </CardHeader>
           <CardContent>
             {(!settlement.lineItems || settlement.lineItems.length === 0) ? (
-              <p className="text-sm text-gray-500">No bonuses or deductions</p>
+              <p className="text-sm text-gray-500">Keine Boni oder Abzüge</p>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
+                    <TableHead>Typ</TableHead>
+                    <TableHead>Beschreibung</TableHead>
+                    <TableHead className="text-right">Betrag</TableHead>
                     <TableHead className="w-[60px]"></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -335,7 +335,7 @@ export function SettlementDetail({
                                 { method: "DELETE" }
                               );
                               if (res.ok) {
-                                toast.success("Line item removed");
+                                toast.success("Position entfernt");
                                 const detailRes = await fetch(`/api/settlements/${settlement.id}`);
                                 if (detailRes.ok) setSettlement(await detailRes.json());
                               }
@@ -358,11 +358,11 @@ export function SettlementDetail({
       {!readOnly && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Notes & Cash Reconciliation</CardTitle>
+            <CardTitle className="text-sm">Notizen & Barbestandsabgleich</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Cash Collected by Driver (EUR)</Label>
+              <Label>Vom Fahrer eingezahltes Bargeld (EUR)</Label>
               <div className="flex gap-2">
                 <Input
                   type="number"
@@ -381,12 +381,12 @@ export function SettlementDetail({
                   }
                   disabled={saving}
                 >
-                  Update Cash
+                  Bargeld aktualisieren
                 </Button>
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Notes</Label>
+              <Label>Notizen</Label>
               <Textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
@@ -398,7 +398,7 @@ export function SettlementDetail({
                 onClick={() => updateSettlement({ notes })}
                 disabled={saving}
               >
-                Save Notes
+                Notizen speichern
               </Button>
             </div>
           </CardContent>

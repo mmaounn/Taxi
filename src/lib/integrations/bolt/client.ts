@@ -2,29 +2,81 @@ import { getBoltAccessToken } from "./auth";
 
 const BOLT_API_BASE = "https://node.bolt.eu/fleet-integration-gateway/fleetIntegration/v1";
 
+/**
+ * Extract a field from a Bolt API response, handling possible wrapper shapes:
+ *  - { field: [...] }             (direct)
+ *  - { data: { field: [...] } }   (wrapped)
+ *  - { code, message, error_hint } (API error with HTTP 200)
+ */
+function extractField<T>(response: Record<string, unknown>, field: string, endpoint: string): T {
+  // Bolt API wraps all responses with { code, message, ... }
+  // code 0 = success, anything else = error
+  if (response.code !== undefined && response.code !== 0) {
+    const hint = response.error_hint ? ` (${response.error_hint})` : "";
+    console.error(`Bolt ${endpoint} API error:`, JSON.stringify(response));
+    throw new Error(`Bolt ${endpoint} error ${response.code}: ${response.message}${hint}`);
+  }
+
+  const direct = response[field];
+  if (direct !== undefined) return direct as T;
+
+  const nested = (response.data as Record<string, unknown> | undefined)?.[field];
+  if (nested !== undefined) return nested as T;
+
+  console.error(`Bolt ${endpoint} unexpected response shape:`, JSON.stringify(response).slice(0, 500));
+  throw new Error(
+    `Bolt ${endpoint}: expected "${field}" in response. Got keys: ${Object.keys(response).join(", ")}`
+  );
+}
+
 // --- Orders ---
 
 export interface BoltOrder {
-  id: string;
-  driver_id: string;
+  order_reference: string;
+  driver_uuid: string;
+  driver_name: string;
   pickup_address: string;
-  dropoff_address: string;
-  distance_km: number;
-  started_at: string;
-  completed_at: string;
-  fare_amount: number;
+  destination_address: string;
+  ride_distance: number; // meters
+  order_pickup_timestamp: number | null;
+  order_drop_off_timestamp: number | null;
+  order_finished_timestamp: number | null;
+  order_status: string;
   payment_method: string;
-  tip_amount: number;
-  platform_commission: number;
-  cash_service_fee: number;
-  status: string;
-  bonus_amount?: number;
-  reimbursement_amount?: number;
+  vehicle_license_plate: string;
+  order_price: {
+    commission: number;
+    booking_fee: number;
+    cancellation_fee: number;
+    cash_discount: number;
+    in_app_discount: number;
+    tip: number;
+    toll_fee: number;
+    ride_price: number;
+    net_earnings: number;
+  };
 }
 
-interface BoltOrdersResponse {
-  orders: BoltOrder[];
-  total: number;
+const MAX_BOLT_RANGE_DAYS = 31;
+
+/**
+ * Split a date range into chunks of maxDays.
+ */
+function chunkDateRange(from: Date, to: Date, maxDays: number): { start: Date; end: Date }[] {
+  const chunks: { start: Date; end: Date }[] = [];
+  let cursor = new Date(from);
+
+  while (cursor < to) {
+    const chunkEnd = new Date(cursor);
+    chunkEnd.setDate(chunkEnd.getDate() + maxDays);
+    chunks.push({
+      start: new Date(cursor),
+      end: chunkEnd > to ? new Date(to) : chunkEnd,
+    });
+    cursor = new Date(chunkEnd);
+  }
+
+  return chunks;
 }
 
 export async function getFleetOrders(
@@ -36,7 +88,10 @@ export async function getFleetOrders(
   const companyIds = await getCompanyIds(partnerId);
   const allOrders: BoltOrder[] = [];
 
-  for (const companyId of companyIds) {
+  // Auto-chunk into 31-day windows (Bolt API limit)
+  const chunks = chunkDateRange(new Date(dateFrom), new Date(dateTo), MAX_BOLT_RANGE_DAYS);
+
+  for (const chunk of chunks) {
     let offset = 0;
     const limit = 1000;
 
@@ -48,9 +103,9 @@ export async function getFleetOrders(
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          company_id: companyId,
-          start_ts: Math.floor(new Date(dateFrom).getTime() / 1000),
-          end_ts: Math.floor(new Date(dateTo).getTime() / 1000),
+          company_ids: companyIds,
+          start_ts: Math.floor(chunk.start.getTime() / 1000),
+          end_ts: Math.floor(chunk.end.getTime() / 1000),
           limit,
           offset,
         }),
@@ -60,10 +115,11 @@ export async function getFleetOrders(
         throw new Error(`Bolt getFleetOrders error: ${res.status} ${await res.text()}`);
       }
 
-      const data: BoltOrdersResponse = await res.json();
-      allOrders.push(...data.orders);
+      const data = await res.json();
+      const orders: BoltOrder[] = extractField(data, "orders", "getFleetOrders");
+      allOrders.push(...orders);
 
-      if (data.orders.length < limit) break;
+      if (orders.length < limit) break;
       offset += limit;
     } while (true);
   }
@@ -72,10 +128,6 @@ export async function getFleetOrders(
 }
 
 // --- Companies ---
-
-interface BoltCompaniesResponse {
-  company_ids: number[];
-}
 
 async function getCompanyIds(partnerId: string): Promise<number[]> {
   const token = await getBoltAccessToken(partnerId);
@@ -89,8 +141,15 @@ async function getCompanyIds(partnerId: string): Promise<number[]> {
     throw new Error(`Bolt getCompanies error: ${res.status} ${await res.text()}`);
   }
 
-  const data: BoltCompaniesResponse = await res.json();
-  return data.company_ids;
+  const data = await res.json();
+  const companyIds: number[] = extractField(data, "company_ids", "getCompanies");
+
+  if (!Array.isArray(companyIds)) {
+    console.error("Bolt getCompanies: company_ids is not an array:", JSON.stringify(data).slice(0, 500));
+    throw new Error(`Bolt getCompanies: company_ids is not an array`);
+  }
+
+  return companyIds;
 }
 
 // --- Drivers ---
@@ -119,11 +178,6 @@ export interface BoltDriver {
   } | null;
 }
 
-interface BoltDriversResponse {
-  drivers: BoltDriver[];
-  total: number;
-}
-
 export async function getFleetDrivers(partnerId: string): Promise<BoltDriver[]> {
   const token = await getBoltAccessToken(partnerId);
   const companyIds = await getCompanyIds(partnerId);
@@ -135,7 +189,7 @@ export async function getFleetDrivers(partnerId: string): Promise<BoltDriver[]> 
 
     do {
       const now = Math.floor(Date.now() / 1000);
-      const oneYearAgo = now - 365 * 24 * 60 * 60;
+      const thirtyDaysAgo = now - 30 * 24 * 60 * 60;
 
       const res = await fetch(`${BOLT_API_BASE}/getDrivers`, {
         method: "POST",
@@ -145,7 +199,7 @@ export async function getFleetDrivers(partnerId: string): Promise<BoltDriver[]> 
         },
         body: JSON.stringify({
           company_id: companyId,
-          start_ts: oneYearAgo,
+          start_ts: thirtyDaysAgo,
           end_ts: now,
           portal_status: "active",
           limit,
@@ -157,10 +211,11 @@ export async function getFleetDrivers(partnerId: string): Promise<BoltDriver[]> 
         throw new Error(`Bolt getDrivers error: ${res.status} ${await res.text()}`);
       }
 
-      const data: BoltDriversResponse = await res.json();
-      allDrivers.push(...data.drivers);
+      const data = await res.json();
+      const drivers: BoltDriver[] = extractField(data, "drivers", "getDrivers");
+      allDrivers.push(...drivers);
 
-      if (data.drivers.length < limit) break;
+      if (drivers.length < limit) break;
       offset += limit;
     } while (true);
   }
@@ -182,11 +237,6 @@ export interface BoltVehicle {
   state: "active" | "suspended" | "deactivated";
 }
 
-interface BoltVehiclesResponse {
-  vehicles: BoltVehicle[];
-  total: number;
-}
-
 export async function getFleetVehicles(partnerId: string): Promise<BoltVehicle[]> {
   const token = await getBoltAccessToken(partnerId);
   const companyIds = await getCompanyIds(partnerId);
@@ -198,7 +248,7 @@ export async function getFleetVehicles(partnerId: string): Promise<BoltVehicle[]
 
     do {
       const now = Math.floor(Date.now() / 1000);
-      const oneYearAgo = now - 365 * 24 * 60 * 60;
+      const thirtyDaysAgo = now - 30 * 24 * 60 * 60;
 
       const res = await fetch(`${BOLT_API_BASE}/getVehicles`, {
         method: "POST",
@@ -208,7 +258,7 @@ export async function getFleetVehicles(partnerId: string): Promise<BoltVehicle[]
         },
         body: JSON.stringify({
           company_id: companyId,
-          start_ts: oneYearAgo,
+          start_ts: thirtyDaysAgo,
           end_ts: now,
           portal_status: "active",
           limit,
@@ -220,10 +270,11 @@ export async function getFleetVehicles(partnerId: string): Promise<BoltVehicle[]
         throw new Error(`Bolt getVehicles error: ${res.status} ${await res.text()}`);
       }
 
-      const data: BoltVehiclesResponse = await res.json();
-      allVehicles.push(...data.vehicles);
+      const data = await res.json();
+      const vehicles: BoltVehicle[] = extractField(data, "vehicles", "getVehicles");
+      allVehicles.push(...vehicles);
 
-      if (data.vehicles.length < limit) break;
+      if (vehicles.length < limit) break;
       offset += limit;
     } while (true);
   }

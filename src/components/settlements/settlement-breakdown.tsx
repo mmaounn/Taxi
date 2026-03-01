@@ -80,12 +80,12 @@ export function SettlementBreakdown({ settlement: s }: BreakdownProps) {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Row label="Gross Revenue" value={formatEur(s.boltGrossRevenue)} />
-              <Row label="Commission" value={formatEur(s.boltCommission)} negative />
-              <Row label="Cash Service Fee" value={formatEur(s.boltCashServiceFee)} negative />
-              <Row label="Tips" value={formatEur(s.boltTips)} />
-              <Row label="Bonuses" value={formatEur(s.boltBonuses)} />
-              <TotalRow label="Net" value={formatEur(s.boltNetAmount)} />
+              <Row label="Bruttoumsatz" value={formatEur(s.boltGrossRevenue)} />
+              <Row label="Provision" value={formatEur(s.boltCommission)} negative />
+              <Row label="Bargeld-Servicegebühr" value={formatEur(s.boltCashServiceFee)} negative />
+              <Row label="Trinkgeld" value={formatEur(s.boltTips)} />
+              <Row label="Boni" value={formatEur(s.boltBonuses)} />
+              <TotalRow label="Netto" value={formatEur(s.boltNetAmount)} />
             </CardContent>
           </Card>
         )}
@@ -99,12 +99,12 @@ export function SettlementBreakdown({ settlement: s }: BreakdownProps) {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Row label="Gross Revenue" value={formatEur(s.uberGrossRevenue)} />
-              <Row label="Service Fee" value={formatEur(s.uberServiceFee)} negative />
-              <Row label="City Fees" value={formatEur(s.uberCityFees)} negative />
-              <Row label="Tips" value={formatEur(s.uberTips)} />
-              <Row label="Promotions" value={formatEur(s.uberPromotions)} />
-              <TotalRow label="Net" value={formatEur(s.uberNetAmount)} />
+              <Row label="Bruttoumsatz" value={formatEur(s.uberGrossRevenue)} />
+              <Row label="Servicegebühr" value={formatEur(s.uberServiceFee)} negative />
+              <Row label="Stadtgebühren" value={formatEur(s.uberCityFees)} negative />
+              <Row label="Trinkgeld" value={formatEur(s.uberTips)} />
+              <Row label="Aktionen" value={formatEur(s.uberPromotions)} />
+              <TotalRow label="Netto" value={formatEur(s.uberNetAmount)} />
             </CardContent>
           </Card>
         )}
@@ -118,37 +118,37 @@ export function SettlementBreakdown({ settlement: s }: BreakdownProps) {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Row label="Gross Revenue" value={formatEur(s.freenowGrossRevenue)} />
-              <Row label="Commission" value={formatEur(s.freenowCommission)} negative />
-              <Row label="Tips" value={formatEur(s.freenowTips)} />
-              <Row label="Bonuses" value={formatEur(s.freenowBonuses)} />
-              <TotalRow label="Net" value={formatEur(s.freenowNetAmount)} />
+              <Row label="Bruttoumsatz" value={formatEur(s.freenowGrossRevenue)} />
+              <Row label="Provision" value={formatEur(s.freenowCommission)} negative />
+              <Row label="Trinkgeld" value={formatEur(s.freenowTips)} />
+              <Row label="Boni" value={formatEur(s.freenowBonuses)} />
+              <TotalRow label="Netto" value={formatEur(s.freenowNetAmount)} />
             </CardContent>
           </Card>
         )}
 
         {!hasBolt && !hasUber && !hasFreeNow && (
           <div className="col-span-3 rounded-md border p-8 text-center text-gray-500">
-            No platform data for this period
+            Keine Plattformdaten für diesen Zeitraum
           </div>
         )}
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Deductions & Payout</CardTitle>
+          <CardTitle className="text-sm">Abzüge & Auszahlung</CardTitle>
         </CardHeader>
         <CardContent>
-          <Row label="Total Platform Net" value={formatEur(s.totalPlatformNet)} />
+          <Row label="Plattform netto gesamt" value={formatEur(s.totalPlatformNet)} />
           <Separator className="my-2" />
-          <Row label="Partner Commission" value={formatEur(s.partnerCommissionAmount)} negative />
-          <Row label="Vehicle Rental" value={formatEur(s.vehicleRentalDeduction)} negative />
-          <Row label="Insurance" value={formatEur(s.insuranceDeduction)} negative />
-          <Row label="Fuel Costs" value={formatEur(s.fuelCostDeduction)} negative />
+          <Row label="Partnerprovision" value={formatEur(s.partnerCommissionAmount)} negative />
+          <Row label="Fahrzeugmiete" value={formatEur(s.vehicleRentalDeduction)} negative />
+          <Row label="Versicherung" value={formatEur(s.insuranceDeduction)} negative />
+          <Row label="Kraftstoffkosten" value={formatEur(s.fuelCostDeduction)} negative />
           {s.lineItems && s.lineItems.length > 0 && (
             <>
               <Separator className="my-2" />
-              <p className="text-xs font-medium text-gray-500 py-1">Bonuses & Deductions</p>
+              <p className="text-xs font-medium text-gray-500 py-1">Boni & Abzüge</p>
               {s.lineItems.map((item) => (
                 <Row
                   key={item.id}
@@ -157,13 +157,13 @@ export function SettlementBreakdown({ settlement: s }: BreakdownProps) {
                   negative={item.type === "DEDUCTION"}
                 />
               ))}
-              <Row label="Line Items Total" value={formatEur(s.lineItemsTotal)} negative={Number(s.lineItemsTotal || 0) < 0} />
+              <Row label="Positionen gesamt" value={formatEur(s.lineItemsTotal)} negative={Number(s.lineItemsTotal || 0) < 0} />
             </>
           )}
-          <TotalRow label="Driver Net Earnings" value={formatEur(s.driverNetEarnings)} />
+          <TotalRow label="Fahrer Nettoverdienst" value={formatEur(s.driverNetEarnings)} />
           <Separator className="my-2" />
-          <Row label="Cash Collected by Driver" value={formatEur(s.cashCollectedByDriver)} negative />
-          <TotalRow label="Payout Amount" value={formatEur(s.payoutAmount)} highlight />
+          <Row label="Vom Fahrer eingenommenes Bargeld" value={formatEur(s.cashCollectedByDriver)} negative />
+          <TotalRow label="Auszahlungsbetrag" value={formatEur(s.payoutAmount)} highlight />
         </CardContent>
       </Card>
     </div>

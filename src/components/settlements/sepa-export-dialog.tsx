@@ -56,7 +56,7 @@ export function SepaExportDialog({
         if (data.errors) {
           setValidation({ errors: data.errors, warnings: data.warnings || [] });
         } else {
-          toast.error(data.error || "Export failed");
+          toast.error(data.error || "Export fehlgeschlagen");
         }
         setLoading(false);
         return;
@@ -75,11 +75,11 @@ export function SepaExportDialog({
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
 
-      toast.success("SEPA XML downloaded");
+      toast.success("SEPA XML heruntergeladen");
       onExported?.();
       onOpenChange(false);
     } catch {
-      toast.error("Export failed");
+      toast.error("Export fehlgeschlagen");
     }
 
     setLoading(false);
@@ -89,24 +89,23 @@ export function SepaExportDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Generate SEPA Payout File</DialogTitle>
+          <DialogTitle>SEPA-Auszahlungsdatei generieren</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <p className="text-sm text-gray-600">
-            {settlementIds.length} settlement{settlementIds.length !== 1 ? "s" : ""} selected
-            for payout export.
+            {settlementIds.length} Abrechnung{settlementIds.length !== 1 ? "en" : ""} für Auszahlungsexport ausgewählt.
           </p>
 
           <div className="space-y-2">
-            <Label>Execution Date</Label>
+            <Label>Ausführungsdatum</Label>
             <Input
               type="date"
               value={executionDate}
               onChange={(e) => setExecutionDate(e.target.value)}
             />
             <p className="text-xs text-gray-500">
-              The date the bank should process the payments
+              Das Datum, an dem die Bank die Zahlungen verarbeiten soll
             </p>
           </div>
 
@@ -118,7 +117,7 @@ export function SepaExportDialog({
                   <div className="flex items-center gap-2 mb-2">
                     <AlertTriangle className="h-4 w-4 text-red-600" />
                     <p className="text-sm font-medium text-red-800">
-                      {validation.errors.length} error{validation.errors.length !== 1 ? "s" : ""}
+                      {validation.errors.length} Fehler
                     </p>
                   </div>
                   <ul className="space-y-1">
@@ -135,7 +134,7 @@ export function SepaExportDialog({
                   <div className="flex items-center gap-2 mb-2">
                     <AlertTriangle className="h-4 w-4 text-yellow-600" />
                     <p className="text-sm font-medium text-yellow-800">
-                      {validation.warnings.length} warning{validation.warnings.length !== 1 ? "s" : ""}
+                      {validation.warnings.length} Warnung{validation.warnings.length !== 1 ? "en" : ""}
                     </p>
                   </div>
                   <ul className="space-y-1">
@@ -155,7 +154,7 @@ export function SepaExportDialog({
               <div className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4 text-green-600" />
                 <p className="text-sm text-green-800">
-                  Ready to generate SEPA pain.001.001.03 XML
+                  Bereit zur Generierung der SEPA pain.001.001.03 XML
                 </p>
               </div>
             </div>
@@ -171,7 +170,7 @@ export function SepaExportDialog({
             ) : (
               <Download className="mr-2 h-4 w-4" />
             )}
-            Download SEPA XML
+            SEPA XML herunterladen
           </Button>
         </div>
       </DialogContent>

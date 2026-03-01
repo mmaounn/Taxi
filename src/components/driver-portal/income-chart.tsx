@@ -24,11 +24,11 @@ export function IncomeChart({ data }: { data: WeeklyIncome[] }) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Income Overview (8 Weeks)</CardTitle>
+          <CardTitle className="text-sm">Einkommensübersicht (8 Wochen)</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="py-8 text-center text-sm text-gray-500">
-            No income data available yet
+            Noch keine Einkommensdaten vorhanden
           </p>
         </CardContent>
       </Card>
@@ -38,7 +38,7 @@ export function IncomeChart({ data }: { data: WeeklyIncome[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm">Income Overview (8 Weeks)</CardTitle>
+        <CardTitle className="text-sm">Einkommensübersicht (8 Wochen)</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={280}>

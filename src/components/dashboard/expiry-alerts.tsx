@@ -20,7 +20,7 @@ const severityConfig = {
     color: "text-red-600",
     bg: "bg-red-50 border-red-200",
     icon: ShieldAlert,
-    label: "Expired",
+    label: "Abgelaufen",
   },
   critical: {
     color: "text-orange-600",
@@ -57,7 +57,7 @@ export function ExpiryAlerts() {
       <Card className="border-green-200 bg-green-50">
         <CardContent className="flex items-center gap-3 py-4">
           <CheckCircle className="h-5 w-5 text-green-600" />
-          <p className="text-sm text-green-800">All documents are up to date</p>
+          <p className="text-sm text-green-800">Alle Dokumente sind aktuell</p>
         </CardContent>
       </Card>
     );
@@ -68,7 +68,7 @@ export function ExpiryAlerts() {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-sm">
           <AlertTriangle className="h-4 w-4 text-orange-500" />
-          Document Expiry Alerts ({alerts.length})
+          Ablaufwarnungen Dokumente ({alerts.length})
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
@@ -96,10 +96,10 @@ export function ExpiryAlerts() {
               </div>
               <span className={`text-xs font-medium ${config.color}`}>
                 {daysUntil <= 0
-                  ? "Expired"
+                  ? "Abgelaufen"
                   : daysUntil === 1
-                  ? "1 day left"
-                  : `${daysUntil} days left`}
+                  ? "Noch 1 Tag"
+                  : `Noch ${daysUntil} Tage`}
               </span>
             </Link>
           );

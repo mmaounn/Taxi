@@ -14,25 +14,25 @@ interface StatsData {
 export function StatsCards({ stats }: { stats: StatsData }) {
   const cards = [
     {
-      title: "Total Revenue (This Week)",
+      title: "Gesamtumsatz (Diese Woche)",
       value: formatEur(stats.totalRevenue),
       icon: DollarSign,
       color: "text-green-600",
     },
     {
-      title: "Active Drivers",
+      title: "Aktive Fahrer",
       value: stats.activeDrivers.toString(),
       icon: Users,
       color: "text-blue-600",
     },
     {
-      title: "Pending Settlements",
+      title: "Ausstehende Abrechnungen",
       value: stats.pendingSettlements.toString(),
       icon: Receipt,
       color: "text-yellow-600",
     },
     {
-      title: "Cash Outstanding",
+      title: "Offenes Bargeld",
       value: formatEur(stats.cashOutstanding),
       icon: Banknote,
       color: "text-red-600",

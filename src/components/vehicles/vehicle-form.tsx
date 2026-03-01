@@ -25,13 +25,13 @@ function ExpiryBadge({ dateStr }: { dateStr: string | undefined }) {
   const daysUntil = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
   if (daysUntil <= 0) {
-    return <Badge variant="secondary" className="ml-2 bg-red-100 text-red-800">Expired</Badge>;
+    return <Badge variant="secondary" className="ml-2 bg-red-100 text-red-800">Abgelaufen</Badge>;
   }
   if (daysUntil <= 7) {
-    return <Badge variant="secondary" className="ml-2 bg-orange-100 text-orange-800">{daysUntil}d left</Badge>;
+    return <Badge variant="secondary" className="ml-2 bg-orange-100 text-orange-800">Noch {daysUntil}T</Badge>;
   }
   if (daysUntil <= 30) {
-    return <Badge variant="secondary" className="ml-2 bg-yellow-100 text-yellow-800">{daysUntil}d left</Badge>;
+    return <Badge variant="secondary" className="ml-2 bg-yellow-100 text-yellow-800">Noch {daysUntil}T</Badge>;
   }
   return null;
 }
@@ -67,11 +67,11 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
     });
 
     if (!res.ok) {
-      toast.error("Failed to save vehicle");
+      toast.error("Fahrzeug konnte nicht gespeichert werden");
       return;
     }
 
-    toast.success(isEditing ? "Vehicle updated" : "Vehicle created");
+    toast.success(isEditing ? "Fahrzeug aktualisiert" : "Fahrzeug erstellt");
     router.push("/vehicles");
     router.refresh();
   }
@@ -80,30 +80,30 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Vehicle Details</CardTitle>
+          <CardTitle>Fahrzeugdetails</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="licensePlate">License Plate *</Label>
+            <Label htmlFor="licensePlate">Kennzeichen *</Label>
             <Input id="licensePlate" {...register("licensePlate")} />
             {errors.licensePlate && (
               <p className="text-sm text-red-600">{errors.licensePlate.message}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="make">Make</Label>
-            <Input id="make" placeholder="e.g. Toyota" {...register("make")} />
+            <Label htmlFor="make">Marke</Label>
+            <Input id="make" placeholder="z.B. Toyota" {...register("make")} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="model">Model</Label>
-            <Input id="model" placeholder="e.g. Camry" {...register("model")} />
+            <Label htmlFor="model">Modell</Label>
+            <Input id="model" placeholder="z.B. Camry" {...register("model")} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="year">Year</Label>
+            <Label htmlFor="year">Baujahr</Label>
             <Input id="year" type="number" {...register("year")} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="color">Color</Label>
+            <Label htmlFor="color">Farbe</Label>
             <Input id="color" {...register("color")} />
           </div>
 
@@ -118,9 +118,9 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ACTIVE">Active</SelectItem>
-                  <SelectItem value="MAINTENANCE">Maintenance</SelectItem>
-                  <SelectItem value="DECOMMISSIONED">Decommissioned</SelectItem>
+                  <SelectItem value="ACTIVE">Aktiv</SelectItem>
+                  <SelectItem value="MAINTENANCE">In Wartung</SelectItem>
+                  <SelectItem value="DECOMMISSIONED">Außer Betrieb</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -130,12 +130,12 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Document Expiry Dates</CardTitle>
+          <CardTitle>Ablaufdaten Dokumente</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="insuranceExpiry">
-              Insurance Expiry
+              Ablaufdatum Versicherung
               <ExpiryBadge dateStr={watch("insuranceExpiry" as keyof VehicleCreateInput) as string | undefined} />
             </Label>
             <Input
@@ -146,7 +146,7 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="registrationExpiry">
-              Registration Expiry
+              Ablaufdatum Zulassung
               <ExpiryBadge dateStr={watch("registrationExpiry" as keyof VehicleCreateInput) as string | undefined} />
             </Label>
             <Input
@@ -160,11 +160,11 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Monthly Costs</CardTitle>
+          <CardTitle>Monatliche Kosten</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-3 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="monthlyRentalCost">Rental Cost (EUR)</Label>
+            <Label htmlFor="monthlyRentalCost">Mietkosten (EUR)</Label>
             <Input
               id="monthlyRentalCost"
               type="number"
@@ -173,7 +173,7 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="insuranceMonthlyCost">Insurance (EUR)</Label>
+            <Label htmlFor="insuranceMonthlyCost">Versicherung (EUR)</Label>
             <Input
               id="insuranceMonthlyCost"
               type="number"
@@ -182,7 +182,7 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="otherMonthlyCosts">Other Costs (EUR)</Label>
+            <Label htmlFor="otherMonthlyCosts">Sonstige Kosten (EUR)</Label>
             <Input
               id="otherMonthlyCosts"
               type="number"
@@ -195,10 +195,10 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
 
       <div className="flex gap-4">
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving..." : isEditing ? "Update Vehicle" : "Create Vehicle"}
+          {isSubmitting ? "Wird gespeichert..." : isEditing ? "Fahrzeug aktualisieren" : "Fahrzeug erstellen"}
         </Button>
         <Button type="button" variant="outline" onClick={() => router.back()}>
-          Cancel
+          Abbrechen
         </Button>
       </div>
     </form>

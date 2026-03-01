@@ -76,18 +76,18 @@ export default function DashboardPage() {
 
         if (syncRes.ok) {
           const parts = [];
-          if (result.driversImported) parts.push(`${result.driversImported} drivers`);
-          if (result.vehiclesImported) parts.push(`${result.vehiclesImported} vehicles`);
-          if (result.ridesImported) parts.push(`${result.ridesImported} rides`);
+          if (result.driversImported) parts.push(`${result.driversImported} Fahrer`);
+          if (result.vehiclesImported) parts.push(`${result.vehiclesImported} Fahrzeuge`);
+          if (result.ridesImported) parts.push(`${result.ridesImported} Fahrten`);
           if (parts.length > 0) {
-            toast.success(`Bolt sync: ${parts.join(", ")}`);
+            toast.success(`Bolt-Sync: ${parts.join(", ")}`);
           } else {
-            toast.info("Bolt sync: already up to date");
+            toast.info("Bolt-Sync: bereits aktuell");
           }
           // Refresh dashboard data after sync
           await loadDashboard().catch(() => {});
         } else {
-          toast.error(result.error || "Bolt auto-sync failed");
+          toast.error(result.error || "Bolt-Auto-Sync fehlgeschlagen");
         }
       } catch {
         // Silent fail — auto-sync is best-effort
@@ -100,12 +100,12 @@ export default function DashboardPage() {
     return () => { cancelled = true; };
   }, [loadDashboard]);
 
-  if (loading) return <div className="py-8 text-center">Loading...</div>;
+  if (loading) return <div className="py-8 text-center">Wird geladen...</div>;
   if (!data) {
     return (
       <div className="space-y-6">
         <h1 className="text-2xl font-bold">Dashboard</h1>
-        <p className="text-gray-600">Welcome to Fleet Settlement. Set up your database to get started.</p>
+        <p className="text-gray-600">Willkommen bei der Flottenabrechnung. Richten Sie Ihre Datenbank ein, um zu beginnen.</p>
       </div>
     );
   }
@@ -117,7 +117,7 @@ export default function DashboardPage() {
         {syncing && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <RefreshCw className="h-4 w-4 animate-spin" />
-            Syncing with Bolt...
+            Synchronisierung mit Bolt...
           </div>
         )}
       </div>
@@ -131,16 +131,16 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-sm">Recent Settlements</CardTitle>
+            <CardTitle className="text-sm">Aktuelle Abrechnungen</CardTitle>
             <Button variant="ghost" size="sm" asChild>
               <Link href="/settlements">
-                View All <ArrowRight className="ml-1 h-3 w-3" />
+                Alle anzeigen <ArrowRight className="ml-1 h-3 w-3" />
               </Link>
             </Button>
           </CardHeader>
           <CardContent>
             {data.recentSettlements.length === 0 ? (
-              <p className="text-sm text-gray-500">No settlements yet</p>
+              <p className="text-sm text-gray-500">Noch keine Abrechnungen</p>
             ) : (
               <div className="space-y-3">
                 {data.recentSettlements.map((s) => (
@@ -183,31 +183,31 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Quick Actions</CardTitle>
+            <CardTitle className="text-sm">Schnellaktionen</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             <Button variant="outline" className="w-full justify-start" asChild>
               <Link href="/settlements">
                 <ArrowRight className="mr-2 h-4 w-4" />
-                Calculate Weekly Settlements
+                Wöchentliche Abrechnungen berechnen
               </Link>
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>
               <Link href="/platform-sync">
                 <ArrowRight className="mr-2 h-4 w-4" />
-                Sync Platform Data
+                Plattformdaten synchronisieren
               </Link>
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>
               <Link href="/drivers/new">
                 <ArrowRight className="mr-2 h-4 w-4" />
-                Add New Driver
+                Neuen Fahrer hinzufügen
               </Link>
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>
               <Link href="/vehicles/new">
                 <ArrowRight className="mr-2 h-4 w-4" />
-                Add New Vehicle
+                Neues Fahrzeug hinzufügen
               </Link>
             </Button>
           </CardContent>

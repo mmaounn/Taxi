@@ -51,12 +51,12 @@ export default function DriverPortalPage() {
       .catch(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="py-8 text-center">Loading...</div>;
+  if (loading) return <div className="py-8 text-center">Wird geladen...</div>;
   if (!data) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold">Welcome</h1>
-        <p className="text-gray-600">No data available yet.</p>
+        <h1 className="text-2xl font-bold">Willkommen</h1>
+        <p className="text-gray-600">Noch keine Daten vorhanden.</p>
       </div>
     );
   }
@@ -64,7 +64,7 @@ export default function DriverPortalPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">
-        Welcome{session?.user?.name ? `, ${session.user.name}` : ""}
+        Willkommen{session?.user?.name ? `, ${session.user.name}` : ""}
       </h1>
 
       {/* Balance + Stats Grid */}
@@ -76,46 +76,46 @@ export default function DriverPortalPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Total Rides
+              Fahrten gesamt
             </CardTitle>
             <Car className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{data.stats.totalRides}</div>
-            <p className="text-xs text-muted-foreground">Last 8 weeks</p>
+            <p className="text-xs text-muted-foreground">Letzte 8 Wochen</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Avg Fare
+              Ø Fahrpreis
             </CardTitle>
             <TrendingUp className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatEur(data.stats.avgFare)}</div>
-            <p className="text-xs text-muted-foreground">Per ride</p>
+            <p className="text-xs text-muted-foreground">Pro Fahrt</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Tips
+              Trinkgeld
             </CardTitle>
             <Banknote className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatEur(data.stats.tips)}</div>
-            <p className="text-xs text-muted-foreground">Last 8 weeks</p>
+            <p className="text-xs text-muted-foreground">Letzte 8 Wochen</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Cash Collected
+              Eingenommenes Bargeld
             </CardTitle>
             <Receipt className="h-4 w-4 text-orange-500" />
           </CardHeader>
@@ -123,7 +123,7 @@ export default function DriverPortalPage() {
             <div className="text-2xl font-bold">
               {formatEur(data.stats.cashCollected)}
             </div>
-            <p className="text-xs text-muted-foreground">Last 8 weeks</p>
+            <p className="text-xs text-muted-foreground">Letzte 8 Wochen</p>
           </CardContent>
         </Card>
       </div>
@@ -135,7 +135,7 @@ export default function DriverPortalPage() {
       {data.latestSettlement && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Latest Settlement</CardTitle>
+            <CardTitle className="text-sm">Letzte Abrechnung</CardTitle>
           </CardHeader>
           <CardContent>
             <Link

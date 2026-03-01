@@ -84,18 +84,18 @@ export default function DriverRidesPage() {
       {/* Filters */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Filters</CardTitle>
+          <CardTitle className="text-sm">Filter</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap items-end gap-4">
             <div className="space-y-1">
-              <Label className="text-xs">Platform</Label>
+              <Label className="text-xs">Plattform</Label>
               <Select value={source} onValueChange={setSource}>
                 <SelectTrigger className="w-36">
                   <SelectValue placeholder="All" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Platforms</SelectItem>
+                  <SelectItem value="all">Alle Plattformen</SelectItem>
                   <SelectItem value="BOLT">Bolt</SelectItem>
                   <SelectItem value="UBER">Uber</SelectItem>
                   <SelectItem value="FREENOW">FreeNow</SelectItem>
@@ -103,7 +103,7 @@ export default function DriverRidesPage() {
               </Select>
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">From</Label>
+              <Label className="text-xs">Von</Label>
               <Input
                 type="date"
                 value={dateFrom}
@@ -112,7 +112,7 @@ export default function DriverRidesPage() {
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">To</Label>
+              <Label className="text-xs">Bis</Label>
               <Input
                 type="date"
                 value={dateTo}
@@ -126,7 +126,7 @@ export default function DriverRidesPage() {
 
       {/* Rides Table */}
       {loading ? (
-        <div className="py-8 text-center text-gray-500">Loading rides...</div>
+        <div className="py-8 text-center text-gray-500">Fahrten werden geladen...</div>
       ) : (
         <RideTable
           rides={rides}

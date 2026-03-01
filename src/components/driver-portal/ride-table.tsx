@@ -39,8 +39,8 @@ const sourceColors: Record<string, string> = {
 };
 
 const paymentLabels: Record<string, string> = {
-  CASH: "Cash",
-  CARD: "Card",
+  CASH: "Bargeld",
+  CARD: "Karte",
   IN_APP: "In-App",
 };
 
@@ -56,7 +56,7 @@ export function RideTable({
   if (rides.length === 0) {
     return (
       <div className="rounded-md border p-8 text-center text-gray-500">
-        No rides found for the selected filters.
+        Keine Fahrten für die gewählten Filter gefunden.
       </div>
     );
   }
@@ -67,13 +67,13 @@ export function RideTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Platform</TableHead>
-              <TableHead>Pickup</TableHead>
-              <TableHead>Dropoff</TableHead>
-              <TableHead className="text-right">Fare</TableHead>
-              <TableHead className="text-right">Tip</TableHead>
-              <TableHead>Payment</TableHead>
+              <TableHead>Datum</TableHead>
+              <TableHead>Plattform</TableHead>
+              <TableHead>Abholung</TableHead>
+              <TableHead>Ziel</TableHead>
+              <TableHead className="text-right">Fahrpreis</TableHead>
+              <TableHead className="text-right">Trinkgeld</TableHead>
+              <TableHead>Zahlung</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -123,9 +123,9 @@ export function RideTable({
       {/* Pagination */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-gray-500">
-          Showing {(pagination.page - 1) * pagination.limit + 1}–
-          {Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
-          {pagination.total} rides
+          {(pagination.page - 1) * pagination.limit + 1}–
+          {Math.min(pagination.page * pagination.limit, pagination.total)} von{" "}
+          {pagination.total} Fahrten
         </p>
         <div className="flex items-center gap-2">
           <Button
@@ -137,7 +137,7 @@ export function RideTable({
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <span className="text-sm">
-            Page {pagination.page} of {pagination.totalPages}
+            Seite {pagination.page} von {pagination.totalPages}
           </span>
           <Button
             variant="outline"

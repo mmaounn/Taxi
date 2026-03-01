@@ -24,12 +24,12 @@ export function RevenueChart({ data }: { data: WeeklyRevenue[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm">Weekly Revenue by Platform</CardTitle>
+        <CardTitle className="text-sm">Wöchentlicher Umsatz nach Plattform</CardTitle>
       </CardHeader>
       <CardContent>
         {data.length === 0 ? (
           <div className="flex h-64 items-center justify-center text-gray-500">
-            No revenue data available yet
+            Noch keine Umsatzdaten vorhanden
           </div>
         ) : (
           <ResponsiveContainer width="100%" height={300}>

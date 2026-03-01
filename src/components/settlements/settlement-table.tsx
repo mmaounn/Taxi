@@ -54,7 +54,7 @@ export function SettlementTable({
   if (settlements.length === 0) {
     return (
       <div className="rounded-md border p-8 text-center text-gray-500">
-        No settlements found.
+        Keine Abrechnungen gefunden.
       </div>
     );
   }
@@ -98,13 +98,13 @@ export function SettlementTable({
                 />
               </TableHead>
             )}
-            <TableHead>Period</TableHead>
-            <TableHead>Driver</TableHead>
+            <TableHead>Zeitraum</TableHead>
+            <TableHead>Fahrer</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead className="text-right">Platform Net</TableHead>
-            <TableHead className="text-right">Commission</TableHead>
-            <TableHead className="text-right">Payout</TableHead>
-            <TableHead className="w-[80px]">Actions</TableHead>
+            <TableHead className="text-right">Plattform netto</TableHead>
+            <TableHead className="text-right">Provision</TableHead>
+            <TableHead className="text-right">Auszahlung</TableHead>
+            <TableHead className="w-[80px]">Aktionen</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

@@ -15,12 +15,12 @@ import {
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/drivers", label: "Drivers", icon: Users },
-  { href: "/vehicles", label: "Vehicles", icon: Car },
-  { href: "/settlements", label: "Settlements", icon: Receipt },
-  { href: "/reports", label: "Reports", icon: BarChart3 },
-  { href: "/platform-sync", label: "Platform Sync", icon: RefreshCw },
-  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/drivers", label: "Fahrer", icon: Users },
+  { href: "/vehicles", label: "Fahrzeuge", icon: Car },
+  { href: "/settlements", label: "Abrechnungen", icon: Receipt },
+  { href: "/reports", label: "Berichte", icon: BarChart3 },
+  { href: "/platform-sync", label: "Plattform-Sync", icon: RefreshCw },
+  { href: "/settings", label: "Einstellungen", icon: Settings },
 ];
 
 export function Sidebar() {

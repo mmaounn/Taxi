@@ -74,13 +74,13 @@ function ExpiryBadge({ dateStr }: { dateStr: string | null }) {
   const daysUntil = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
   if (daysUntil <= 0) {
-    return <Badge variant="secondary" className="ml-2 bg-red-100 text-red-800">Expired</Badge>;
+    return <Badge variant="secondary" className="ml-2 bg-red-100 text-red-800">Abgelaufen</Badge>;
   }
   if (daysUntil <= 7) {
-    return <Badge variant="secondary" className="ml-2 bg-orange-100 text-orange-800">{daysUntil}d left</Badge>;
+    return <Badge variant="secondary" className="ml-2 bg-orange-100 text-orange-800">Noch {daysUntil}T</Badge>;
   }
   if (daysUntil <= 30) {
-    return <Badge variant="secondary" className="ml-2 bg-yellow-100 text-yellow-800">{daysUntil}d left</Badge>;
+    return <Badge variant="secondary" className="ml-2 bg-yellow-100 text-yellow-800">Noch {daysUntil}T</Badge>;
   }
   return null;
 }
@@ -186,21 +186,21 @@ export default function DriverDetailPage() {
 
       if (!res.ok) {
         const err = await res.json();
-        toast.error(err.error || "Failed to save");
+        toast.error(err.error || "Speichern fehlgeschlagen");
         return;
       }
 
-      toast.success("Driver settings saved");
+      toast.success("Fahrereinstellungen gespeichert");
       router.refresh();
     } catch {
-      toast.error("Failed to save");
+      toast.error("Speichern fehlgeschlagen");
     } finally {
       setSaving(false);
     }
   }
 
-  if (loading) return <div className="py-8 text-center">Loading...</div>;
-  if (!driver) return <div className="py-8 text-center text-red-600">Driver not found</div>;
+  if (loading) return <div className="py-8 text-center">Wird geladen...</div>;
+  if (!driver) return <div className="py-8 text-center text-red-600">Fahrer nicht gefunden</div>;
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -227,30 +227,30 @@ export default function DriverDetailPage() {
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm">
                   <Plus className="mr-1 h-4 w-4" />
-                  Adjustment
+                  Anpassung
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Manual Balance Adjustment</DialogTitle>
+                  <DialogTitle>Manuelle Kontostandsanpassung</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Amount (EUR) — positive to credit, negative to debit</Label>
+                    <Label>Betrag (EUR) — positiv zum Gutschreiben, negativ zum Belasten</Label>
                     <Input
                       type="number"
                       step="0.01"
                       value={adjustAmount}
                       onChange={(e) => setAdjustAmount(e.target.value)}
-                      placeholder="e.g. 50.00 or -25.00"
+                      placeholder="z.B. 50.00 oder -25.00"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Notes</Label>
+                    <Label>Notizen</Label>
                     <Textarea
                       value={adjustNotes}
                       onChange={(e) => setAdjustNotes(e.target.value)}
-                      placeholder="Reason for adjustment"
+                      placeholder="Grund für die Anpassung"
                       rows={2}
                     />
                   </div>
@@ -258,7 +258,7 @@ export default function DriverDetailPage() {
                     onClick={async () => {
                       const amt = parseFloat(adjustAmount);
                       if (!amt || amt === 0) {
-                        toast.error("Enter a valid amount");
+                        toast.error("Bitte einen gültigen Betrag eingeben");
                         return;
                       }
                       const res = await fetch(`/api/drivers/${id}/balance`, {
@@ -267,17 +267,17 @@ export default function DriverDetailPage() {
                         body: JSON.stringify({ amount: amt, notes: adjustNotes || undefined }),
                       });
                       if (res.ok) {
-                        toast.success("Adjustment added");
+                        toast.success("Anpassung hinzugefügt");
                         setAdjustDialogOpen(false);
                         setAdjustAmount("");
                         setAdjustNotes("");
                         loadBalance();
                       } else {
-                        toast.error("Failed to add adjustment");
+                        toast.error("Anpassung konnte nicht hinzugefügt werden");
                       }
                     }}
                   >
-                    Save Adjustment
+                    Anpassung speichern
                   </Button>
                 </div>
               </DialogContent>
@@ -293,11 +293,11 @@ export default function DriverDetailPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Period</TableHead>
-                      <TableHead className="text-right">Opening</TableHead>
-                      <TableHead className="text-right">Settlement</TableHead>
-                      <TableHead className="text-right">Adjust.</TableHead>
-                      <TableHead className="text-right">Closing</TableHead>
+                      <TableHead>Zeitraum</TableHead>
+                      <TableHead className="text-right">Eröffnung</TableHead>
+                      <TableHead className="text-right">Abrechnung</TableHead>
+                      <TableHead className="text-right">Anpass.</TableHead>
+                      <TableHead className="text-right">Abschluss</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -305,7 +305,7 @@ export default function DriverDetailPage() {
                       <TableRow key={entry.id}>
                         <TableCell className="text-xs">
                           {entry.adjustments !== 0 && entry.settlementNet === 0
-                            ? entry.notes || "Adjustment"
+                            ? entry.notes || "Anpassung"
                             : `${new Date(entry.periodStart).toLocaleDateString("de-AT")} — ${new Date(entry.periodEnd).toLocaleDateString("de-AT")}`}
                         </TableCell>
                         <TableCell className="text-right text-xs">{formatEur(entry.openingBalance)}</TableCell>
@@ -334,8 +334,8 @@ export default function DriverDetailPage() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Driver Info</CardTitle>
-            <Badge variant="outline" className="text-xs">Synced from Bolt</Badge>
+            <CardTitle>Fahrerinformationen</CardTitle>
+            <Badge variant="outline" className="text-xs">Von Bolt synchronisiert</Badge>
           </div>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-4 text-sm">
@@ -344,11 +344,11 @@ export default function DriverDetailPage() {
             <p>{driver.firstName} {driver.lastName}</p>
           </div>
           <div>
-            <span className="font-medium text-muted-foreground">Email</span>
+            <span className="font-medium text-muted-foreground">E-Mail</span>
             <p>{driver.email || "—"}</p>
           </div>
           <div>
-            <span className="font-medium text-muted-foreground">Phone</span>
+            <span className="font-medium text-muted-foreground">Telefon</span>
             <p>{driver.phone || "—"}</p>
           </div>
           <div>
@@ -356,7 +356,7 @@ export default function DriverDetailPage() {
             <p>{driver.status}</p>
           </div>
           <div>
-            <span className="font-medium text-muted-foreground">Vehicle</span>
+            <span className="font-medium text-muted-foreground">Fahrzeug</span>
             <p>
               {driver.vehicle
                 ? `${driver.vehicle.licensePlate} (${driver.vehicle.make || ""} ${driver.vehicle.model || ""})`
@@ -364,18 +364,18 @@ export default function DriverDetailPage() {
             </p>
           </div>
           <div>
-            <span className="font-medium text-muted-foreground">Bolt ID</span>
+            <span className="font-medium text-muted-foreground">Bolt-ID</span>
             <p className="font-mono text-xs">{driver.boltDriverId || "—"}</p>
           </div>
           {driver.uberDriverUuid && (
             <div>
-              <span className="font-medium text-muted-foreground">Uber UUID</span>
+              <span className="font-medium text-muted-foreground">Uber-UUID</span>
               <p className="font-mono text-xs">{driver.uberDriverUuid}</p>
             </div>
           )}
           {driver.freenowDriverId && (
             <div>
-              <span className="font-medium text-muted-foreground">FreeNow ID</span>
+              <span className="font-medium text-muted-foreground">FreeNow-ID</span>
               <p className="font-mono text-xs">{driver.freenowDriverId}</p>
             </div>
           )}
@@ -387,7 +387,7 @@ export default function DriverDetailPage() {
       {/* Local-only data — editable */}
       <Card>
         <CardHeader>
-          <CardTitle>Bank Details</CardTitle>
+          <CardTitle>Bankdaten</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -403,27 +403,27 @@ export default function DriverDetailPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Tax & License</CardTitle>
+          <CardTitle>Steuer & Führerschein</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="taxId">Tax ID</Label>
+            <Label htmlFor="taxId">Steuer-ID</Label>
             <Input id="taxId" value={taxId} onChange={(e) => setTaxId(e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="taxiLicenseNumber">License Number</Label>
+            <Label htmlFor="taxiLicenseNumber">Lizenznummer</Label>
             <Input id="taxiLicenseNumber" value={taxiLicenseNumber} onChange={(e) => setTaxiLicenseNumber(e.target.value)} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="taxiLicenseExpiry">
-              Taxi License Expiry
+              Ablaufdatum Taxilizenz
               <ExpiryBadge dateStr={taxiLicenseExpiry} />
             </Label>
             <Input id="taxiLicenseExpiry" type="date" value={taxiLicenseExpiry} onChange={(e) => setTaxiLicenseExpiry(e.target.value)} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="driversLicenseExpiry">
-              Driver&apos;s License Expiry
+              Ablaufdatum Führerschein
               <ExpiryBadge dateStr={driversLicenseExpiry} />
             </Label>
             <Input id="driversLicenseExpiry" type="date" value={driversLicenseExpiry} onChange={(e) => setDriversLicenseExpiry(e.target.value)} />
@@ -433,34 +433,34 @@ export default function DriverDetailPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Commission Settings</CardTitle>
+          <CardTitle>Provisionseinstellungen</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Commission Model</Label>
+              <Label>Provisionsmodell</Label>
               <Select value={commissionModel} onValueChange={setCommissionModel}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="PERCENTAGE">Percentage</SelectItem>
-                  <SelectItem value="FIXED">Fixed Fee</SelectItem>
+                  <SelectItem value="PERCENTAGE">Prozentsatz</SelectItem>
+                  <SelectItem value="FIXED">Festgebühr</SelectItem>
                   <SelectItem value="HYBRID">Hybrid</SelectItem>
-                  <SelectItem value="PER_RIDE">Per Ride</SelectItem>
+                  <SelectItem value="PER_RIDE">Pro Fahrt</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Settlement Frequency</Label>
+              <Label>Abrechnungsfrequenz</Label>
               <Select value={settlementFrequency} onValueChange={setSettlementFrequency}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="WEEKLY">Weekly</SelectItem>
-                  <SelectItem value="BIWEEKLY">Biweekly</SelectItem>
-                  <SelectItem value="MONTHLY">Monthly</SelectItem>
+                  <SelectItem value="WEEKLY">Wöchentlich</SelectItem>
+                  <SelectItem value="BIWEEKLY">Zweiwöchentlich</SelectItem>
+                  <SelectItem value="MONTHLY">Monatlich</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -470,25 +470,25 @@ export default function DriverDetailPage() {
 
           {(commissionModel === "PERCENTAGE" || commissionModel === "HYBRID") && (
             <div className="space-y-2">
-              <Label htmlFor="commissionRate">Commission Rate (%)</Label>
+              <Label htmlFor="commissionRate">Provisionssatz (%)</Label>
               <Input id="commissionRate" type="number" step="0.01" value={commissionRate} onChange={(e) => setCommissionRate(e.target.value)} />
             </div>
           )}
           {(commissionModel === "FIXED" || commissionModel === "HYBRID") && (
             <div className="space-y-2">
-              <Label htmlFor="fixedFee">Fixed Fee (EUR)</Label>
+              <Label htmlFor="fixedFee">Festgebühr (EUR)</Label>
               <Input id="fixedFee" type="number" step="0.01" value={fixedFee} onChange={(e) => setFixedFee(e.target.value)} />
             </div>
           )}
           {commissionModel === "HYBRID" && (
             <div className="space-y-2">
-              <Label htmlFor="hybridThreshold">Threshold (EUR)</Label>
+              <Label htmlFor="hybridThreshold">Schwellenwert (EUR)</Label>
               <Input id="hybridThreshold" type="number" step="0.01" value={hybridThreshold} onChange={(e) => setHybridThreshold(e.target.value)} />
             </div>
           )}
           {commissionModel === "PER_RIDE" && (
             <div className="space-y-2">
-              <Label htmlFor="perRideFee">Per Ride Fee (EUR)</Label>
+              <Label htmlFor="perRideFee">Gebühr pro Fahrt (EUR)</Label>
               <Input id="perRideFee" type="number" step="0.01" value={perRideFee} onChange={(e) => setPerRideFee(e.target.value)} />
             </div>
           )}
@@ -498,10 +498,10 @@ export default function DriverDetailPage() {
       <div className="flex gap-4">
         <Button onClick={handleSave} disabled={saving}>
           <Save className="mr-2 h-4 w-4" />
-          {saving ? "Saving..." : "Save Settings"}
+          {saving ? "Wird gespeichert..." : "Einstellungen speichern"}
         </Button>
         <Button variant="outline" onClick={() => router.back()}>
-          Back
+          Zurück
         </Button>
       </div>
     </div>

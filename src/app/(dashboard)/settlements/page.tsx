@@ -84,7 +84,7 @@ export default function SettlementsPage() {
 
   async function handleCalculate(batch: boolean) {
     if (!batch && !calcDriverId) {
-      toast.error("Select a driver");
+      toast.error("Bitte einen Fahrer auswählen");
       return;
     }
     setCalculating(true);
@@ -102,11 +102,11 @@ export default function SettlementsPage() {
 
     const data = await res.json();
     if (!res.ok) {
-      toast.error(data.error || "Calculation failed");
+      toast.error(data.error || "Berechnung fehlgeschlagen");
     } else if (batch) {
-      toast.success(`Calculated ${data.results?.length || 0} settlements`);
+      toast.success(`${data.results?.length || 0} Abrechnungen berechnet`);
     } else {
-      toast.success("Settlement calculated");
+      toast.success("Abrechnung berechnet");
     }
 
     await fetchSettlements();
@@ -120,7 +120,7 @@ export default function SettlementsPage() {
     const selected = settlements.filter((s: Settlement) => selectedIds.has(s.id));
     const nonApproved = selected.filter((s: Settlement) => s.status !== "APPROVED");
     if (nonApproved.length > 0) {
-      toast.error(`${nonApproved.length} settlement(s) are not APPROVED`);
+      toast.error(`${nonApproved.length} Abrechnung(en) nicht genehmigt`);
       return;
     }
 
@@ -133,16 +133,16 @@ export default function SettlementsPage() {
 
     if (res.ok) {
       const data = await res.json();
-      toast.success(`${data.updated} settlement(s) marked as paid`);
+      toast.success(`${data.updated} Abrechnung(en) als bezahlt markiert`);
       await fetchSettlements();
     } else {
       const data = await res.json();
-      toast.error(data.error || "Failed to mark as paid");
+      toast.error(data.error || "Als bezahlt markieren fehlgeschlagen");
     }
     setMarkingPaid(false);
   }
 
-  if (loading) return <div className="py-8 text-center">Loading...</div>;
+  if (loading) return <div className="py-8 text-center">Wird geladen...</div>;
 
   const selectedCount = selectedIds.size;
   const hasApprovedSelected = settlements.some(
@@ -151,20 +151,20 @@ export default function SettlementsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Settlements</h1>
+      <h1 className="text-2xl font-bold">Abrechnungen</h1>
 
       {/* Calculate Section */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Calculate Settlement</CardTitle>
+          <CardTitle className="text-sm">Abrechnung berechnen</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap items-end gap-4">
             <div className="space-y-1">
-              <Label className="text-xs">Driver</Label>
+              <Label className="text-xs">Fahrer</Label>
               <Select value={calcDriverId} onValueChange={setCalcDriverId}>
                 <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Select driver" />
+                  <SelectValue placeholder="Fahrer auswählen" />
                 </SelectTrigger>
                 <SelectContent>
                   {drivers.map((d) => (
@@ -176,7 +176,7 @@ export default function SettlementsPage() {
               </Select>
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Period Start</Label>
+              <Label className="text-xs">Zeitraum Beginn</Label>
               <Input
                 type="date"
                 value={calcStart}
@@ -185,7 +185,7 @@ export default function SettlementsPage() {
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Period End</Label>
+              <Label className="text-xs">Zeitraum Ende</Label>
               <Input
                 type="date"
                 value={calcEnd}
@@ -195,14 +195,14 @@ export default function SettlementsPage() {
             </div>
             <Button onClick={() => handleCalculate(false)} disabled={calculating}>
               <Calculator className="mr-2 h-4 w-4" />
-              Calculate
+              Berechnen
             </Button>
             <Button
               variant="outline"
               onClick={() => handleCalculate(true)}
               disabled={calculating}
             >
-              Calculate All Drivers
+              Alle Fahrer berechnen
             </Button>
           </div>
         </CardContent>
@@ -212,10 +212,10 @@ export default function SettlementsPage() {
       <div className="flex gap-4">
         <Select value={driverFilter} onValueChange={setDriverFilter}>
           <SelectTrigger className="w-48">
-            <SelectValue placeholder="All Drivers" />
+            <SelectValue placeholder="Alle Fahrer" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Drivers</SelectItem>
+            <SelectItem value="all">Alle Fahrer</SelectItem>
             {drivers.map((d) => (
               <SelectItem key={d.id} value={d.id}>
                 {d.firstName} {d.lastName}
@@ -225,15 +225,15 @@ export default function SettlementsPage() {
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="All Status" />
+            <SelectValue placeholder="Alle Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="DRAFT">Draft</SelectItem>
-            <SelectItem value="CALCULATED">Calculated</SelectItem>
-            <SelectItem value="APPROVED">Approved</SelectItem>
-            <SelectItem value="PAID">Paid</SelectItem>
-            <SelectItem value="DISPUTED">Disputed</SelectItem>
+            <SelectItem value="all">Alle Status</SelectItem>
+            <SelectItem value="DRAFT">Entwurf</SelectItem>
+            <SelectItem value="CALCULATED">Berechnet</SelectItem>
+            <SelectItem value="APPROVED">Genehmigt</SelectItem>
+            <SelectItem value="PAID">Bezahlt</SelectItem>
+            <SelectItem value="DISPUTED">Strittig</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -242,7 +242,7 @@ export default function SettlementsPage() {
       {selectedCount > 0 && (
         <div className="flex items-center gap-3 rounded-lg border bg-gray-50 p-3">
           <span className="text-sm font-medium">
-            {selectedCount} selected
+            {selectedCount} ausgewählt
           </span>
           <div className="flex gap-2 ml-auto">
             {hasApprovedSelected && (
@@ -253,7 +253,7 @@ export default function SettlementsPage() {
                   onClick={() => setSepaDialogOpen(true)}
                 >
                   <CreditCard className="mr-1 h-4 w-4" />
-                  Generate SEPA File
+                  SEPA-Datei erstellen
                 </Button>
                 <Button
                   variant="outline"
@@ -262,7 +262,7 @@ export default function SettlementsPage() {
                   disabled={markingPaid}
                 >
                   <CheckCircle className="mr-1 h-4 w-4" />
-                  Mark as Paid
+                  Als bezahlt markieren
                 </Button>
               </>
             )}
@@ -271,7 +271,7 @@ export default function SettlementsPage() {
               size="sm"
               onClick={() => setSelectedIds(new Set())}
             >
-              Clear
+              Auswahl aufheben
             </Button>
           </div>
         </div>

@@ -55,7 +55,7 @@ export function FleetSummaryTable({
   if (rows.length === 0) {
     return (
       <div className="rounded-md border p-8 text-center text-gray-500">
-        No settlements found for the selected period.
+        Keine Abrechnungen für den gewählten Zeitraum gefunden.
       </div>
     );
   }
@@ -65,16 +65,16 @@ export function FleetSummaryTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Driver</TableHead>
-            <TableHead>Period</TableHead>
+            <TableHead>Fahrer</TableHead>
+            <TableHead>Zeitraum</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead className="text-right">Platform Net</TableHead>
-            <TableHead className="text-right">Commission</TableHead>
-            <TableHead className="text-right">Vehicle</TableHead>
-            <TableHead className="text-right">Line Items</TableHead>
-            <TableHead className="text-right">Driver Net</TableHead>
-            <TableHead className="text-right">Cash</TableHead>
-            <TableHead className="text-right">Payout</TableHead>
+            <TableHead className="text-right">Plattform netto</TableHead>
+            <TableHead className="text-right">Provision</TableHead>
+            <TableHead className="text-right">Fahrzeug</TableHead>
+            <TableHead className="text-right">Positionen</TableHead>
+            <TableHead className="text-right">Fahrer netto</TableHead>
+            <TableHead className="text-right">Bargeld</TableHead>
+            <TableHead className="text-right">Auszahlung</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -122,7 +122,7 @@ export function FleetSummaryTable({
           ))}
           {/* Totals Row */}
           <TableRow className="bg-gray-50 font-bold border-t-2">
-            <TableCell>TOTAL</TableCell>
+            <TableCell>GESAMT</TableCell>
             <TableCell></TableCell>
             <TableCell></TableCell>
             <TableCell className="text-right">{formatEur(totals.totalPlatformNet)}</TableCell>

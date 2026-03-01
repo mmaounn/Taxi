@@ -22,7 +22,7 @@ export function BalanceWidget({ balance }: { balance: number }) {
           {formatEur(balance)}
         </div>
         <p className="text-xs text-muted-foreground mt-1">
-          Current account balance
+          Aktueller Kontostand
         </p>
       </CardContent>
     </Card>

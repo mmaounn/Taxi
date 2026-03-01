@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Edit } from "lucide-react";
+import { Edit, Loader2 } from "lucide-react";
 import { formatEur } from "@/lib/format";
 
 interface VehicleData {
@@ -67,7 +67,7 @@ export default function VehicleDetailPage() {
       });
   }, [id]);
 
-  if (loading) return <div className="py-8 text-center">Wird geladen...</div>;
+  if (loading) return <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Wird geladen...</div>;
   if (!vehicle) return <div className="py-8 text-center text-red-600">Fahrzeug nicht gefunden</div>;
 
   if (isEditing) {

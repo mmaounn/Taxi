@@ -13,6 +13,7 @@ import {
 import { RideTable } from "@/components/driver-portal/ride-table";
 import { WeekPicker } from "@/components/ui/week-picker";
 import { getWeekBounds } from "@/lib/date-utils";
+import { Loader2 } from "lucide-react";
 
 interface Ride {
   id: string;
@@ -109,7 +110,7 @@ export default function DriverRidesPage() {
 
       {/* Rides Table */}
       {loading ? (
-        <div className="py-8 text-center text-gray-500">Fahrten werden geladen...</div>
+        <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Fahrten werden geladen...</div>
       ) : (
         <RideTable
           rides={rides}

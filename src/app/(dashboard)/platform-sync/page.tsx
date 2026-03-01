@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
@@ -58,7 +59,7 @@ export default function PlatformSyncPage() {
     loadData();
   }, []);
 
-  if (loading) return <div className="py-8 text-center">Wird geladen...</div>;
+  if (loading) return <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Wird geladen...</div>;
 
   const statusColors: Record<string, string> = {
     completed: "bg-green-100 text-green-800",

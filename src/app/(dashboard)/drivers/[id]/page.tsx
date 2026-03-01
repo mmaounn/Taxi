@@ -32,7 +32,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { Save, Wallet, Plus } from "lucide-react";
+import { Save, Wallet, Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatEur, parseDecimalInput } from "@/lib/format";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -201,7 +201,7 @@ export default function DriverDetailPage() {
     }
   }
 
-  if (loading) return <div className="py-8 text-center">Wird geladen...</div>;
+  if (loading) return <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Wird geladen...</div>;
   if (!driver) return <div className="py-8 text-center text-red-600">Fahrer nicht gefunden</div>;
 
   return (

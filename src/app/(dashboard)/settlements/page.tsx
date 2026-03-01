@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/select";
 import { SettlementTable } from "@/components/settlements/settlement-table";
 import { SepaExportDialog } from "@/components/settlements/sepa-export-dialog";
-import { CreditCard, CheckCircle } from "lucide-react";
+import { CreditCard, CheckCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { WeekPicker } from "@/components/ui/week-picker";
 import { getWeekBounds } from "@/lib/date-utils";
@@ -96,7 +96,7 @@ export default function SettlementsPage() {
     setMarkingPaid(false);
   }
 
-  if (loading) return <div className="py-8 text-center">Wird geladen...</div>;
+  if (loading) return <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Wird geladen...</div>;
 
   const selectedCount = selectedIds.size;
   const hasApprovedSelected = settlements.some(

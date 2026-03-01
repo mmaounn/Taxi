@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { ChevronLeft, ChevronRight, Route, Banknote, HandCoins, Building2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Route, Banknote, HandCoins, Building2, Loader2 } from "lucide-react";
 import { formatEur } from "@/lib/format";
 import { WeekPicker } from "@/components/ui/week-picker";
 import { getWeekBounds } from "@/lib/date-utils";
@@ -230,7 +230,7 @@ export default function RidesPage() {
       <div className="space-y-3 md:hidden">
         {rides.length === 0 ? (
           <div className="rounded-md border p-8 text-center text-gray-500">
-            {loading ? "Fahrten werden geladen..." : "Keine Fahrten gefunden."}
+            {loading ? <span className="inline-flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Fahrten werden geladen...</span> : "Keine Fahrten gefunden."}
           </div>
         ) : (
           rides.map((ride) => (
@@ -302,7 +302,7 @@ export default function RidesPage() {
             {rides.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={10} className="h-24 text-center text-gray-500">
-                  {loading ? "Fahrten werden geladen..." : "Keine Fahrten gefunden."}
+                  {loading ? <span className="inline-flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Fahrten werden geladen...</span> : "Keine Fahrten gefunden."}
                 </TableCell>
               </TableRow>
             ) : (

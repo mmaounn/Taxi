@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { VehicleTable } from "@/components/vehicles/vehicle-table";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 
 export default function VehiclesPage() {
   const [vehicles, setVehicles] = useState([]);
@@ -32,7 +32,7 @@ export default function VehiclesPage() {
       </div>
 
       {loading ? (
-        <div className="py-8 text-center text-gray-500">Wird geladen...</div>
+        <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Wird geladen...</div>
       ) : (
         <VehicleTable vehicles={vehicles} />
       )}

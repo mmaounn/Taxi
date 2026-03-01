@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 import { useParams } from "next/navigation";
 import { SettlementDetail } from "@/components/settlements/settlement-detail";
 
@@ -18,7 +19,7 @@ export default function SettlementDetailPage() {
       });
   }, [id]);
 
-  if (loading) return <div className="py-8 text-center">Wird geladen...</div>;
+  if (loading) return <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Wird geladen...</div>;
   if (!settlement) return <div className="py-8 text-center text-red-600">Abrechnung nicht gefunden</div>;
 
   return (

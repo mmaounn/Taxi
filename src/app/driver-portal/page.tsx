@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BalanceWidget } from "@/components/driver-portal/balance-widget";
 import { IncomeChart } from "@/components/driver-portal/income-chart";
-import { Car, Receipt, Banknote, TrendingUp } from "lucide-react";
+import { Car, Receipt, Banknote, TrendingUp, Loader2 } from "lucide-react";
 import { formatEur } from "@/lib/format";
 
 interface PortalDashboardData {
@@ -59,7 +59,7 @@ export default function DriverPortalPage() {
       .catch(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="py-8 text-center">Wird geladen...</div>;
+  if (loading) return <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Wird geladen...</div>;
   if (!data) {
     return (
       <div className="space-y-6">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 import { SettlementTable } from "@/components/settlements/settlement-table";
 
 export default function DriverSettlementsPage() {
@@ -21,7 +22,7 @@ export default function DriverSettlementsPage() {
       <h1 className="text-2xl font-bold">Meine Abrechnungen</h1>
 
       {loading ? (
-        <div className="py-8 text-center">Wird geladen...</div>
+        <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Wird geladen...</div>
       ) : (
         <SettlementTable
           settlements={settlements}

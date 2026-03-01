@@ -109,7 +109,7 @@ export default function DriversPage() {
       </div>
 
       {loading ? (
-        <div className="py-8 text-center text-gray-500">Wird geladen...</div>
+        <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Wird geladen...</div>
       ) : (
         <DriverTable drivers={drivers} />
       )}

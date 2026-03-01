@@ -121,7 +121,7 @@ export default function SettingsPage() {
     setSaving(false);
   }
 
-  if (loading) return <div className="py-8 text-center">Wird geladen...</div>;
+  if (loading) return <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Wird geladen...</div>;
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">

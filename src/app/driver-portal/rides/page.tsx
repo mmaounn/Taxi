@@ -37,7 +37,7 @@ export default function DriverRidesPage() {
   const [rides, setRides] = useState<Ride[]>([]);
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
-    limit: 20,
+    limit: 15,
     total: 0,
     totalPages: 0,
   });
@@ -52,7 +52,7 @@ export default function DriverRidesPage() {
     setLoading(true);
     const params = new URLSearchParams();
     params.set("page", String(page));
-    params.set("limit", "20");
+    params.set("limit", "15");
     if (source !== "all") params.set("source", source);
     if (week.start) params.set("from", week.start);
     if (week.end) params.set("to", week.end);
@@ -61,7 +61,7 @@ export default function DriverRidesPage() {
       const res = await fetch(`/api/driver-portal/rides?${params}`);
       const data = await res.json();
       setRides(data.rides || []);
-      setPagination(data.pagination || { page: 1, limit: 20, total: 0, totalPages: 0 });
+      setPagination(data.pagination || { page: 1, limit: 15, total: 0, totalPages: 0 });
     } catch {
       // silent
     }

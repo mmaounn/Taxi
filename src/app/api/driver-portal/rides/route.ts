@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
-  const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "20")));
+  const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "15")));
   const from = searchParams.get("from");
   const to = searchParams.get("to");
   const source = searchParams.get("source");

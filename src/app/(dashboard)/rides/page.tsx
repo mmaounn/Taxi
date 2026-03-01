@@ -73,7 +73,7 @@ export default function RidesPage() {
 
   const fetchRides = useCallback(async (p: number) => {
     setLoading(true);
-    const params = new URLSearchParams({ page: String(p), limit: "20" });
+    const params = new URLSearchParams({ page: String(p), limit: "15" });
     if (source && source !== "all") params.set("source", source);
     if (driverId && driverId !== "all") params.set("driverId", driverId);
     if (payment && payment !== "all") params.set("payment", payment);

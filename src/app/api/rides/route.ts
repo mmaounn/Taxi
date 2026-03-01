@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const page = Math.max(1, Number(searchParams.get("page") || 1));
-  const limit = Math.min(100, Math.max(1, Number(searchParams.get("limit") || 30)));
+  const limit = Math.min(100, Math.max(1, Number(searchParams.get("limit") || 15)));
   const source = searchParams.get("source");
   const driverId = searchParams.get("driverId");
   const from = searchParams.get("from");

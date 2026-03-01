@@ -6,12 +6,14 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { formatEur } from "@/lib/format";
+import { useMemo } from "react";
 
 interface Ride {
   id: string;
@@ -53,6 +55,16 @@ export function RideTable({
   pagination: Pagination;
   onPageChange: (page: number) => void;
 }) {
+  const totals = useMemo(() => {
+    let fare = 0;
+    let tip = 0;
+    for (const r of rides) {
+      fare += r.fareAmount ?? 0;
+      tip += r.tipAmount ?? 0;
+    }
+    return { fare, tip };
+  }, [rides]);
+
   if (rides.length === 0) {
     return (
       <div className="rounded-md border p-8 text-center text-gray-500">
@@ -117,6 +129,20 @@ export function RideTable({
               </TableRow>
             ))}
           </TableBody>
+          <TableFooter>
+            <TableRow className="font-semibold">
+              <TableCell colSpan={4} className="text-sm">
+                Summe
+              </TableCell>
+              <TableCell className="text-right text-sm">
+                {formatEur(totals.fare)}
+              </TableCell>
+              <TableCell className="text-right text-sm text-green-600">
+                {formatEur(totals.tip)}
+              </TableCell>
+              <TableCell />
+            </TableRow>
+          </TableFooter>
         </Table>
       </div>
 

@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -12,7 +11,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RideTable } from "@/components/driver-portal/ride-table";
-import { DatePicker } from "@/components/ui/date-picker";
+import { WeekPicker } from "@/components/ui/week-picker";
+import { getWeekBounds } from "@/lib/date-utils";
 
 interface Ride {
   id: string;
@@ -45,8 +45,7 @@ export default function DriverRidesPage() {
 
   // Filters
   const [source, setSource] = useState("all");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [week, setWeek] = useState(() => getWeekBounds(0));
   const [page, setPage] = useState(1);
 
   const fetchRides = useCallback(async () => {
@@ -55,8 +54,8 @@ export default function DriverRidesPage() {
     params.set("page", String(page));
     params.set("limit", "20");
     if (source !== "all") params.set("source", source);
-    if (dateFrom) params.set("from", dateFrom);
-    if (dateTo) params.set("to", dateTo);
+    if (week.start) params.set("from", week.start);
+    if (week.end) params.set("to", week.end);
 
     try {
       const res = await fetch(`/api/driver-portal/rides?${params}`);
@@ -67,7 +66,7 @@ export default function DriverRidesPage() {
       // silent
     }
     setLoading(false);
-  }, [page, source, dateFrom, dateTo]);
+  }, [page, source, week]);
 
   useEffect(() => {
     fetchRides();
@@ -76,7 +75,7 @@ export default function DriverRidesPage() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setPage(1);
-  }, [source, dateFrom, dateTo]);
+  }, [source, week]);
 
   return (
     <div className="space-y-6">
@@ -103,22 +102,7 @@ export default function DriverRidesPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Von</Label>
-              <DatePicker
-                value={dateFrom}
-                onChange={setDateFrom}
-                className="w-40"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Bis</Label>
-              <DatePicker
-                value={dateTo}
-                onChange={setDateTo}
-                className="w-40"
-              />
-            </div>
+            <WeekPicker value={week} onChange={setWeek} />
           </div>
         </CardContent>
       </Card>

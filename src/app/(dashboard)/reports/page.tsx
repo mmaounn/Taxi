@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FleetSummaryTable } from "@/components/reports/fleet-summary-table";
@@ -16,6 +15,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { DatePicker } from "@/components/ui/date-picker";
+import { getWeekBounds, getMonthBounds } from "@/lib/date-utils";
 
 interface SummaryRow {
   settlementId: string;
@@ -44,32 +44,6 @@ interface SummaryData {
     payoutAmount: number;
   };
   driverCount: number;
-}
-
-function getWeekBounds(offset: number) {
-  const now = new Date();
-  const dayOfWeek = now.getDay();
-  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-
-  const monday = new Date(now);
-  monday.setDate(now.getDate() + mondayOffset + offset * 7);
-  const sunday = new Date(monday);
-  sunday.setDate(monday.getDate() + 6);
-
-  return {
-    start: monday.toISOString().split("T")[0],
-    end: sunday.toISOString().split("T")[0],
-  };
-}
-
-function getMonthBounds(offset: number) {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth() + offset, 1);
-  const end = new Date(now.getFullYear(), now.getMonth() + offset + 1, 0);
-  return {
-    start: start.toISOString().split("T")[0],
-    end: end.toISOString().split("T")[0],
-  };
 }
 
 function getDaysBetween(start: string, end: string): number {

@@ -4,11 +4,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { RefreshCw, CheckCircle, XCircle, Clock, Users } from "lucide-react";
 import { toast } from "sonner";
-import { DatePicker } from "@/components/ui/date-picker";
+import { WeekPicker } from "@/components/ui/week-picker";
+import { getWeekBounds } from "@/lib/date-utils";
 
 interface SyncLog {
   id: string;
@@ -38,17 +37,12 @@ function SyncStatusCard({
   onSync,
 }: SyncStatusCardProps) {
   const [syncing, setSyncing] = useState(false);
-  const [dateFrom, setDateFrom] = useState(() => {
-    const d = new Date();
-    d.setDate(d.getDate() - 7);
-    return d.toISOString().split("T")[0];
-  });
-  const [dateTo, setDateTo] = useState(() => new Date().toISOString().split("T")[0]);
+  const [week, setWeek] = useState(() => getWeekBounds(0));
 
   async function handleSync() {
     setSyncing(true);
     try {
-      await onSync(dateFrom, dateTo);
+      await onSync(week.start, week.end);
     } finally {
       setSyncing(false);
     }
@@ -86,24 +80,7 @@ function SyncStatusCard({
 
         {apiEnabled && (
           <>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="space-y-1">
-                <Label className="text-xs">Von</Label>
-                <DatePicker
-                  value={dateFrom}
-                  onChange={setDateFrom}
-                  className="w-full"
-                />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Bis</Label>
-                <DatePicker
-                  value={dateTo}
-                  onChange={setDateTo}
-                  className="w-full"
-                />
-              </div>
-            </div>
+            <WeekPicker value={week} onChange={setWeek} />
             <Button
               onClick={handleSync}
               disabled={syncing}

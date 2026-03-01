@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -16,7 +15,8 @@ import { SettlementTable } from "@/components/settlements/settlement-table";
 import { SepaExportDialog } from "@/components/settlements/sepa-export-dialog";
 import { Calculator, CreditCard, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
-import { DatePicker } from "@/components/ui/date-picker";
+import { WeekPicker } from "@/components/ui/week-picker";
+import { getWeekBounds } from "@/lib/date-utils";
 
 interface Driver {
   id: string;
@@ -39,16 +39,7 @@ export default function SettlementsPage() {
 
   // Calculation form
   const [calcDriverId, setCalcDriverId] = useState("");
-  const [calcStart, setCalcStart] = useState(() => {
-    const d = new Date();
-    d.setDate(d.getDate() - d.getDay() + 1); // Monday
-    return d.toISOString().split("T")[0];
-  });
-  const [calcEnd, setCalcEnd] = useState(() => {
-    const d = new Date();
-    d.setDate(d.getDate() - d.getDay() + 7); // Sunday
-    return d.toISOString().split("T")[0];
-  });
+  const [calcWeek, setCalcWeek] = useState(() => getWeekBounds(0));
 
   // Multi-select for SEPA/batch operations
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -95,8 +86,8 @@ export default function SettlementsPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         driverId: batch ? "batch" : calcDriverId,
-        periodStart: calcStart,
-        periodEnd: calcEnd,
+        periodStart: calcWeek.start,
+        periodEnd: calcWeek.end,
         batch,
       }),
     });
@@ -176,22 +167,7 @@ export default function SettlementsPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Zeitraum Beginn</Label>
-              <DatePicker
-                value={calcStart}
-                onChange={setCalcStart}
-                className="w-40"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Zeitraum Ende</Label>
-              <DatePicker
-                value={calcEnd}
-                onChange={setCalcEnd}
-                className="w-40"
-              />
-            </div>
+            <WeekPicker value={calcWeek} onChange={setCalcWeek} />
             <Button onClick={() => handleCalculate(false)} disabled={calculating}>
               <Calculator className="mr-2 h-4 w-4" />
               Berechnen

@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -16,6 +15,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -23,7 +23,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight, Loader2, Search } from "lucide-react";
 import { formatEur } from "@/lib/format";
-import { DatePicker } from "@/components/ui/date-picker";
+import { WeekPicker } from "@/components/ui/week-picker";
+import { getWeekBounds } from "@/lib/date-utils";
 
 interface Ride {
   id: string;
@@ -70,12 +71,7 @@ export default function RidesPage() {
   const [source, setSource] = useState("");
   const [driverId, setDriverId] = useState("");
   const [payment, setPayment] = useState("");
-  const [dateFrom, setDateFrom] = useState(() => {
-    const d = new Date();
-    d.setDate(d.getDate() - 30);
-    return d.toISOString().split("T")[0];
-  });
-  const [dateTo, setDateTo] = useState(() => new Date().toISOString().split("T")[0]);
+  const [week, setWeek] = useState(() => getWeekBounds(0));
 
   const fetchRides = useCallback(async (p: number) => {
     setLoading(true);
@@ -83,8 +79,8 @@ export default function RidesPage() {
     if (source && source !== "all") params.set("source", source);
     if (driverId && driverId !== "all") params.set("driverId", driverId);
     if (payment && payment !== "all") params.set("payment", payment);
-    if (dateFrom) params.set("from", dateFrom);
-    if (dateTo) params.set("to", dateTo);
+    if (week.start) params.set("from", week.start);
+    if (week.end) params.set("to", week.end);
 
     try {
       const res = await fetch(`/api/rides?${params}`);
@@ -99,7 +95,7 @@ export default function RidesPage() {
       // silent
     }
     setLoading(false);
-  }, [source, driverId, payment, dateFrom, dateTo]);
+  }, [source, driverId, payment, week]);
 
   useEffect(() => {
     fetch("/api/drivers")
@@ -113,6 +109,20 @@ export default function RidesPage() {
   useEffect(() => {
     fetchRides(1);
   }, [fetchRides]);
+
+  const totals = useMemo(() => {
+    let km = 0;
+    let fare = 0;
+    let tip = 0;
+    let commission = 0;
+    for (const r of rides) {
+      km += r.distanceKm ?? 0;
+      fare += r.fareAmount ?? 0;
+      tip += r.tipAmount ?? 0;
+      commission += r.platformCommission ?? 0;
+    }
+    return { km, fare, tip, commission };
+  }, [rides]);
 
   return (
     <div className="space-y-6">
@@ -172,23 +182,7 @@ export default function RidesPage() {
               </Select>
             </div>
 
-            <div className="space-y-1">
-              <Label className="text-xs">Von</Label>
-              <DatePicker
-                value={dateFrom}
-                onChange={setDateFrom}
-                className="w-40"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <Label className="text-xs">Bis</Label>
-              <DatePicker
-                value={dateTo}
-                onChange={setDateTo}
-                className="w-40"
-              />
-            </div>
+            <WeekPicker value={week} onChange={setWeek} />
 
             <Button
               variant="outline"
@@ -314,6 +308,28 @@ export default function RidesPage() {
               ))
             )}
           </TableBody>
+          {rides.length > 0 && (
+            <TableFooter>
+              <TableRow className="font-semibold">
+                <TableCell colSpan={5} className="text-sm">
+                  Summe
+                </TableCell>
+                <TableCell className="text-right text-sm">
+                  {totals.km.toFixed(1)}
+                </TableCell>
+                <TableCell className="text-right text-sm">
+                  {formatEur(totals.fare)}
+                </TableCell>
+                <TableCell className="text-right text-sm text-green-600">
+                  {formatEur(totals.tip)}
+                </TableCell>
+                <TableCell className="text-right text-sm text-gray-500">
+                  {formatEur(totals.commission)}
+                </TableCell>
+                <TableCell />
+              </TableRow>
+            </TableFooter>
+          )}
         </Table>
       </div>
 

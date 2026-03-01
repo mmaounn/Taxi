@@ -3,6 +3,14 @@
  * All week calculations use ISO weeks (Monday–Sunday).
  */
 
+/** Format a Date as yyyy-MM-dd using local time (avoids UTC timezone shift). */
+function toLocalDateString(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 /** Returns { start, end } as yyyy-MM-dd for the Monday–Sunday week at the given offset from this week. */
 export function getWeekBounds(offset: number): { start: string; end: string } {
   const now = new Date();
@@ -15,8 +23,8 @@ export function getWeekBounds(offset: number): { start: string; end: string } {
   sunday.setDate(monday.getDate() + 6);
 
   return {
-    start: monday.toISOString().split("T")[0],
-    end: sunday.toISOString().split("T")[0],
+    start: toLocalDateString(monday),
+    end: toLocalDateString(sunday),
   };
 }
 
@@ -26,8 +34,8 @@ export function getMonthBounds(offset: number): { start: string; end: string } {
   const start = new Date(now.getFullYear(), now.getMonth() + offset, 1);
   const end = new Date(now.getFullYear(), now.getMonth() + offset + 1, 0);
   return {
-    start: start.toISOString().split("T")[0],
-    end: end.toISOString().split("T")[0],
+    start: toLocalDateString(start),
+    end: toLocalDateString(end),
   };
 }
 
@@ -55,6 +63,20 @@ export function formatWeekLabel(start: string, end: string): string {
 
   const endDate = new Date(end + "T00:00:00");
   return `KW ${kw}: ${fmt(startDate)} – ${fmt(endDate)}`;
+}
+
+/** Returns Mon–Sun bounds for the week containing the given date. */
+export function getWeekBoundsForDate(date: Date): { start: string; end: string } {
+  const day = date.getDay();
+  const mondayOffset = day === 0 ? -6 : 1 - day;
+  const monday = new Date(date);
+  monday.setDate(date.getDate() + mondayOffset);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  return {
+    start: toLocalDateString(monday),
+    end: toLocalDateString(sunday),
+  };
 }
 
 /**

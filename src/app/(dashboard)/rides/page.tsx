@@ -2,8 +2,6 @@
 
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -21,7 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, Loader2, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { formatEur } from "@/lib/format";
 import { WeekPicker } from "@/components/ui/week-picker";
 import { getWeekBounds } from "@/lib/date-utils";
@@ -129,76 +127,44 @@ export default function RidesPage() {
       <h1 className="text-2xl font-bold">Fahrten</h1>
 
       {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Filter</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap items-end gap-4">
-            <div className="space-y-1">
-              <Label className="text-xs">Fahrer</Label>
-              <Select value={driverId} onValueChange={setDriverId}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Alle Fahrer" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Alle Fahrer</SelectItem>
-                  {drivers.map((d) => (
-                    <SelectItem key={d.id} value={d.id}>
-                      {d.firstName} {d.lastName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-1">
-              <Label className="text-xs">Plattform</Label>
-              <Select value={source} onValueChange={setSource}>
-                <SelectTrigger className="w-36">
-                  <SelectValue placeholder="Alle" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Alle</SelectItem>
-                  <SelectItem value="BOLT">Bolt</SelectItem>
-                  <SelectItem value="UBER">Uber</SelectItem>
-                  <SelectItem value="FREENOW">FreeNow</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-1">
-              <Label className="text-xs">Zahlung</Label>
-              <Select value={payment} onValueChange={setPayment}>
-                <SelectTrigger className="w-32">
-                  <SelectValue placeholder="Alle" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Alle</SelectItem>
-                  <SelectItem value="CASH">Bargeld</SelectItem>
-                  <SelectItem value="CARD">Karte</SelectItem>
-                  <SelectItem value="IN_APP">In-App</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <WeekPicker value={week} onChange={setWeek} />
-
-            <Button
-              variant="outline"
-              onClick={() => fetchRides(1)}
-              disabled={loading}
-            >
-              {loading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Search className="mr-2 h-4 w-4" />
-              )}
-              Suchen
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex flex-wrap items-center gap-3">
+        <Select value={driverId} onValueChange={setDriverId}>
+          <SelectTrigger className="w-44">
+            <SelectValue placeholder="Alle Fahrer" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Alle Fahrer</SelectItem>
+            {drivers.map((d) => (
+              <SelectItem key={d.id} value={d.id}>
+                {d.firstName} {d.lastName}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={source} onValueChange={setSource}>
+          <SelectTrigger className="w-32">
+            <SelectValue placeholder="Alle" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Alle</SelectItem>
+            <SelectItem value="BOLT">Bolt</SelectItem>
+            <SelectItem value="UBER">Uber</SelectItem>
+            <SelectItem value="FREENOW">FreeNow</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={payment} onValueChange={setPayment}>
+          <SelectTrigger className="w-28">
+            <SelectValue placeholder="Alle" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Alle</SelectItem>
+            <SelectItem value="CASH">Bargeld</SelectItem>
+            <SelectItem value="CARD">Karte</SelectItem>
+            <SelectItem value="IN_APP">In-App</SelectItem>
+          </SelectContent>
+        </Select>
+        <WeekPicker value={week} onChange={setWeek} />
+      </div>
 
       {/* Results */}
       <div className="flex items-center justify-between">

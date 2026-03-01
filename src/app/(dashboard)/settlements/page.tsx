@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -10,10 +9,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SettlementTable } from "@/components/settlements/settlement-table";
 import { SepaExportDialog } from "@/components/settlements/sepa-export-dialog";
-import { Calculator, CreditCard, CheckCircle } from "lucide-react";
+import { CreditCard, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { WeekPicker } from "@/components/ui/week-picker";
 import { getWeekBounds } from "@/lib/date-utils";
@@ -31,15 +29,11 @@ export default function SettlementsPage() {
   const [settlements, setSettlements] = useState<Settlement[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [loading, setLoading] = useState(true);
-  const [calculating, setCalculating] = useState(false);
 
   // Filters
   const [driverFilter, setDriverFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
-
-  // Calculation form
-  const [calcDriverId, setCalcDriverId] = useState("");
-  const [calcWeek, setCalcWeek] = useState(() => getWeekBounds(0));
+  const [week, setWeek] = useState(() => getWeekBounds(0));
 
   // Multi-select for SEPA/batch operations
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -47,63 +41,31 @@ export default function SettlementsPage() {
   const [markingPaid, setMarkingPaid] = useState(false);
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/settlements").then((r) => r.json()),
-      fetch("/api/drivers").then((r) => r.json()),
-    ]).then(([s, d]) => {
-      setSettlements(s);
-      setDrivers(d);
-      setLoading(false);
-    });
+    fetch("/api/drivers")
+      .then((r) => r.json())
+      .then((d) => setDrivers(d))
+      .catch(() => {});
   }, []);
 
-  async function fetchSettlements() {
+  const fetchSettlements = useCallback(async () => {
+    setLoading(true);
     const params = new URLSearchParams();
     if (driverFilter !== "all") params.set("driverId", driverFilter);
     if (statusFilter !== "all") params.set("status", statusFilter);
+    params.set("from", week.start);
+    params.set("to", week.end);
 
     const res = await fetch(`/api/settlements?${params}`);
     if (res.ok) {
       setSettlements(await res.json());
       setSelectedIds(new Set());
     }
-  }
+    setLoading(false);
+  }, [driverFilter, statusFilter, week]);
 
   useEffect(() => {
-    if (!loading) fetchSettlements();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [driverFilter, statusFilter]);
-
-  async function handleCalculate(batch: boolean) {
-    if (!batch && !calcDriverId) {
-      toast.error("Bitte einen Fahrer auswählen");
-      return;
-    }
-    setCalculating(true);
-
-    const res = await fetch("/api/settlements", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        driverId: batch ? "batch" : calcDriverId,
-        periodStart: calcWeek.start,
-        periodEnd: calcWeek.end,
-        batch,
-      }),
-    });
-
-    const data = await res.json();
-    if (!res.ok) {
-      toast.error(data.error || "Berechnung fehlgeschlagen");
-    } else if (batch) {
-      toast.success(`${data.results?.length || 0} Abrechnungen berechnet`);
-    } else {
-      toast.success("Abrechnung berechnet");
-    }
-
-    await fetchSettlements();
-    setCalculating(false);
-  }
+    fetchSettlements();
+  }, [fetchSettlements]);
 
   async function handleMarkPaid() {
     if (selectedIds.size === 0) return;
@@ -145,46 +107,8 @@ export default function SettlementsPage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Abrechnungen</h1>
 
-      {/* Calculate Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Abrechnung berechnen</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap items-end gap-4">
-            <div className="space-y-1">
-              <Label className="text-xs">Fahrer</Label>
-              <Select value={calcDriverId} onValueChange={setCalcDriverId}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Fahrer auswählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  {drivers.map((d) => (
-                    <SelectItem key={d.id} value={d.id}>
-                      {d.firstName} {d.lastName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <WeekPicker value={calcWeek} onChange={setCalcWeek} />
-            <Button onClick={() => handleCalculate(false)} disabled={calculating}>
-              <Calculator className="mr-2 h-4 w-4" />
-              Berechnen
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => handleCalculate(true)}
-              disabled={calculating}
-            >
-              Alle Fahrer berechnen
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Filters */}
-      <div className="flex gap-4">
+      <div className="flex flex-wrap items-center gap-4">
         <Select value={driverFilter} onValueChange={setDriverFilter}>
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Alle Fahrer" />
@@ -211,6 +135,7 @@ export default function SettlementsPage() {
             <SelectItem value="DISPUTED">Strittig</SelectItem>
           </SelectContent>
         </Select>
+        <WeekPicker value={week} onChange={setWeek} />
       </div>
 
       {/* Action Bar (visible when items selected) */}

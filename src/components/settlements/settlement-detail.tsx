@@ -96,6 +96,14 @@ export function SettlementDetail({
     DISPUTED: "bg-red-100 text-red-800",
   };
 
+  const statusLabels: Record<string, string> = {
+    DRAFT: "Entwurf",
+    CALCULATED: "Berechnet",
+    APPROVED: "Genehmigt",
+    PAID: "Bezahlt",
+    DISPUTED: "Strittig",
+  };
+
   async function updateSettlement(data: Record<string, unknown>) {
     setSaving(true);
     const res = await fetch(`/api/settlements/${settlement.id}`, {
@@ -149,7 +157,7 @@ export function SettlementDetail({
           </p>
           <div className="mt-2 flex items-center gap-2">
             <Badge variant="secondary" className={statusColors[settlement.status]}>
-              {settlement.status}
+              {statusLabels[settlement.status] || settlement.status}
             </Badge>
             <span className="text-xs text-gray-400">
               {settlement.driver.commissionModel}

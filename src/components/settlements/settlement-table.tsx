@@ -34,6 +34,14 @@ const statusColors: Record<string, string> = {
   DISPUTED: "bg-red-100 text-red-800",
 };
 
+const statusLabels: Record<string, string> = {
+  DRAFT: "Entwurf",
+  CALCULATED: "Berechnet",
+  APPROVED: "Genehmigt",
+  PAID: "Bezahlt",
+  DISPUTED: "Strittig",
+};
+
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("de-AT");
 }
@@ -126,7 +134,7 @@ export function SettlementTable({
               </TableCell>
               <TableCell>
                 <Badge variant="secondary" className={statusColors[s.status]}>
-                  {s.status}
+                  {statusLabels[s.status] || s.status}
                 </Badge>
               </TableCell>
               <TableCell className="text-right">

@@ -36,6 +36,14 @@ const statusColors: Record<string, string> = {
   DISPUTED: "bg-red-100 text-red-800",
 };
 
+const statusLabels: Record<string, string> = {
+  DRAFT: "Entwurf",
+  CALCULATED: "Berechnet",
+  APPROVED: "Genehmigt",
+  PAID: "Bezahlt",
+  DISPUTED: "Strittig",
+};
+
 export default function DriverPortalPage() {
   const { data: session } = useSession();
   const [data, setData] = useState<PortalDashboardData | null>(null);
@@ -151,7 +159,7 @@ export default function DriverPortalPage() {
                   variant="secondary"
                   className={statusColors[data.latestSettlement.status]}
                 >
-                  {data.latestSettlement.status}
+                  {statusLabels[data.latestSettlement.status] || data.latestSettlement.status}
                 </Badge>
               </div>
               <span

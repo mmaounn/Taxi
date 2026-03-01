@@ -63,39 +63,46 @@ export default function DashboardPage() {
       .finally(() => setLoading(false));
   }, [loadDashboard]);
 
-  // Auto-sync Bolt data in background on mount
+  // Auto-sync all configured platforms in background on mount
   useEffect(() => {
     let cancelled = false;
 
     async function autoSync() {
       try {
-        const settingsRes = await fetch("/api/settings");
-        if (!settingsRes.ok) return;
-        const settings = await settingsRes.json();
-
-        const boltConfigured = !!(settings.partner?.boltClientId && settings.partner?.boltClientSecret);
-        if (!boltConfigured) return;
-
         setSyncing(true);
-        const syncRes = await fetch("/api/platform-sync/bolt-all", { method: "POST" });
+        const syncRes = await fetch("/api/platform-sync/auto-sync", { method: "POST" });
         const result = await syncRes.json();
 
         if (cancelled) return;
 
-        if (syncRes.ok) {
-          const parts = [];
-          if (result.driversImported) parts.push(`${result.driversImported} Fahrer`);
-          if (result.vehiclesImported) parts.push(`${result.vehiclesImported} Fahrzeuge`);
-          if (result.ridesImported) parts.push(`${result.ridesImported} Fahrten`);
-          if (parts.length > 0) {
-            toast.success(`Bolt-Sync: ${parts.join(", ")}`);
-          } else {
-            toast.info("Bolt-Sync: bereits aktuell");
+        if (syncRes.ok && result.platforms?.length > 0) {
+          for (const p of result.platforms) {
+            const parts = [];
+            if (p.driversImported) parts.push(`${p.driversImported} Fahrer`);
+            if (p.vehiclesImported) parts.push(`${p.vehiclesImported} Fahrzeuge`);
+            if (p.ridesImported) parts.push(`${p.ridesImported} Fahrten`);
+
+            if (parts.length > 0) {
+              toast.success(`${p.platform}-Sync: ${parts.join(", ")}`);
+            }
+
+            if (p.errors?.length > 0) {
+              toast.error(`${p.platform}: ${p.errors.length} Fehler`);
+            }
           }
+
+          const totalImported = result.platforms.reduce(
+            (sum: number, p: { driversImported?: number; vehiclesImported?: number; ridesImported?: number }) =>
+              sum + (p.driversImported || 0) + (p.vehiclesImported || 0) + (p.ridesImported || 0),
+            0
+          );
+
+          if (totalImported === 0) {
+            toast.info("Plattform-Sync: bereits aktuell");
+          }
+
           // Refresh dashboard data after sync
           await loadDashboard().catch(() => {});
-        } else {
-          toast.error(result.error || "Bolt-Auto-Sync fehlgeschlagen");
         }
       } catch {
         // Silent fail — auto-sync is best-effort
@@ -120,12 +127,12 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold">Dashboard</h1>
         {syncing && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <RefreshCw className="h-4 w-4 animate-spin" />
-            Synchronisierung mit Bolt...
+            Plattformen werden synchronisiert...
           </div>
         )}
       </div>

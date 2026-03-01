@@ -64,11 +64,11 @@ export function DriverForm({ initialData, vehicles }: DriverFormProps) {
 
     if (!res.ok) {
       const err = await res.json();
-      toast.error(err.error?.fieldErrors ? "Validation error" : "Failed to save driver");
+      toast.error(err.error?.fieldErrors ? "Validierungsfehler" : "Fahrer konnte nicht gespeichert werden");
       return;
     }
 
-    toast.success(isEditing ? "Driver updated" : "Driver created");
+    toast.success(isEditing ? "Fahrer aktualisiert" : "Fahrer erstellt");
     router.push("/drivers");
     router.refresh();
   }
@@ -77,33 +77,33 @@ export function DriverForm({ initialData, vehicles }: DriverFormProps) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Personal Information</CardTitle>
+          <CardTitle>Persönliche Daten</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-4">
+        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="firstName">First Name *</Label>
+            <Label htmlFor="firstName">Vorname *</Label>
             <Input id="firstName" {...register("firstName")} />
             {errors.firstName && (
               <p className="text-sm text-red-600">{errors.firstName.message}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="lastName">Last Name *</Label>
+            <Label htmlFor="lastName">Nachname *</Label>
             <Input id="lastName" {...register("lastName")} />
             {errors.lastName && (
               <p className="text-sm text-red-600">{errors.lastName.message}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">E-Mail</Label>
             <Input id="email" type="email" {...register("email")} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="phone">Phone</Label>
+            <Label htmlFor="phone">Telefon</Label>
             <Input id="phone" {...register("phone")} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="taxId">Tax ID</Label>
+            <Label htmlFor="taxId">Steuer-ID</Label>
             <Input id="taxId" {...register("taxId")} />
           </div>
         </CardContent>
@@ -111,9 +111,9 @@ export function DriverForm({ initialData, vehicles }: DriverFormProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Bank Details</CardTitle>
+          <CardTitle>Bankdaten</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-4">
+        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="bankIban">IBAN</Label>
             <Input id="bankIban" {...register("bankIban")} />
@@ -127,11 +127,11 @@ export function DriverForm({ initialData, vehicles }: DriverFormProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Taxi License</CardTitle>
+          <CardTitle>Taxilizenz</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-4">
+        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="taxiLicenseNumber">License Number</Label>
+            <Label htmlFor="taxiLicenseNumber">Lizenznummer</Label>
             <Input id="taxiLicenseNumber" {...register("taxiLicenseNumber")} />
           </div>
           <div className="space-y-2">
@@ -147,12 +147,12 @@ export function DriverForm({ initialData, vehicles }: DriverFormProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Commission Settings</CardTitle>
+          <CardTitle>Provisionseinstellungen</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Commission Model</Label>
+              <Label>Provisionsmodell</Label>
               <Select
                 value={commissionModel}
                 onValueChange={(v) => setValue("commissionModel", v as DriverCreateInput["commissionModel"])}
@@ -161,15 +161,15 @@ export function DriverForm({ initialData, vehicles }: DriverFormProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="PERCENTAGE">Percentage</SelectItem>
-                  <SelectItem value="FIXED">Fixed Fee</SelectItem>
+                  <SelectItem value="PERCENTAGE">Prozentsatz</SelectItem>
+                  <SelectItem value="FIXED">Festgebühr</SelectItem>
                   <SelectItem value="HYBRID">Hybrid</SelectItem>
-                  <SelectItem value="PER_RIDE">Per Ride</SelectItem>
+                  <SelectItem value="PER_RIDE">Pro Fahrt</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Settlement Frequency</Label>
+              <Label>Abrechnungsfrequenz</Label>
               <Select
                 value={watch("settlementFrequency")}
                 onValueChange={(v) => setValue("settlementFrequency", v as DriverCreateInput["settlementFrequency"])}
@@ -178,9 +178,9 @@ export function DriverForm({ initialData, vehicles }: DriverFormProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="WEEKLY">Weekly</SelectItem>
-                  <SelectItem value="BIWEEKLY">Biweekly</SelectItem>
-                  <SelectItem value="MONTHLY">Monthly</SelectItem>
+                  <SelectItem value="WEEKLY">Wöchentlich</SelectItem>
+                  <SelectItem value="BIWEEKLY">Zweiwöchentlich</SelectItem>
+                  <SelectItem value="MONTHLY">Monatlich</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -190,7 +190,7 @@ export function DriverForm({ initialData, vehicles }: DriverFormProps) {
 
           {(commissionModel === "PERCENTAGE" || commissionModel === "HYBRID") && (
             <div className="space-y-2">
-              <Label htmlFor="commissionRate">Commission Rate (%)</Label>
+              <Label htmlFor="commissionRate">Provisionssatz (%)</Label>
               <Input
                 id="commissionRate"
                 type="number"
@@ -201,7 +201,7 @@ export function DriverForm({ initialData, vehicles }: DriverFormProps) {
           )}
           {(commissionModel === "FIXED" || commissionModel === "HYBRID") && (
             <div className="space-y-2">
-              <Label htmlFor="fixedFee">Fixed Fee (EUR)</Label>
+              <Label htmlFor="fixedFee">Festgebühr (EUR)</Label>
               <Input
                 id="fixedFee"
                 type="number"
@@ -212,7 +212,7 @@ export function DriverForm({ initialData, vehicles }: DriverFormProps) {
           )}
           {commissionModel === "HYBRID" && (
             <div className="space-y-2">
-              <Label htmlFor="hybridThreshold">Threshold (EUR)</Label>
+              <Label htmlFor="hybridThreshold">Schwellenwert (EUR)</Label>
               <Input
                 id="hybridThreshold"
                 type="number"
@@ -223,7 +223,7 @@ export function DriverForm({ initialData, vehicles }: DriverFormProps) {
           )}
           {commissionModel === "PER_RIDE" && (
             <div className="space-y-2">
-              <Label htmlFor="perRideFee">Per Ride Fee (EUR)</Label>
+              <Label htmlFor="perRideFee">Gebühr pro Fahrt (EUR)</Label>
               <Input
                 id="perRideFee"
                 type="number"
@@ -237,9 +237,9 @@ export function DriverForm({ initialData, vehicles }: DriverFormProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Platform IDs & Vehicle</CardTitle>
+          <CardTitle>Plattform-IDs & Fahrzeug</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-4">
+        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="boltDriverId">Bolt Driver ID</Label>
             <Input id="boltDriverId" {...register("boltDriverId")} />
@@ -253,16 +253,16 @@ export function DriverForm({ initialData, vehicles }: DriverFormProps) {
             <Input id="freenowDriverId" {...register("freenowDriverId")} />
           </div>
           <div className="space-y-2">
-            <Label>Vehicle</Label>
+            <Label>Fahrzeug</Label>
             <Select
               value={watch("vehicleId") || ""}
               onValueChange={(v) => setValue("vehicleId", v)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="No vehicle assigned" />
+                <SelectValue placeholder="Kein Fahrzeug zugewiesen" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">No vehicle</SelectItem>
+                <SelectItem value="">Kein Fahrzeug</SelectItem>
                 {vehicles.map((v) => (
                   <SelectItem key={v.id} value={v.id}>
                     {v.licensePlate} {v.make && v.model ? `(${v.make} ${v.model})` : ""}
@@ -276,10 +276,10 @@ export function DriverForm({ initialData, vehicles }: DriverFormProps) {
 
       <div className="flex gap-4">
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving..." : isEditing ? "Update Driver" : "Create Driver"}
+          {isSubmitting ? "Wird gespeichert..." : isEditing ? "Fahrer aktualisieren" : "Fahrer erstellen"}
         </Button>
         <Button type="button" variant="outline" onClick={() => router.back()}>
-          Cancel
+          Abbrechen
         </Button>
       </div>
     </form>

@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -75,7 +76,62 @@ export function RideTable({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-md border">
+      {/* Mobile: Card view */}
+      <div className="space-y-3 md:hidden">
+        {rides.map((ride) => (
+          <Card key={ride.id}>
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between">
+                <p className="text-xs text-gray-500">
+                  {ride.completedAt
+                    ? new Date(ride.completedAt).toLocaleDateString("de-AT", {
+                        day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
+                      })
+                    : "—"}
+                </p>
+                <Badge variant="secondary" className={sourceColors[ride.source] || ""}>
+                  {ride.source}
+                </Badge>
+              </div>
+              {(ride.pickupAddress || ride.dropoffAddress) && (
+                <div className="mt-2 text-xs text-gray-500">
+                  {ride.pickupAddress && <p className="truncate">Von: {ride.pickupAddress}</p>}
+                  {ride.dropoffAddress && <p className="truncate">Nach: {ride.dropoffAddress}</p>}
+                </div>
+              )}
+              <div className="mt-3 grid grid-cols-3 gap-2 text-sm">
+                <div>
+                  <p className="text-gray-500 text-xs">Fahrpreis</p>
+                  <p className="font-medium">{formatEur(ride.fareAmount)}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500 text-xs">Trinkgeld</p>
+                  <p className="font-medium text-green-600">{ride.tipAmount > 0 ? formatEur(ride.tipAmount) : "—"}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500 text-xs">Zahlung</p>
+                  <p className="font-medium">{ride.paymentMethod ? paymentLabels[ride.paymentMethod] || ride.paymentMethod : "—"}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+        {rides.length > 0 && (
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-xs text-gray-500 mb-1">Summe</p>
+              <div className="grid grid-cols-3 gap-2 text-sm font-semibold">
+                <p>{formatEur(totals.fare)}</p>
+                <p className="text-green-600">{formatEur(totals.tip)}</p>
+                <p />
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* Desktop: Table view */}
+      <div className="hidden rounded-md border md:block">
         <Table>
           <TableHeader>
             <TableRow>

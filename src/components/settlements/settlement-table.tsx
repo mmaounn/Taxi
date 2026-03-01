@@ -12,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
 import { Eye } from "lucide-react";
 import { formatEurOrDash } from "@/lib/format";
 
@@ -94,75 +95,133 @@ export function SettlementTable({
   }
 
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            {selectable && (
-              <TableHead className="w-[40px]">
-                <Checkbox
-                  checked={allSelected}
-                  onCheckedChange={toggleAll}
-                />
-              </TableHead>
-            )}
-            <TableHead>Zeitraum</TableHead>
-            <TableHead>Fahrer</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="text-right">Plattform netto</TableHead>
-            <TableHead className="text-right">Provision</TableHead>
-            <TableHead className="text-right">Auszahlung</TableHead>
-            <TableHead className="w-[80px]">Aktionen</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {settlements.map((s) => (
-            <TableRow key={s.id}>
-              {selectable && (
-                <TableCell>
-                  <Checkbox
-                    checked={selectedIds?.has(s.id) ?? false}
-                    onCheckedChange={() => toggleOne(s.id)}
-                  />
-                </TableCell>
-              )}
-              <TableCell className="text-sm">
-                {formatDate(s.periodStart)} — {formatDate(s.periodEnd)}
-              </TableCell>
-              <TableCell className="font-medium">
-                {s.driver.firstName} {s.driver.lastName}
-              </TableCell>
-              <TableCell>
+    <>
+      {/* Mobile: Card view */}
+      <div className="space-y-3 md:hidden">
+        {settlements.map((s) => (
+          <Card key={s.id}>
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between">
+                <div className="flex items-start gap-3">
+                  {selectable && (
+                    <Checkbox
+                      checked={selectedIds?.has(s.id) ?? false}
+                      onCheckedChange={() => toggleOne(s.id)}
+                      className="mt-1"
+                    />
+                  )}
+                  <div>
+                    <p className="font-medium">
+                      {s.driver.firstName} {s.driver.lastName}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {formatDate(s.periodStart)} — {formatDate(s.periodEnd)}
+                    </p>
+                  </div>
+                </div>
                 <Badge variant="secondary" className={statusColors[s.status]}>
                   {statusLabels[s.status] || s.status}
                 </Badge>
-              </TableCell>
-              <TableCell className="text-right">
-                {formatEurOrDash(s.totalPlatformNet)}
-              </TableCell>
-              <TableCell className="text-right">
-                {formatEurOrDash(s.partnerCommissionAmount)}
-              </TableCell>
-              <TableCell
-                className={`text-right font-medium ${
-                  Number(s.payoutAmount || 0) >= 0
-                    ? "text-green-600"
-                    : "text-red-600"
-                }`}
-              >
-                {formatEurOrDash(s.payoutAmount)}
-              </TableCell>
-              <TableCell>
+              </div>
+              <div className="mt-3 flex items-end justify-between">
+                <div className="grid grid-cols-3 gap-x-4 text-sm">
+                  <div>
+                    <p className="text-gray-500">Netto</p>
+                    <p className="font-medium">{formatEurOrDash(s.totalPlatformNet)}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500">Provision</p>
+                    <p className="font-medium">{formatEurOrDash(s.partnerCommissionAmount)}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500">Auszahlung</p>
+                    <p className={`font-medium ${Number(s.payoutAmount || 0) >= 0 ? "text-green-600" : "text-red-600"}`}>
+                      {formatEurOrDash(s.payoutAmount)}
+                    </p>
+                  </div>
+                </div>
                 <Button variant="ghost" size="icon" asChild>
                   <Link href={`${basePath}/${s.id}`}>
                     <Eye className="h-4 w-4" />
                   </Link>
                 </Button>
-              </TableCell>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Desktop: Table view */}
+      <div className="hidden rounded-md border md:block">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              {selectable && (
+                <TableHead className="w-[40px]">
+                  <Checkbox
+                    checked={allSelected}
+                    onCheckedChange={toggleAll}
+                  />
+                </TableHead>
+              )}
+              <TableHead>Zeitraum</TableHead>
+              <TableHead>Fahrer</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Plattform netto</TableHead>
+              <TableHead className="text-right">Provision</TableHead>
+              <TableHead className="text-right">Auszahlung</TableHead>
+              <TableHead className="w-[80px]">Aktionen</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+          </TableHeader>
+          <TableBody>
+            {settlements.map((s) => (
+              <TableRow key={s.id}>
+                {selectable && (
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedIds?.has(s.id) ?? false}
+                      onCheckedChange={() => toggleOne(s.id)}
+                    />
+                  </TableCell>
+                )}
+                <TableCell className="text-sm">
+                  {formatDate(s.periodStart)} — {formatDate(s.periodEnd)}
+                </TableCell>
+                <TableCell className="font-medium">
+                  {s.driver.firstName} {s.driver.lastName}
+                </TableCell>
+                <TableCell>
+                  <Badge variant="secondary" className={statusColors[s.status]}>
+                    {statusLabels[s.status] || s.status}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                  {formatEurOrDash(s.totalPlatformNet)}
+                </TableCell>
+                <TableCell className="text-right">
+                  {formatEurOrDash(s.partnerCommissionAmount)}
+                </TableCell>
+                <TableCell
+                  className={`text-right font-medium ${
+                    Number(s.payoutAmount || 0) >= 0
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {formatEurOrDash(s.payoutAmount)}
+                </TableCell>
+                <TableCell>
+                  <Button variant="ghost" size="icon" asChild>
+                    <Link href={`${basePath}/${s.id}`}>
+                      <Eye className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </>
   );
 }

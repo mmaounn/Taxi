@@ -87,12 +87,12 @@ export default function DriverRidesPage() {
           <CardTitle className="text-sm">Filter</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap items-end gap-4">
+          <div className="grid grid-cols-1 gap-3 sm:flex sm:flex-wrap sm:items-end sm:gap-4">
             <div className="space-y-1">
               <Label className="text-xs">Plattform</Label>
               <Select value={source} onValueChange={setSource}>
-                <SelectTrigger className="w-36">
-                  <SelectValue placeholder="All" />
+                <SelectTrigger className="w-full sm:w-36">
+                  <SelectValue placeholder="Alle" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Alle Plattformen</SelectItem>

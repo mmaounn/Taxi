@@ -18,8 +18,8 @@ export default function SettlementDetailPage() {
       });
   }, [id]);
 
-  if (loading) return <div className="py-8 text-center">Loading...</div>;
-  if (!settlement) return <div className="py-8 text-center text-red-600">Settlement not found</div>;
+  if (loading) return <div className="py-8 text-center">Wird geladen...</div>;
+  if (!settlement) return <div className="py-8 text-center text-red-600">Abrechnung nicht gefunden</div>;
 
   return (
     <div className="mx-auto max-w-4xl">

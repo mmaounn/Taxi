@@ -339,7 +339,7 @@ export default function DriverDetailPage() {
             <Badge variant="outline" className="text-xs">Von Bolt synchronisiert</Badge>
           </div>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-4 text-sm">
+        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
           <div>
             <span className="font-medium text-muted-foreground">Name</span>
             <p>{driver.firstName} {driver.lastName}</p>
@@ -354,7 +354,7 @@ export default function DriverDetailPage() {
           </div>
           <div>
             <span className="font-medium text-muted-foreground">Status</span>
-            <p>{driver.status}</p>
+            <p>{{ ACTIVE: "Aktiv", INACTIVE: "Inaktiv", SUSPENDED: "Gesperrt" }[driver.status] || driver.status}</p>
           </div>
           <div>
             <span className="font-medium text-muted-foreground">Fahrzeug</span>
@@ -390,7 +390,7 @@ export default function DriverDetailPage() {
         <CardHeader>
           <CardTitle>Bankdaten</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-4">
+        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="bankIban">IBAN</Label>
             <Input id="bankIban" value={bankIban} onChange={(e) => setBankIban(e.target.value)} />
@@ -406,7 +406,7 @@ export default function DriverDetailPage() {
         <CardHeader>
           <CardTitle>Steuer & Führerschein</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-4">
+        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="taxId">Steuer-ID</Label>
             <Input id="taxId" value={taxId} onChange={(e) => setTaxId(e.target.value)} />
@@ -437,7 +437,7 @@ export default function DriverDetailPage() {
           <CardTitle>Provisionseinstellungen</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Provisionsmodell</Label>
               <Select value={commissionModel} onValueChange={setCommissionModel}>

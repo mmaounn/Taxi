@@ -19,6 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { formatEur } from "@/lib/format";
 import { WeekPicker } from "@/components/ui/week-picker";
@@ -127,9 +128,9 @@ export default function RidesPage() {
       <h1 className="text-2xl font-bold">Fahrten</h1>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-center">
         <Select value={driverId} onValueChange={setDriverId}>
-          <SelectTrigger className="w-44">
+          <SelectTrigger className="w-full sm:w-44">
             <SelectValue placeholder="Alle Fahrer" />
           </SelectTrigger>
           <SelectContent>
@@ -142,7 +143,7 @@ export default function RidesPage() {
           </SelectContent>
         </Select>
         <Select value={source} onValueChange={setSource}>
-          <SelectTrigger className="w-32">
+          <SelectTrigger className="w-full sm:w-32">
             <SelectValue placeholder="Alle" />
           </SelectTrigger>
           <SelectContent>
@@ -153,7 +154,7 @@ export default function RidesPage() {
           </SelectContent>
         </Select>
         <Select value={payment} onValueChange={setPayment}>
-          <SelectTrigger className="w-28">
+          <SelectTrigger className="w-full sm:w-28">
             <SelectValue placeholder="Alle" />
           </SelectTrigger>
           <SelectContent>
@@ -196,7 +197,76 @@ export default function RidesPage() {
         )}
       </div>
 
-      <div className="rounded-md border">
+      {/* Mobile: Card view */}
+      <div className="space-y-3 md:hidden">
+        {rides.length === 0 ? (
+          <div className="rounded-md border p-8 text-center text-gray-500">
+            {loading ? "Fahrten werden geladen..." : "Keine Fahrten gefunden."}
+          </div>
+        ) : (
+          rides.map((ride) => (
+            <Card key={ride.id}>
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-medium text-sm">{ride.driverName}</p>
+                    <p className="text-xs text-gray-500">
+                      {ride.completedAt
+                        ? new Date(ride.completedAt).toLocaleDateString("de-AT", {
+                            day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
+                          })
+                        : "—"}
+                    </p>
+                  </div>
+                  <Badge variant="secondary" className={platformColors[ride.source] || ""}>
+                    {ride.source}
+                  </Badge>
+                </div>
+                {(ride.pickupAddress || ride.dropoffAddress) && (
+                  <div className="mt-2 text-xs text-gray-500">
+                    {ride.pickupAddress && <p className="truncate">Von: {ride.pickupAddress}</p>}
+                    {ride.dropoffAddress && <p className="truncate">Nach: {ride.dropoffAddress}</p>}
+                  </div>
+                )}
+                <div className="mt-3 grid grid-cols-4 gap-2 text-sm">
+                  <div>
+                    <p className="text-gray-500 text-xs">km</p>
+                    <p className="font-medium">{ride.distanceKm != null ? ride.distanceKm.toFixed(1) : "—"}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 text-xs">Fahrpreis</p>
+                    <p className="font-medium">{formatEur(ride.fareAmount)}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 text-xs">Trinkgeld</p>
+                    <p className="font-medium text-green-600">{ride.tipAmount ? formatEur(ride.tipAmount) : "—"}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 text-xs">Zahlung</p>
+                    <p className="font-medium">{ride.paymentMethod ? paymentLabels[ride.paymentMethod] || ride.paymentMethod : "—"}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
+        {rides.length > 0 && (
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-xs text-gray-500 mb-1">Summe</p>
+              <div className="grid grid-cols-4 gap-2 text-sm font-semibold">
+                <p>{totals.km.toFixed(1)} km</p>
+                <p>{formatEur(totals.fare)}</p>
+                <p className="text-green-600">{formatEur(totals.tip)}</p>
+                <p className="text-gray-500">{formatEur(totals.commission)}</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* Desktop: Table view */}
+      <div className="hidden rounded-md border md:block">
         <Table>
           <TableHeader>
             <TableRow>

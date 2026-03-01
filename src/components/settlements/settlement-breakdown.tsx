@@ -70,7 +70,7 @@ export function SettlementBreakdown({ settlement: s }: BreakdownProps) {
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {hasBolt && (
           <Card>
             <CardHeader className="pb-2">
@@ -128,7 +128,7 @@ export function SettlementBreakdown({ settlement: s }: BreakdownProps) {
         )}
 
         {!hasBolt && !hasUber && !hasFreeNow && (
-          <div className="col-span-3 rounded-md border p-8 text-center text-gray-500">
+          <div className="md:col-span-3 rounded-md border p-8 text-center text-gray-500">
             Keine Plattformdaten für diesen Zeitraum
           </div>
         )}

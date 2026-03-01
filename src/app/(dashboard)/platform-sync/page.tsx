@@ -58,7 +58,7 @@ export default function PlatformSyncPage() {
     loadData();
   }, []);
 
-  if (loading) return <div className="py-8 text-center">Loading...</div>;
+  if (loading) return <div className="py-8 text-center">Wird geladen...</div>;
 
   const statusColors: Record<string, string> = {
     completed: "bg-green-100 text-green-800",
@@ -68,7 +68,7 @@ export default function PlatformSyncPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Platform Sync</h1>
+      <h1 className="text-2xl font-bold">Plattform-Synchronisierung</h1>
 
       <SyncStatusCards
         syncLogs={syncLogs}
@@ -82,46 +82,69 @@ export default function PlatformSyncPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Sync History</CardTitle>
+          <CardTitle>Sync-Verlauf</CardTitle>
         </CardHeader>
         <CardContent>
           {syncLogs.length === 0 ? (
             <p className="text-center text-sm text-gray-500 py-4">
-              No sync history yet
+              Noch kein Sync-Verlauf
             </p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Platform</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Records</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Started</TableHead>
-                  <TableHead>Completed</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* Mobile card view */}
+              <div className="space-y-3 md:hidden">
                 {syncLogs.map((log) => (
-                  <TableRow key={log.id}>
-                    <TableCell className="font-medium">{log.platform}</TableCell>
-                    <TableCell>{log.syncType === "api" ? "API Sync" : "CSV Upload"}</TableCell>
-                    <TableCell>{log.recordsImported}</TableCell>
-                    <TableCell>
+                  <div key={log.id} className="rounded-md border p-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">{log.platform}</span>
                       <Badge variant="secondary" className={statusColors[log.status]}>
-                        {log.status}
+                        {{ completed: "Abgeschlossen", failed: "Fehlgeschlagen", running: "Läuft" }[log.status] || log.status}
                       </Badge>
-                    </TableCell>
-                    <TableCell>{new Date(log.startedAt).toLocaleString()}</TableCell>
-                    <TableCell>
-                      {log.completedAt
-                        ? new Date(log.completedAt).toLocaleString()
-                        : "—"}
-                    </TableCell>
-                  </TableRow>
+                    </div>
+                    <div className="mt-2 grid grid-cols-2 gap-1 text-sm text-gray-600">
+                      <span>Typ: {log.syncType === "api" ? "API-Sync" : "CSV-Upload"}</span>
+                      <span>Datensätze: {log.recordsImported}</span>
+                      <span className="col-span-2 text-xs">{new Date(log.startedAt).toLocaleString("de-AT")}</span>
+                    </div>
+                  </div>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+              {/* Desktop table view */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Plattform</TableHead>
+                      <TableHead>Typ</TableHead>
+                      <TableHead>Datensätze</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Gestartet</TableHead>
+                      <TableHead>Abgeschlossen</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {syncLogs.map((log) => (
+                      <TableRow key={log.id}>
+                        <TableCell className="font-medium">{log.platform}</TableCell>
+                        <TableCell>{log.syncType === "api" ? "API-Sync" : "CSV-Upload"}</TableCell>
+                        <TableCell>{log.recordsImported}</TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className={statusColors[log.status]}>
+                            {{ completed: "Abgeschlossen", failed: "Fehlgeschlagen", running: "Läuft" }[log.status] || log.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{new Date(log.startedAt).toLocaleString("de-AT")}</TableCell>
+                        <TableCell>
+                          {log.completedAt
+                            ? new Date(log.completedAt).toLocaleString("de-AT")
+                            : "—"}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

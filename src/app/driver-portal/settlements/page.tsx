@@ -18,10 +18,10 @@ export default function DriverSettlementsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">My Settlements</h1>
+      <h1 className="text-2xl font-bold">Meine Abrechnungen</h1>
 
       {loading ? (
-        <div className="py-8 text-center">Loading...</div>
+        <div className="py-8 text-center">Wird geladen...</div>
       ) : (
         <SettlementTable
           settlements={settlements}

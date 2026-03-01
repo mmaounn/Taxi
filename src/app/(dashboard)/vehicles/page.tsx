@@ -21,18 +21,18 @@ export default function VehiclesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Vehicles</h1>
-        <Button asChild>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl font-bold">Fahrzeuge</h1>
+        <Button size="sm" asChild>
           <Link href="/vehicles/new">
             <Plus className="mr-2 h-4 w-4" />
-            Add Vehicle
+            Fahrzeug hinzufügen
           </Link>
         </Button>
       </div>
 
       {loading ? (
-        <div className="py-8 text-center text-gray-500">Loading...</div>
+        <div className="py-8 text-center text-gray-500">Wird geladen...</div>
       ) : (
         <VehicleTable vehicles={vehicles} />
       )}

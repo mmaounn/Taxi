@@ -124,7 +124,7 @@ export default function VehicleDetailPage() {
         <CardHeader>
           <CardTitle>Ablaufdaten Dokumente</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm md:grid-cols-4">
+        <CardContent className="grid grid-cols-1 gap-x-8 gap-y-3 text-sm sm:grid-cols-2 md:grid-cols-4">
           <div>
             <p className="text-gray-500">Versicherung</p>
             <p className="font-medium">{formatDate(vehicle.insuranceExpiry)} <ExpiryBadge date={vehicle.insuranceExpiry} /></p>

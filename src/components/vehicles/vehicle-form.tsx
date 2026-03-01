@@ -96,7 +96,7 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
         <CardHeader>
           <CardTitle>Fahrzeugdetails</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-4">
+        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="licensePlate">Kennzeichen *</Label>
             <Input id="licensePlate" {...register("licensePlate")} />
@@ -146,7 +146,7 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
         <CardHeader>
           <CardTitle>Ablaufdaten Dokumente</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-4">
+        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="insuranceExpiry">
               Ablaufdatum Versicherung
@@ -198,7 +198,7 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
         <CardHeader>
           <CardTitle>Monatliche Kosten</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-3 gap-4">
+        <CardContent className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label htmlFor="monthlyRentalCost">Mietkosten (EUR)</Label>
             <Input

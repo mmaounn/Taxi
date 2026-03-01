@@ -108,9 +108,9 @@ export default function SettlementsPage() {
       <h1 className="text-2xl font-bold">Abrechnungen</h1>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-center sm:gap-4">
         <Select value={driverFilter} onValueChange={setDriverFilter}>
-          <SelectTrigger className="w-48">
+          <SelectTrigger className="w-full sm:w-48">
             <SelectValue placeholder="Alle Fahrer" />
           </SelectTrigger>
           <SelectContent>
@@ -123,7 +123,7 @@ export default function SettlementsPage() {
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-40">
+          <SelectTrigger className="w-full sm:w-40">
             <SelectValue placeholder="Alle Status" />
           </SelectTrigger>
           <SelectContent>
@@ -140,11 +140,11 @@ export default function SettlementsPage() {
 
       {/* Action Bar (visible when items selected) */}
       {selectedCount > 0 && (
-        <div className="flex items-center gap-3 rounded-lg border bg-gray-50 p-3">
+        <div className="flex flex-col gap-3 rounded-lg border bg-gray-50 p-3 sm:flex-row sm:items-center">
           <span className="text-sm font-medium">
             {selectedCount} ausgewählt
           </span>
-          <div className="flex gap-2 ml-auto">
+          <div className="flex flex-wrap gap-2 sm:ml-auto">
             {hasApprovedSelected && (
               <>
                 <Button

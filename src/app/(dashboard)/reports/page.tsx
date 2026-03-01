@@ -190,9 +190,9 @@ export default function ReportsPage() {
           <CardTitle className="text-sm">Flottenzusammenfassung</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex flex-wrap items-end gap-4">
+          <div className="space-y-4">
             {/* Presets */}
-            <div className="flex gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:flex">
               {(
                 [
                   ["this-week", "Diese Woche"],
@@ -213,36 +213,38 @@ export default function ReportsPage() {
             </div>
 
             {/* Date Inputs */}
-            <div className="space-y-1">
-              <Label className="text-xs">Von</Label>
-              <DatePicker
-                value={periodStart}
-                onChange={(v) => {
-                  setPeriodStart(v);
-                  setData(null);
-                }}
-                className="w-40"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Bis</Label>
-              <DatePicker
-                value={periodEnd}
-                onChange={(v) => {
-                  setPeriodEnd(v);
-                  setData(null);
-                }}
-                className="w-40"
-              />
+            <div className="grid grid-cols-2 gap-3 sm:flex sm:items-end sm:gap-4">
+              <div className="space-y-1">
+                <Label className="text-xs">Von</Label>
+                <DatePicker
+                  value={periodStart}
+                  onChange={(v) => {
+                    setPeriodStart(v);
+                    setData(null);
+                  }}
+                  className="w-full sm:w-40"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Bis</Label>
+                <DatePicker
+                  value={periodEnd}
+                  onChange={(v) => {
+                    setPeriodEnd(v);
+                    setData(null);
+                  }}
+                  className="w-full sm:w-40"
+                />
+              </div>
             </div>
 
             {/* Actions */}
-            <div className="flex gap-2">
-              <Button onClick={fetchReport} disabled={isWorking} variant="outline">
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button onClick={fetchReport} disabled={isWorking} variant="outline" className="w-full sm:w-auto">
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Bericht erstellen
               </Button>
-              <Button onClick={syncAndGenerate} disabled={isWorking}>
+              <Button onClick={syncAndGenerate} disabled={isWorking} className="w-full sm:w-auto">
                 {syncing ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
@@ -283,7 +285,7 @@ export default function ReportsPage() {
             </Card>
           ) : (
             <>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-sm text-gray-600">
                   {data.driverCount} Fahrer,{" "}
                   {data.rows.length} Abrechnung{data.rows.length !== 1 ? "en" : ""}

@@ -57,7 +57,7 @@ function SyncStatusCard({
             {label}
           </CardTitle>
           <Badge variant={apiEnabled ? "default" : "secondary"}>
-            {apiEnabled ? "API Connected" : "CSV Only"}
+            {apiEnabled ? "API verbunden" : "Nur CSV"}
           </Badge>
         </div>
       </CardHeader>
@@ -72,8 +72,8 @@ function SyncStatusCard({
               <Clock className="h-4 w-4 text-yellow-500" />
             )}
             <span>
-              Last sync: {new Date(lastSync.startedAt).toLocaleString()} —{" "}
-              {lastSync.recordsImported} records
+              Letzter Sync: {new Date(lastSync.startedAt).toLocaleString("de-AT")} —{" "}
+              {lastSync.recordsImported} Datensätze
             </span>
           </div>
         )}
@@ -108,14 +108,14 @@ function BoltDriverSyncCard({ boltConfigured }: { boltConfigured: boolean }) {
       });
       const data = await res.json();
       if (!res.ok) {
-        toast.error(data.error || "Bolt driver sync failed");
+        toast.error(data.error || "Bolt-Fahrer-Sync fehlgeschlagen");
         return;
       }
       toast.success(
-        `Imported ${data.driversImported} drivers and ${data.vehiclesImported} vehicles from Bolt`
+        `${data.driversImported} Fahrer und ${data.vehiclesImported} Fahrzeuge von Bolt importiert`
       );
     } catch {
-      toast.error("Bolt driver sync failed");
+      toast.error("Bolt-Fahrer-Sync fehlgeschlagen");
     } finally {
       setSyncing(false);
     }
@@ -126,13 +126,13 @@ function BoltDriverSyncCard({ boltConfigured }: { boltConfigured: boolean }) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Users className="h-5 w-5 text-green-600" />
-          Sync Drivers & Vehicles from Bolt
+          Fahrer & Fahrzeuge von Bolt synchronisieren
         </CardTitle>
       </CardHeader>
       <CardContent>
         <p className="mb-4 text-sm text-gray-600">
-          Import active drivers and vehicles from your Bolt Fleet account. Existing
-          drivers will be updated, new ones will be created automatically.
+          Aktive Fahrer und Fahrzeuge aus Ihrem Bolt-Fleet-Konto importieren. Bestehende
+          Fahrer werden aktualisiert, neue automatisch angelegt.
         </p>
         <Button
           onClick={handleSync}
@@ -141,10 +141,10 @@ function BoltDriverSyncCard({ boltConfigured }: { boltConfigured: boolean }) {
         >
           <RefreshCw className={`mr-2 h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
           {syncing
-            ? "Syncing drivers..."
+            ? "Fahrer werden synchronisiert..."
             : !boltConfigured
-            ? "Configure Bolt API first"
-            : "Sync Drivers & Vehicles"}
+            ? "Bolt-API zuerst konfigurieren"
+            : "Fahrer & Fahrzeuge synchronisieren"}
         </Button>
       </CardContent>
     </Card>

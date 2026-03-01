@@ -146,7 +146,7 @@ export function SettlementDetail({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold">
             {settlement.driver.firstName} {settlement.driver.lastName}
@@ -169,7 +169,7 @@ export function SettlementDetail({
         </div>
 
         {!readOnly && (
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" onClick={handleRecalculate} disabled={saving}>
               <RefreshCw className="mr-1 h-4 w-4" />
               Neu berechnen

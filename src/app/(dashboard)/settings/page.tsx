@@ -107,35 +107,35 @@ export default function SettingsPage() {
     });
 
     if (res.ok) {
-      toast.success("Settings saved");
+      toast.success("Einstellungen gespeichert");
     } else {
-      toast.error("Failed to save settings");
+      toast.error("Einstellungen konnten nicht gespeichert werden");
     }
     setSaving(false);
   }
 
-  if (loading) return <div className="py-8 text-center">Loading...</div>;
+  if (loading) return <div className="py-8 text-center">Wird geladen...</div>;
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <h1 className="text-2xl font-bold">Settings</h1>
+      <h1 className="text-2xl font-bold">Einstellungen</h1>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Company Information</CardTitle>
+            <CardTitle>Unternehmensdaten</CardTitle>
           </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-4">
+          <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Company Name</Label>
+              <Label>Firmenname</Label>
               <Input {...register("companyName")} />
             </div>
             <div className="space-y-2">
-              <Label>Tax ID</Label>
+              <Label>Steuer-ID</Label>
               <Input {...register("taxId")} />
             </div>
-            <div className="col-span-2 space-y-2">
-              <Label>Address</Label>
+            <div className="sm:col-span-2 space-y-2">
+              <Label>Adresse</Label>
               <Input {...register("address")} />
             </div>
           </CardContent>
@@ -143,11 +143,11 @@ export default function SettingsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Banking</CardTitle>
+            <CardTitle>Bankverbindung</CardTitle>
           </CardHeader>
-          <CardContent className="grid grid-cols-3 gap-4">
+          <CardContent className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label>Bank Name</Label>
+              <Label>Bankname</Label>
               <Input {...register("bankName")} />
             </div>
             <div className="space-y-2">
@@ -163,11 +163,11 @@ export default function SettingsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Default Commission</CardTitle>
+            <CardTitle>Standard-Provision</CardTitle>
           </CardHeader>
-          <CardContent className="grid grid-cols-3 gap-4">
+          <CardContent className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label>Model</Label>
+              <Label>Modell</Label>
               <Select
                 value={watch("defaultCommissionModel") || "PERCENTAGE"}
                 onValueChange={(v) => setValue("defaultCommissionModel", v)}
@@ -176,19 +176,19 @@ export default function SettingsPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="PERCENTAGE">Percentage</SelectItem>
-                  <SelectItem value="FIXED">Fixed</SelectItem>
+                  <SelectItem value="PERCENTAGE">Prozentsatz</SelectItem>
+                  <SelectItem value="FIXED">Festgebühr</SelectItem>
                   <SelectItem value="HYBRID">Hybrid</SelectItem>
-                  <SelectItem value="PER_RIDE">Per Ride</SelectItem>
+                  <SelectItem value="PER_RIDE">Pro Fahrt</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Rate (%)</Label>
+              <Label>Satz (%)</Label>
               <Input type="number" step="0.01" {...register("defaultCommissionRate")} />
             </div>
             <div className="space-y-2">
-              <Label>Fixed Fee (EUR)</Label>
+              <Label>Festgebühr (EUR)</Label>
               <Input type="number" step="0.01" {...register("defaultFixedFee")} />
             </div>
           </CardContent>
@@ -196,21 +196,21 @@ export default function SettingsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Platform API Credentials</CardTitle>
+            <CardTitle>Plattform-API-Zugangsdaten</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-gray-500">
-              Leave fields empty to keep existing values. Credentials are stored securely.
+              Felder leer lassen, um bestehende Werte beizubehalten. Zugangsdaten werden sicher gespeichert.
             </p>
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Bolt Client ID</Label>
-                  <Input {...register("boltClientId")} placeholder="Enter to update" />
+                  <Input {...register("boltClientId")} placeholder="Zum Aktualisieren eingeben" />
                 </div>
                 <div className="space-y-2">
                   <Label>Bolt Client Secret</Label>
-                  <Input type="password" {...register("boltClientSecret")} placeholder="Enter to update" />
+                  <Input type="password" {...register("boltClientSecret")} placeholder="Zum Aktualisieren eingeben" />
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -228,14 +228,14 @@ export default function SettingsPage() {
                 {boltStatus === "invalid" && <XCircle className="h-5 w-5 text-red-500" />}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Uber Client ID</Label>
-                  <Input {...register("uberClientId")} placeholder="Enter to update" />
+                  <Input {...register("uberClientId")} placeholder="Zum Aktualisieren eingeben" />
                 </div>
                 <div className="space-y-2">
                   <Label>Uber Client Secret</Label>
-                  <Input type="password" {...register("uberClientSecret")} placeholder="Enter to update" />
+                  <Input type="password" {...register("uberClientSecret")} placeholder="Zum Aktualisieren eingeben" />
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -254,7 +254,7 @@ export default function SettingsPage() {
               </div>
 
               <div className="space-y-2">
-                <Label>Uber Organization ID</Label>
+                <Label>Uber Organisations-ID</Label>
                 <Input {...register("uberOrgId")} />
               </div>
             </div>
@@ -262,7 +262,7 @@ export default function SettingsPage() {
         </Card>
 
         <Button type="submit" disabled={saving}>
-          {saving ? "Saving..." : "Save Settings"}
+          {saving ? "Wird gespeichert..." : "Einstellungen speichern"}
         </Button>
       </form>
     </div>

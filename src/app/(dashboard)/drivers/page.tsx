@@ -69,47 +69,47 @@ export default function DriversPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Drivers</h1>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl font-bold">Fahrer</h1>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={syncFromBolt} disabled={syncing}>
+          <Button variant="outline" size="sm" onClick={syncFromBolt} disabled={syncing}>
             <RefreshCw className={`mr-2 h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
-            {syncing ? "Syncing..." : "Sync from Bolt"}
+            {syncing ? "Sync..." : "Bolt-Sync"}
           </Button>
-          <Button asChild>
+          <Button size="sm" asChild>
             <Link href="/drivers/new">
               <Plus className="mr-2 h-4 w-4" />
-              Add Driver
+              Fahrer hinzufügen
             </Link>
           </Button>
         </div>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <Input
-            placeholder="Search drivers..."
+            placeholder="Fahrer suchen..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
           />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-40">
+          <SelectTrigger className="w-full sm:w-40">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="ACTIVE">Active</SelectItem>
-            <SelectItem value="INACTIVE">Inactive</SelectItem>
-            <SelectItem value="SUSPENDED">Suspended</SelectItem>
+            <SelectItem value="all">Alle</SelectItem>
+            <SelectItem value="ACTIVE">Aktiv</SelectItem>
+            <SelectItem value="INACTIVE">Inaktiv</SelectItem>
+            <SelectItem value="SUSPENDED">Gesperrt</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       {loading ? (
-        <div className="py-8 text-center text-gray-500">Loading...</div>
+        <div className="py-8 text-center text-gray-500">Wird geladen...</div>
       ) : (
         <DriverTable drivers={drivers} />
       )}

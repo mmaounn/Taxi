@@ -15,7 +15,7 @@ export default function NewDriverPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <h1 className="text-2xl font-bold">Add Driver</h1>
+      <h1 className="text-2xl font-bold">Fahrer hinzufügen</h1>
       <DriverForm vehicles={vehicles} />
     </div>
   );

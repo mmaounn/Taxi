@@ -16,6 +16,7 @@ import { SettlementTable } from "@/components/settlements/settlement-table";
 import { SepaExportDialog } from "@/components/settlements/sepa-export-dialog";
 import { Calculator, CreditCard, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
+import { DatePicker } from "@/components/ui/date-picker";
 
 interface Driver {
   id: string;
@@ -177,19 +178,17 @@ export default function SettlementsPage() {
             </div>
             <div className="space-y-1">
               <Label className="text-xs">Zeitraum Beginn</Label>
-              <Input
-                type="date"
+              <DatePicker
                 value={calcStart}
-                onChange={(e) => setCalcStart(e.target.value)}
+                onChange={setCalcStart}
                 className="w-40"
               />
             </div>
             <div className="space-y-1">
               <Label className="text-xs">Zeitraum Ende</Label>
-              <Input
-                type="date"
+              <DatePicker
                 value={calcEnd}
-                onChange={(e) => setCalcEnd(e.target.value)}
+                onChange={setCalcEnd}
                 className="w-40"
               />
             </div>

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { AlertTriangle, CheckCircle, Download, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { DatePicker } from "@/components/ui/date-picker";
 
 interface SepaExportDialogProps {
   open: boolean;
@@ -99,10 +100,10 @@ export function SepaExportDialog({
 
           <div className="space-y-2">
             <Label>Ausführungsdatum</Label>
-            <Input
-              type="date"
+            <DatePicker
               value={executionDate}
-              onChange={(e) => setExecutionDate(e.target.value)}
+              onChange={setExecutionDate}
+              className="w-full"
             />
             <p className="text-xs text-gray-500">
               Das Datum, an dem die Bank die Zahlungen verarbeiten soll

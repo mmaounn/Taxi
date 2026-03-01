@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RefreshCw, CheckCircle, XCircle, Clock, Users } from "lucide-react";
 import { toast } from "sonner";
+import { DatePicker } from "@/components/ui/date-picker";
 
 interface SyncLog {
   id: string;
@@ -87,19 +88,19 @@ function SyncStatusCard({
           <>
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1">
-                <Label className="text-xs">From</Label>
-                <Input
-                  type="date"
+                <Label className="text-xs">Von</Label>
+                <DatePicker
                   value={dateFrom}
-                  onChange={(e) => setDateFrom(e.target.value)}
+                  onChange={setDateFrom}
+                  className="w-full"
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">To</Label>
-                <Input
-                  type="date"
+                <Label className="text-xs">Bis</Label>
+                <DatePicker
                   value={dateTo}
-                  onChange={(e) => setDateTo(e.target.value)}
+                  onChange={setDateTo}
+                  className="w-full"
                 />
               </div>
             </div>
@@ -110,7 +111,7 @@ function SyncStatusCard({
               className="w-full"
             >
               <RefreshCw className={`mr-2 h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
-              {syncing ? "Syncing..." : `Sync ${platform}`}
+              {syncing ? "Wird synchronisiert..." : `Sync ${platform}`}
             </Button>
           </>
         )}

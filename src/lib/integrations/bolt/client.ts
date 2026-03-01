@@ -57,7 +57,7 @@ export interface BoltOrder {
   };
 }
 
-const MAX_BOLT_RANGE_DAYS = 31;
+const MAX_BOLT_RANGE_DAYS = 30;
 
 /**
  * Split a date range into chunks of maxDays.

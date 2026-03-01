@@ -15,6 +15,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
+import { DatePicker } from "@/components/ui/date-picker";
 
 interface SummaryRow {
   settlementId: string;
@@ -240,11 +241,10 @@ export default function ReportsPage() {
             {/* Date Inputs */}
             <div className="space-y-1">
               <Label className="text-xs">Von</Label>
-              <Input
-                type="date"
+              <DatePicker
                 value={periodStart}
-                onChange={(e) => {
-                  setPeriodStart(e.target.value);
+                onChange={(v) => {
+                  setPeriodStart(v);
                   setData(null);
                 }}
                 className="w-40"
@@ -252,11 +252,10 @@ export default function ReportsPage() {
             </div>
             <div className="space-y-1">
               <Label className="text-xs">Bis</Label>
-              <Input
-                type="date"
+              <DatePicker
                 value={periodEnd}
-                onChange={(e) => {
-                  setPeriodEnd(e.target.value);
+                onChange={(v) => {
+                  setPeriodEnd(v);
                   setData(null);
                 }}
                 className="w-40"

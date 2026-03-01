@@ -17,6 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { driverCreateSchema, type DriverCreateInput } from "@/lib/validators/driver";
 import { toast } from "sonner";
+import { DatePicker } from "@/components/ui/date-picker";
 
 interface Vehicle {
   id: string;
@@ -134,8 +135,12 @@ export function DriverForm({ initialData, vehicles }: DriverFormProps) {
             <Input id="taxiLicenseNumber" {...register("taxiLicenseNumber")} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="taxiLicenseExpiry">Expiry Date</Label>
-            <Input id="taxiLicenseExpiry" type="date" {...register("taxiLicenseExpiry")} />
+            <Label htmlFor="taxiLicenseExpiry">Ablaufdatum</Label>
+            <DatePicker
+              value={watch("taxiLicenseExpiry") || ""}
+              onChange={(v) => setValue("taxiLicenseExpiry", v)}
+              className="w-full"
+            />
           </div>
         </CardContent>
       </Card>

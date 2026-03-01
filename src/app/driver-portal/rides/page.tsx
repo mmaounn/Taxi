@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RideTable } from "@/components/driver-portal/ride-table";
+import { DatePicker } from "@/components/ui/date-picker";
 
 interface Ride {
   id: string;
@@ -104,19 +105,17 @@ export default function DriverRidesPage() {
             </div>
             <div className="space-y-1">
               <Label className="text-xs">Von</Label>
-              <Input
-                type="date"
+              <DatePicker
                 value={dateFrom}
-                onChange={(e) => setDateFrom(e.target.value)}
+                onChange={setDateFrom}
                 className="w-40"
               />
             </div>
             <div className="space-y-1">
               <Label className="text-xs">Bis</Label>
-              <Input
-                type="date"
+              <DatePicker
                 value={dateTo}
-                onChange={(e) => setDateTo(e.target.value)}
+                onChange={setDateTo}
                 className="w-40"
               />
             </div>

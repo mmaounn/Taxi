@@ -17,6 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { vehicleCreateSchema, type VehicleCreateInput } from "@/lib/validators/vehicle";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { DatePicker } from "@/components/ui/date-picker";
 
 function ExpiryBadge({ dateStr }: { dateStr: string | undefined }) {
   if (!dateStr) return null;
@@ -138,10 +139,10 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
               Ablaufdatum Versicherung
               <ExpiryBadge dateStr={watch("insuranceExpiry" as keyof VehicleCreateInput) as string | undefined} />
             </Label>
-            <Input
-              id="insuranceExpiry"
-              type="date"
-              {...register("insuranceExpiry" as keyof VehicleCreateInput)}
+            <DatePicker
+              value={watch("insuranceExpiry" as keyof VehicleCreateInput) as string || ""}
+              onChange={(v) => setValue("insuranceExpiry" as keyof VehicleCreateInput, v as never)}
+              className="w-full"
             />
           </div>
           <div className="space-y-2">
@@ -149,10 +150,10 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
               Ablaufdatum Zulassung
               <ExpiryBadge dateStr={watch("registrationExpiry" as keyof VehicleCreateInput) as string | undefined} />
             </Label>
-            <Input
-              id="registrationExpiry"
-              type="date"
-              {...register("registrationExpiry" as keyof VehicleCreateInput)}
+            <DatePicker
+              value={watch("registrationExpiry" as keyof VehicleCreateInput) as string || ""}
+              onChange={(v) => setValue("registrationExpiry" as keyof VehicleCreateInput, v as never)}
+              className="w-full"
             />
           </div>
         </CardContent>

@@ -34,6 +34,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Save, Wallet, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { formatEur } from "@/lib/format";
+import { DatePicker } from "@/components/ui/date-picker";
 
 interface DriverData {
   id: string;
@@ -419,14 +420,14 @@ export default function DriverDetailPage() {
               Ablaufdatum Taxilizenz
               <ExpiryBadge dateStr={taxiLicenseExpiry} />
             </Label>
-            <Input id="taxiLicenseExpiry" type="date" value={taxiLicenseExpiry} onChange={(e) => setTaxiLicenseExpiry(e.target.value)} />
+            <DatePicker value={taxiLicenseExpiry} onChange={setTaxiLicenseExpiry} className="w-full" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="driversLicenseExpiry">
               Ablaufdatum Führerschein
               <ExpiryBadge dateStr={driversLicenseExpiry} />
             </Label>
-            <Input id="driversLicenseExpiry" type="date" value={driversLicenseExpiry} onChange={(e) => setDriversLicenseExpiry(e.target.value)} />
+            <DatePicker value={driversLicenseExpiry} onChange={setDriversLicenseExpiry} className="w-full" />
           </div>
         </CardContent>
       </Card>

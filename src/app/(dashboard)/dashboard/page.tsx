@@ -38,6 +38,14 @@ const statusColors: Record<string, string> = {
   DISPUTED: "bg-red-100 text-red-800",
 };
 
+const statusLabels: Record<string, string> = {
+  DRAFT: "Entwurf",
+  CALCULATED: "Berechnet",
+  APPROVED: "Genehmigt",
+  PAID: "Bezahlt",
+  DISPUTED: "Strittig",
+};
+
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -160,7 +168,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant="secondary" className={statusColors[s.status]}>
-                        {s.status}
+                        {statusLabels[s.status] || s.status}
                       </Badge>
                       {s.payoutAmount != null && (
                         <span

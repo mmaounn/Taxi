@@ -48,6 +48,10 @@ export async function POST(req: NextRequest) {
       monthlyRentalCost: data.monthlyRentalCost ?? null,
       insuranceMonthlyCost: data.insuranceMonthlyCost ?? null,
       otherMonthlyCosts: data.otherMonthlyCosts ?? null,
+      insuranceExpiry: data.insuranceExpiry ? new Date(data.insuranceExpiry) : null,
+      registrationExpiry: data.registrationExpiry ? new Date(data.registrationExpiry) : null,
+      nextServiceDate: data.nextServiceDate ? new Date(data.nextServiceDate) : null,
+      nextInspectionDate: data.nextInspectionDate ? new Date(data.nextInspectionDate) : null,
     },
   });
 

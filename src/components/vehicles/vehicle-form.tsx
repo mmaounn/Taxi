@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { z } from "zod";
 import { vehicleCreateSchema, type VehicleCreateInput } from "@/lib/validators/vehicle";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -37,13 +38,21 @@ function ExpiryBadge({ dateStr }: { dateStr: string | undefined }) {
   return null;
 }
 
+// Extend create schema with status for editing (avoid .partial() which breaks z.preprocess in zodResolver)
+const vehicleEditSchema = vehicleCreateSchema.extend({
+  status: z.enum(["ACTIVE", "MAINTENANCE", "DECOMMISSIONED"]).optional(),
+});
+type VehicleEditInput = z.infer<typeof vehicleEditSchema>;
+
 interface VehicleFormProps {
-  initialData?: VehicleCreateInput & { id?: string; status?: string };
+  initialData?: VehicleEditInput & { id?: string };
 }
 
 export function VehicleForm({ initialData }: VehicleFormProps) {
   const router = useRouter();
   const isEditing = !!initialData?.id;
+
+  const schema = isEditing ? vehicleEditSchema : vehicleCreateSchema;
 
   const {
     register,
@@ -52,12 +61,12 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
     watch,
     formState: { errors, isSubmitting },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } = useForm<VehicleCreateInput>({
-    resolver: zodResolver(vehicleCreateSchema) as any,
+  } = useForm<VehicleEditInput>({
+    resolver: zodResolver(schema) as any,
     defaultValues: initialData ?? {},
   });
 
-  async function onSubmit(data: VehicleCreateInput) {
+  async function onSubmit(data: VehicleEditInput) {
     const url = isEditing ? `/api/vehicles/${initialData!.id}` : "/api/vehicles";
     const method = isEditing ? "PUT" : "POST";
 
@@ -78,7 +87,11 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit, (errs) => {
+      console.error("Form validation errors:", errs);
+      const messages = Object.entries(errs).map(([k, v]) => `${k}: ${v?.message}`).join(", ");
+      toast.error(`Validierungsfehler: ${messages}`);
+    })} className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Fahrzeugdetails</CardTitle>
@@ -112,8 +125,8 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
             <div className="space-y-2">
               <Label>Status</Label>
               <Select
-                value={watch("status" as keyof VehicleCreateInput) as string || initialData?.status || "ACTIVE"}
-                onValueChange={(v) => setValue("status" as keyof VehicleCreateInput, v as never)}
+                value={watch("status") as string || initialData?.status || "ACTIVE"}
+                onValueChange={(v) => setValue("status", v as "ACTIVE" | "MAINTENANCE" | "DECOMMISSIONED")}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -137,22 +150,44 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
           <div className="space-y-2">
             <Label htmlFor="insuranceExpiry">
               Ablaufdatum Versicherung
-              <ExpiryBadge dateStr={watch("insuranceExpiry" as keyof VehicleCreateInput) as string | undefined} />
+              <ExpiryBadge dateStr={watch("insuranceExpiry") as string | undefined} />
             </Label>
             <DatePicker
-              value={watch("insuranceExpiry" as keyof VehicleCreateInput) as string || ""}
-              onChange={(v) => setValue("insuranceExpiry" as keyof VehicleCreateInput, v as never)}
+              value={watch("insuranceExpiry") as string || ""}
+              onChange={(v) => setValue("insuranceExpiry", v)}
               className="w-full"
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="registrationExpiry">
               Ablaufdatum Zulassung
-              <ExpiryBadge dateStr={watch("registrationExpiry" as keyof VehicleCreateInput) as string | undefined} />
+              <ExpiryBadge dateStr={watch("registrationExpiry") as string | undefined} />
             </Label>
             <DatePicker
-              value={watch("registrationExpiry" as keyof VehicleCreateInput) as string || ""}
-              onChange={(v) => setValue("registrationExpiry" as keyof VehicleCreateInput, v as never)}
+              value={watch("registrationExpiry") as string || ""}
+              onChange={(v) => setValue("registrationExpiry", v)}
+              className="w-full"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="nextServiceDate">
+              Nächster Service
+              <ExpiryBadge dateStr={watch("nextServiceDate") as string | undefined} />
+            </Label>
+            <DatePicker
+              value={watch("nextServiceDate") as string || ""}
+              onChange={(v) => setValue("nextServiceDate", v)}
+              className="w-full"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="nextInspectionDate">
+              Nächste §57a (Pickerl)
+              <ExpiryBadge dateStr={watch("nextInspectionDate") as string | undefined} />
+            </Label>
+            <DatePicker
+              value={watch("nextInspectionDate") as string || ""}
+              onChange={(v) => setValue("nextInspectionDate", v)}
               className="w-full"
             />
           </div>

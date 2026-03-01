@@ -26,13 +26,13 @@ const severityConfig = {
     color: "text-orange-600",
     bg: "bg-orange-50 border-orange-200",
     icon: AlertTriangle,
-    label: "< 7 days",
+    label: "< 7 Tage",
   },
   warning: {
     color: "text-yellow-600",
     bg: "bg-yellow-50 border-yellow-200",
     icon: Clock,
-    label: "< 30 days",
+    label: "< 30 Tage",
   },
 };
 

@@ -61,6 +61,10 @@ export async function PUT(
       ...(data.insuranceMonthlyCost !== undefined && { insuranceMonthlyCost: data.insuranceMonthlyCost ?? null }),
       ...(data.otherMonthlyCosts !== undefined && { otherMonthlyCosts: data.otherMonthlyCosts ?? null }),
       ...(data.status !== undefined && { status: data.status }),
+      ...(data.insuranceExpiry !== undefined && { insuranceExpiry: data.insuranceExpiry ? new Date(data.insuranceExpiry) : null }),
+      ...(data.registrationExpiry !== undefined && { registrationExpiry: data.registrationExpiry ? new Date(data.registrationExpiry) : null }),
+      ...(data.nextServiceDate !== undefined && { nextServiceDate: data.nextServiceDate ? new Date(data.nextServiceDate) : null }),
+      ...(data.nextInspectionDate !== undefined && { nextInspectionDate: data.nextInspectionDate ? new Date(data.nextInspectionDate) : null }),
     },
   });
 

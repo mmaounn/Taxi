@@ -1,16 +1,29 @@
 import { z } from "zod";
 
+// Coerce to number but treat empty/blank strings as undefined
+const optionalInt = z.preprocess(
+  (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
+  z.number().int().min(2000).max(2030).optional(),
+);
+
+const optionalDecimal = z.preprocess(
+  (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
+  z.number().min(0).optional(),
+);
+
 export const vehicleCreateSchema = z.object({
-  licensePlate: z.string().min(1, "License plate is required"),
-  make: z.string().optional(),
-  model: z.string().optional(),
-  year: z.coerce.number().int().min(2000).max(2030).optional(),
-  color: z.string().optional(),
-  monthlyRentalCost: z.coerce.number().min(0).optional(),
-  insuranceMonthlyCost: z.coerce.number().min(0).optional(),
-  otherMonthlyCosts: z.coerce.number().min(0).optional(),
-  insuranceExpiry: z.string().optional(),
-  registrationExpiry: z.string().optional(),
+  licensePlate: z.string().min(1, "Kennzeichen ist erforderlich"),
+  make: z.preprocess((v) => (v === null ? undefined : v), z.string().optional()),
+  model: z.preprocess((v) => (v === null ? undefined : v), z.string().optional()),
+  year: optionalInt,
+  color: z.preprocess((v) => (v === null ? undefined : v), z.string().optional()),
+  monthlyRentalCost: optionalDecimal,
+  insuranceMonthlyCost: optionalDecimal,
+  otherMonthlyCosts: optionalDecimal,
+  insuranceExpiry: z.preprocess((v) => (v === null || v === "" ? undefined : v), z.string().optional()),
+  registrationExpiry: z.preprocess((v) => (v === null || v === "" ? undefined : v), z.string().optional()),
+  nextServiceDate: z.preprocess((v) => (v === null || v === "" ? undefined : v), z.string().optional()),
+  nextInspectionDate: z.preprocess((v) => (v === null || v === "" ? undefined : v), z.string().optional()),
 });
 
 export const vehicleUpdateSchema = vehicleCreateSchema.partial().extend({

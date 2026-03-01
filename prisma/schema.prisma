@@ -170,6 +170,8 @@ model Vehicle {
   otherMonthlyCosts    Decimal?      @db.Decimal(10, 2)
   insuranceExpiry      DateTime?
   registrationExpiry   DateTime?
+  nextServiceDate      DateTime?
+  nextInspectionDate   DateTime?
   status               VehicleStatus @default(ACTIVE)
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt

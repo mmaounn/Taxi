@@ -46,6 +46,8 @@ export async function GET() {
       OR: [
         { insuranceExpiry: { lte: thirtyDaysFromNow } },
         { registrationExpiry: { lte: thirtyDaysFromNow } },
+        { nextServiceDate: { lte: thirtyDaysFromNow } },
+        { nextInspectionDate: { lte: thirtyDaysFromNow } },
       ],
     },
     select: {
@@ -55,6 +57,8 @@ export async function GET() {
       model: true,
       insuranceExpiry: true,
       registrationExpiry: true,
+      nextServiceDate: true,
+      nextInspectionDate: true,
     },
   });
 
@@ -73,7 +77,7 @@ export async function GET() {
         id: `driver-taxi-${driver.id}`,
         entityType: "driver",
         entityName: `${driver.firstName} ${driver.lastName}`,
-        field: "Taxi License",
+        field: "Taxischein",
         expiryDate: driver.taxiLicenseExpiry.toISOString(),
         severity: getSeverity(driver.taxiLicenseExpiry),
         link: `/drivers/${driver.id}`,
@@ -84,7 +88,7 @@ export async function GET() {
         id: `driver-license-${driver.id}`,
         entityType: "driver",
         entityName: `${driver.firstName} ${driver.lastName}`,
-        field: "Driver's License",
+        field: "Führerschein",
         expiryDate: driver.driversLicenseExpiry.toISOString(),
         severity: getSeverity(driver.driversLicenseExpiry),
         link: `/drivers/${driver.id}`,
@@ -99,7 +103,7 @@ export async function GET() {
         id: `vehicle-insurance-${vehicle.id}`,
         entityType: "vehicle",
         entityName: vehicleName,
-        field: "Insurance",
+        field: "Versicherung",
         expiryDate: vehicle.insuranceExpiry.toISOString(),
         severity: getSeverity(vehicle.insuranceExpiry),
         link: `/vehicles/${vehicle.id}`,
@@ -110,9 +114,31 @@ export async function GET() {
         id: `vehicle-registration-${vehicle.id}`,
         entityType: "vehicle",
         entityName: vehicleName,
-        field: "Registration",
+        field: "Zulassung",
         expiryDate: vehicle.registrationExpiry.toISOString(),
         severity: getSeverity(vehicle.registrationExpiry),
+        link: `/vehicles/${vehicle.id}`,
+      });
+    }
+    if (vehicle.nextServiceDate && vehicle.nextServiceDate <= thirtyDaysFromNow) {
+      alerts.push({
+        id: `vehicle-service-${vehicle.id}`,
+        entityType: "vehicle",
+        entityName: vehicleName,
+        field: "Service",
+        expiryDate: vehicle.nextServiceDate.toISOString(),
+        severity: getSeverity(vehicle.nextServiceDate),
+        link: `/vehicles/${vehicle.id}`,
+      });
+    }
+    if (vehicle.nextInspectionDate && vehicle.nextInspectionDate <= thirtyDaysFromNow) {
+      alerts.push({
+        id: `vehicle-inspection-${vehicle.id}`,
+        entityType: "vehicle",
+        entityName: vehicleName,
+        field: "§57a (Pickerl)",
+        expiryDate: vehicle.nextInspectionDate.toISOString(),
+        severity: getSeverity(vehicle.nextInspectionDate),
         link: `/vehicles/${vehicle.id}`,
       });
     }

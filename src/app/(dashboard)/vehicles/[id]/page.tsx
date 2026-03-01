@@ -17,7 +17,7 @@ interface VehicleData {
   model: string | null;
   year: number | null;
   color: string | null;
-  status: string;
+  status: "ACTIVE" | "MAINTENANCE" | "DECOMMISSIONED";
   monthlyRentalCost: number | null;
   insuranceMonthlyCost: number | null;
   otherMonthlyCosts: number | null;
@@ -40,13 +40,13 @@ export default function VehicleDetailPage() {
       });
   }, [id]);
 
-  if (loading) return <div className="py-8 text-center">Loading...</div>;
-  if (!vehicle) return <div className="py-8 text-center text-red-600">Vehicle not found</div>;
+  if (loading) return <div className="py-8 text-center">Wird geladen...</div>;
+  if (!vehicle) return <div className="py-8 text-center text-red-600">Fahrzeug nicht gefunden</div>;
 
   if (isEditing) {
     return (
       <div className="mx-auto max-w-3xl space-y-6">
-        <h1 className="text-2xl font-bold">Edit Vehicle</h1>
+        <h1 className="text-2xl font-bold">Fahrzeug bearbeiten</h1>
         <VehicleForm
           initialData={{
             ...vehicle,
@@ -78,13 +78,13 @@ export default function VehicleDetailPage() {
             {vehicle.make} {vehicle.model} {vehicle.year ? `(${vehicle.year})` : ""}
           </p>
           <Badge variant="secondary" className={statusColors[vehicle.status]}>
-            {vehicle.status}
+            {{ ACTIVE: "Aktiv", MAINTENANCE: "In Wartung", DECOMMISSIONED: "Außer Betrieb" }[vehicle.status] || vehicle.status}
           </Badge>
         </div>
         <Button asChild>
           <Link href={`/vehicles/${id}?edit=true`}>
             <Edit className="mr-2 h-4 w-4" />
-            Edit
+            Bearbeiten
           </Link>
         </Button>
       </div>
@@ -92,19 +92,19 @@ export default function VehicleDetailPage() {
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Monthly Costs</CardTitle>
+            <CardTitle>Monatliche Kosten</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <p>
-              <span className="font-medium">Rental:</span>{" "}
+              <span className="font-medium">Mietkosten:</span>{" "}
               {vehicle.monthlyRentalCost != null ? formatEur(Number(vehicle.monthlyRentalCost)) : "—"}
             </p>
             <p>
-              <span className="font-medium">Insurance:</span>{" "}
+              <span className="font-medium">Versicherung:</span>{" "}
               {vehicle.insuranceMonthlyCost != null ? formatEur(Number(vehicle.insuranceMonthlyCost)) : "—"}
             </p>
             <p>
-              <span className="font-medium">Other:</span>{" "}
+              <span className="font-medium">Sonstige:</span>{" "}
               {vehicle.otherMonthlyCosts != null ? formatEur(Number(vehicle.otherMonthlyCosts)) : "—"}
             </p>
           </CardContent>
@@ -112,7 +112,7 @@ export default function VehicleDetailPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Assigned Drivers</CardTitle>
+            <CardTitle>Zugewiesene Fahrer</CardTitle>
           </CardHeader>
           <CardContent>
             {vehicle.drivers.length > 0 ? (
@@ -129,7 +129,7 @@ export default function VehicleDetailPage() {
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-gray-500">No drivers assigned</p>
+              <p className="text-sm text-gray-500">Keine Fahrer zugewiesen</p>
             )}
           </CardContent>
         </Card>

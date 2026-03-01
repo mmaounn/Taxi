@@ -43,19 +43,29 @@ export async function POST() {
           where: { partnerId, licensePlate: bv.reg_number },
         });
 
-        const vehicleData = {
-          make: bv.model.split(" ")[0] || bv.model,
-          model: bv.model,
-          year: bv.year || undefined,
-          color: bv.color || undefined,
-          status: bv.state === "active" ? "ACTIVE" as const : "DECOMMISSIONED" as const,
-        };
-
         if (existing) {
-          await db.vehicle.update({ where: { id: existing.id }, data: vehicleData });
+          // Only fill in blanks, never overwrite existing local values
+          await db.vehicle.update({
+            where: { id: existing.id },
+            data: {
+              make: existing.make || bv.model.split(" ")[0] || bv.model,
+              model: existing.model || bv.model,
+              year: existing.year ?? (bv.year || undefined),
+              color: existing.color || bv.color || undefined,
+              status: bv.state === "active" ? "ACTIVE" as const : "DECOMMISSIONED" as const,
+            },
+          });
         } else {
           await db.vehicle.create({
-            data: { partnerId, licensePlate: bv.reg_number, ...vehicleData },
+            data: {
+              partnerId,
+              licensePlate: bv.reg_number,
+              make: bv.model.split(" ")[0] || bv.model,
+              model: bv.model,
+              year: bv.year || undefined,
+              color: bv.color || undefined,
+              status: bv.state === "active" ? "ACTIVE" as const : "DECOMMISSIONED" as const,
+            },
           });
         }
         results.vehiclesImported++;
@@ -86,13 +96,15 @@ export async function POST() {
         };
 
         if (existing) {
+          // Only update fields that haven't been manually edited locally
+          // (i.e. only fill in blanks, never overwrite existing local values)
           await db.driver.update({
             where: { id: existing.id },
             data: {
-              firstName: bd.first_name || existing.firstName,
-              lastName: bd.last_name || existing.lastName,
-              email: bd.email || existing.email,
-              phone: bd.phone || existing.phone,
+              firstName: existing.firstName || bd.first_name || existing.firstName,
+              lastName: existing.lastName || bd.last_name || existing.lastName,
+              email: existing.email || bd.email || existing.email,
+              phone: existing.phone || bd.phone || existing.phone,
               status: statusMap[bd.state] || existing.status,
               vehicleId: vehicleId || existing.vehicleId,
             },

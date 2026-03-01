@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { RefreshCw, CheckCircle, XCircle, Clock, Users } from "lucide-react";
+import { RefreshCw, CheckCircle, XCircle, Clock, Users, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { WeekPicker } from "@/components/ui/week-picker";
 import { getWeekBounds } from "@/lib/date-utils";
@@ -87,7 +87,7 @@ function SyncStatusCard({
               variant="outline"
               className="w-full"
             >
-              <RefreshCw className={`mr-2 h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
+              {syncing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
               {syncing ? "Wird synchronisiert..." : `Sync ${platform}`}
             </Button>
           </>
@@ -139,7 +139,7 @@ function BoltDriverSyncCard({ boltConfigured }: { boltConfigured: boolean }) {
           disabled={!boltConfigured || syncing}
           className="w-full"
         >
-          <RefreshCw className={`mr-2 h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
+          {syncing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Users className="mr-2 h-4 w-4" />}
           {syncing
             ? "Fahrer werden synchronisiert..."
             : !boltConfigured

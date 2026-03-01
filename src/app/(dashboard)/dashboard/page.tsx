@@ -8,7 +8,7 @@ import { ExpiryAlerts } from "@/components/dashboard/expiry-alerts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, RefreshCw } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatEur } from "@/lib/format";
 
@@ -131,7 +131,7 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-bold">Dashboard</h1>
         {syncing && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <RefreshCw className="h-4 w-4 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin" />
             Plattformen werden synchronisiert...
           </div>
         )}

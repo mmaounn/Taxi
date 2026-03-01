@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
@@ -91,7 +92,12 @@ function LoginForm() {
             />
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? status : "Anmelden"}
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {status}
+              </>
+            ) : "Anmelden"}
           </Button>
         </form>
         <p className="mt-4 text-center text-sm text-gray-500">

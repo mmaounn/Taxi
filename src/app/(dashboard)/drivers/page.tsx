@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DriverTable } from "@/components/drivers/driver-table";
-import { Plus, Search, RefreshCw } from "lucide-react";
+import { Plus, Search, RefreshCw, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function DriversPage() {
@@ -73,7 +73,7 @@ export default function DriversPage() {
         <h1 className="text-2xl font-bold">Fahrer</h1>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={syncFromBolt} disabled={syncing}>
-            <RefreshCw className={`mr-2 h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
+            {syncing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
             {syncing ? "Sync..." : "Bolt-Sync"}
           </Button>
           <Button size="sm" asChild>

@@ -73,7 +73,7 @@ export default function RidesPage() {
 
   const fetchRides = useCallback(async (p: number) => {
     setLoading(true);
-    const params = new URLSearchParams({ page: String(p), limit: "30" });
+    const params = new URLSearchParams({ page: String(p), limit: "20" });
     if (source && source !== "all") params.set("source", source);
     if (driverId && driverId !== "all") params.set("driverId", driverId);
     if (payment && payment !== "all") params.set("payment", payment);
@@ -164,49 +164,33 @@ export default function RidesPage() {
 
       {/* Summary cards */}
       {total > 0 && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           <Card>
-            <CardContent className="flex items-center gap-3 p-4">
-              <div className="rounded-md bg-blue-50 p-2">
-                <Route className="h-4 w-4 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Kilometer</p>
-                <p className="text-lg font-semibold">{totals.km.toFixed(1)}</p>
-              </div>
+            <CardContent className="flex items-center gap-2 px-3 py-2">
+              <Route className="h-3.5 w-3.5 text-blue-600 shrink-0" />
+              <span className="text-xs text-muted-foreground">km</span>
+              <span className="ml-auto text-sm font-semibold">{totals.km.toFixed(1)}</span>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="flex items-center gap-3 p-4">
-              <div className="rounded-md bg-green-50 p-2">
-                <Banknote className="h-4 w-4 text-green-600" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Fahrpreis</p>
-                <p className="text-lg font-semibold">{formatEur(totals.fare)}</p>
-              </div>
+            <CardContent className="flex items-center gap-2 px-3 py-2">
+              <Banknote className="h-3.5 w-3.5 text-green-600 shrink-0" />
+              <span className="text-xs text-muted-foreground">Fahrpreis</span>
+              <span className="ml-auto text-sm font-semibold">{formatEur(totals.fare)}</span>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="flex items-center gap-3 p-4">
-              <div className="rounded-md bg-emerald-50 p-2">
-                <HandCoins className="h-4 w-4 text-emerald-600" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Trinkgeld</p>
-                <p className="text-lg font-semibold text-green-600">{formatEur(totals.tip)}</p>
-              </div>
+            <CardContent className="flex items-center gap-2 px-3 py-2">
+              <HandCoins className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+              <span className="text-xs text-muted-foreground">Trinkgeld</span>
+              <span className="ml-auto text-sm font-semibold text-green-600">{formatEur(totals.tip)}</span>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="flex items-center gap-3 p-4">
-              <div className="rounded-md bg-gray-100 p-2">
-                <Building2 className="h-4 w-4 text-gray-600" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Provision</p>
-                <p className="text-lg font-semibold text-gray-500">{formatEur(totals.commission)}</p>
-              </div>
+            <CardContent className="flex items-center gap-2 px-3 py-2">
+              <Building2 className="h-3.5 w-3.5 text-gray-500 shrink-0" />
+              <span className="text-xs text-muted-foreground">Provision</span>
+              <span className="ml-auto text-sm font-semibold text-gray-500">{formatEur(totals.commission)}</span>
             </CardContent>
           </Card>
         </div>

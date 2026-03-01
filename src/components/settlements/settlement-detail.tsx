@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { ClearableInput } from "@/components/ui/clearable-input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -252,9 +252,10 @@ export function SettlementDetail({
                   </div>
                   <div className="space-y-2">
                     <Label>Beschreibung</Label>
-                    <Input
+                    <ClearableInput
                       value={newLineItemDesc}
                       onChange={(e) => setNewLineItemDesc(e.target.value)}
+                      onClear={() => setNewLineItemDesc("")}
                       placeholder="z.B. Wochenendbonus, Kraftstoffvorschuss"
                     />
                   </div>

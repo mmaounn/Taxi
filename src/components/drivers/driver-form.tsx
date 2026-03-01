@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { ClearableInput } from "@/components/ui/clearable-input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -83,29 +83,29 @@ export function DriverForm({ initialData, vehicles }: DriverFormProps) {
         <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="firstName">Vorname *</Label>
-            <Input id="firstName" {...register("firstName")} />
+            <ClearableInput id="firstName" {...register("firstName")} onClear={() => setValue("firstName", "")} />
             {errors.firstName && (
               <p className="text-sm text-red-600">{errors.firstName.message}</p>
             )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="lastName">Nachname *</Label>
-            <Input id="lastName" {...register("lastName")} />
+            <ClearableInput id="lastName" {...register("lastName")} onClear={() => setValue("lastName", "")} />
             {errors.lastName && (
               <p className="text-sm text-red-600">{errors.lastName.message}</p>
             )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="email">E-Mail</Label>
-            <Input id="email" type="email" {...register("email")} />
+            <ClearableInput id="email" type="email" {...register("email")} onClear={() => setValue("email", "")} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="phone">Telefon</Label>
-            <Input id="phone" {...register("phone")} />
+            <ClearableInput id="phone" {...register("phone")} onClear={() => setValue("phone", "")} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="taxId">Steuer-ID</Label>
-            <Input id="taxId" {...register("taxId")} />
+            <ClearableInput id="taxId" {...register("taxId")} onClear={() => setValue("taxId", "")} />
           </div>
         </CardContent>
       </Card>
@@ -117,11 +117,11 @@ export function DriverForm({ initialData, vehicles }: DriverFormProps) {
         <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="bankIban">IBAN</Label>
-            <Input id="bankIban" {...register("bankIban")} />
+            <ClearableInput id="bankIban" {...register("bankIban")} onClear={() => setValue("bankIban", "")} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="bankBic">BIC</Label>
-            <Input id="bankBic" {...register("bankBic")} />
+            <ClearableInput id="bankBic" {...register("bankBic")} onClear={() => setValue("bankBic", "")} />
           </div>
         </CardContent>
       </Card>
@@ -133,7 +133,7 @@ export function DriverForm({ initialData, vehicles }: DriverFormProps) {
         <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="taxiLicenseNumber">Lizenznummer</Label>
-            <Input id="taxiLicenseNumber" {...register("taxiLicenseNumber")} />
+            <ClearableInput id="taxiLicenseNumber" {...register("taxiLicenseNumber")} onClear={() => setValue("taxiLicenseNumber", "")} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="taxiLicenseExpiry">Ablaufdatum</Label>
@@ -243,15 +243,15 @@ export function DriverForm({ initialData, vehicles }: DriverFormProps) {
         <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="boltDriverId">Bolt Driver ID</Label>
-            <Input id="boltDriverId" {...register("boltDriverId")} />
+            <ClearableInput id="boltDriverId" {...register("boltDriverId")} onClear={() => setValue("boltDriverId", "")} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="uberDriverUuid">Uber Driver UUID</Label>
-            <Input id="uberDriverUuid" {...register("uberDriverUuid")} />
+            <ClearableInput id="uberDriverUuid" {...register("uberDriverUuid")} onClear={() => setValue("uberDriverUuid", "")} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="freenowDriverId">FreeNow Driver ID</Label>
-            <Input id="freenowDriverId" {...register("freenowDriverId")} />
+            <ClearableInput id="freenowDriverId" {...register("freenowDriverId")} onClear={() => setValue("freenowDriverId", "")} />
           </div>
           <div className="space-y-2">
             <Label>Fahrzeug</Label>

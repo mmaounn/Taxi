@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Input } from "@/components/ui/input";
+import { X } from "lucide-react";
 
 /**
  * Format a raw numeric string (digits + optional comma) into Austrian format
@@ -181,14 +182,30 @@ export function CurrencyInput({
   }, [displayValue]);
 
   return (
-    <Input
-      ref={inputRef}
-      type="text"
-      inputMode="decimal"
-      value={displayValue}
-      onChange={handleChangeWithCursor}
-      onKeyDown={handleKeyDown}
-      {...props}
-    />
+    <div className="relative">
+      <Input
+        ref={inputRef}
+        type="text"
+        inputMode="decimal"
+        value={displayValue}
+        onChange={handleChangeWithCursor}
+        onKeyDown={handleKeyDown}
+        {...props}
+        className={`${props.className || ""} ${displayValue ? "pr-8" : ""}`}
+      />
+      {displayValue && (
+        <button
+          type="button"
+          tabIndex={-1}
+          onClick={() => {
+            onChange("");
+            inputRef.current?.focus();
+          }}
+          className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-0.5"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      )}
+    </div>
   );
 }

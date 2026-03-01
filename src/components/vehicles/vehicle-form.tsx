@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ClearableInput } from "@/components/ui/clearable-input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -100,18 +101,18 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
         <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="licensePlate">Kennzeichen *</Label>
-            <Input id="licensePlate" {...register("licensePlate")} />
+            <ClearableInput id="licensePlate" {...register("licensePlate")} onClear={() => setValue("licensePlate", "")} />
             {errors.licensePlate && (
               <p className="text-sm text-red-600">{errors.licensePlate.message}</p>
             )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="make">Marke</Label>
-            <Input id="make" placeholder="z.B. Toyota" {...register("make")} />
+            <ClearableInput id="make" placeholder="z.B. Toyota" {...register("make")} onClear={() => setValue("make", "")} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="model">Modell</Label>
-            <Input id="model" placeholder="z.B. Camry" {...register("model")} />
+            <ClearableInput id="model" placeholder="z.B. Camry" {...register("model")} onClear={() => setValue("model", "")} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="year">Baujahr</Label>
@@ -119,7 +120,7 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="color">Farbe</Label>
-            <Input id="color" {...register("color")} />
+            <ClearableInput id="color" {...register("color")} onClear={() => setValue("color", "")} />
           </div>
 
           {isEditing && (

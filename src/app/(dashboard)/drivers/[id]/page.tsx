@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { ClearableInput } from "@/components/ui/clearable-input";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { Label } from "@/components/ui/label";
 import {
@@ -393,11 +393,11 @@ export default function DriverDetailPage() {
         <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="bankIban">IBAN</Label>
-            <Input id="bankIban" value={bankIban} onChange={(e) => setBankIban(e.target.value)} />
+            <ClearableInput id="bankIban" value={bankIban} onChange={(e) => setBankIban(e.target.value)} onClear={() => setBankIban("")} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="bankBic">BIC</Label>
-            <Input id="bankBic" value={bankBic} onChange={(e) => setBankBic(e.target.value)} />
+            <ClearableInput id="bankBic" value={bankBic} onChange={(e) => setBankBic(e.target.value)} onClear={() => setBankBic("")} />
           </div>
         </CardContent>
       </Card>
@@ -409,11 +409,11 @@ export default function DriverDetailPage() {
         <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="taxId">Steuer-ID</Label>
-            <Input id="taxId" value={taxId} onChange={(e) => setTaxId(e.target.value)} />
+            <ClearableInput id="taxId" value={taxId} onChange={(e) => setTaxId(e.target.value)} onClear={() => setTaxId("")} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="taxiLicenseNumber">Lizenznummer</Label>
-            <Input id="taxiLicenseNumber" value={taxiLicenseNumber} onChange={(e) => setTaxiLicenseNumber(e.target.value)} />
+            <ClearableInput id="taxiLicenseNumber" value={taxiLicenseNumber} onChange={(e) => setTaxiLicenseNumber(e.target.value)} onClear={() => setTaxiLicenseNumber("")} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="taxiLicenseExpiry">

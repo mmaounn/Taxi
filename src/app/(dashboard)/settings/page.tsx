@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ClearableInput } from "@/components/ui/clearable-input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -134,15 +135,15 @@ export default function SettingsPage() {
           <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Firmenname</Label>
-              <Input {...register("companyName")} />
+              <ClearableInput {...register("companyName")} onClear={() => setValue("companyName", "")} />
             </div>
             <div className="space-y-2">
               <Label>Steuer-ID</Label>
-              <Input {...register("taxId")} />
+              <ClearableInput {...register("taxId")} onClear={() => setValue("taxId", "")} />
             </div>
             <div className="sm:col-span-2 space-y-2">
               <Label>Adresse</Label>
-              <Input {...register("address")} />
+              <ClearableInput {...register("address")} onClear={() => setValue("address", "")} />
             </div>
           </CardContent>
         </Card>
@@ -154,15 +155,15 @@ export default function SettingsPage() {
           <CardContent className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Bankname</Label>
-              <Input {...register("bankName")} />
+              <ClearableInput {...register("bankName")} onClear={() => setValue("bankName", "")} />
             </div>
             <div className="space-y-2">
               <Label>IBAN</Label>
-              <Input {...register("bankIban")} />
+              <ClearableInput {...register("bankIban")} onClear={() => setValue("bankIban", "")} />
             </div>
             <div className="space-y-2">
               <Label>BIC</Label>
-              <Input {...register("bankBic")} />
+              <ClearableInput {...register("bankBic")} onClear={() => setValue("bankBic", "")} />
             </div>
           </CardContent>
         </Card>
@@ -220,7 +221,7 @@ export default function SettingsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Bolt Client ID</Label>
-                  <Input {...register("boltClientId")} placeholder="Zum Aktualisieren eingeben" />
+                  <ClearableInput {...register("boltClientId")} placeholder="Zum Aktualisieren eingeben" onClear={() => setValue("boltClientId", "")} />
                 </div>
                 <div className="space-y-2">
                   <Label>Bolt Client Secret</Label>
@@ -245,7 +246,7 @@ export default function SettingsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Uber Client ID</Label>
-                  <Input {...register("uberClientId")} placeholder="Zum Aktualisieren eingeben" />
+                  <ClearableInput {...register("uberClientId")} placeholder="Zum Aktualisieren eingeben" onClear={() => setValue("uberClientId", "")} />
                 </div>
                 <div className="space-y-2">
                   <Label>Uber Client Secret</Label>
@@ -269,7 +270,7 @@ export default function SettingsPage() {
 
               <div className="space-y-2">
                 <Label>Uber Organisations-ID</Label>
-                <Input {...register("uberOrgId")} />
+                <ClearableInput {...register("uberOrgId")} onClear={() => setValue("uberOrgId", "")} />
               </div>
             </div>
           </CardContent>

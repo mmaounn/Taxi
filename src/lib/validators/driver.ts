@@ -1,4 +1,11 @@
 import { z } from "zod";
+import { parseDecimalInput } from "@/lib/format";
+
+const optionalDecimal = (max?: number) =>
+  z.preprocess(
+    (v) => (v === "" || v === null || v === undefined ? undefined : parseDecimalInput(v as string)),
+    max !== undefined ? z.number().min(0).max(max).optional() : z.number().min(0).optional(),
+  );
 
 export const driverCreateSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -12,10 +19,10 @@ export const driverCreateSchema = z.object({
   taxiLicenseExpiry: z.string().optional(),
   driversLicenseExpiry: z.string().optional(),
   commissionModel: z.enum(["PERCENTAGE", "FIXED", "HYBRID", "PER_RIDE"]),
-  commissionRate: z.coerce.number().min(0).max(100).optional(),
-  fixedFee: z.coerce.number().min(0).optional(),
-  hybridThreshold: z.coerce.number().min(0).optional(),
-  perRideFee: z.coerce.number().min(0).optional(),
+  commissionRate: optionalDecimal(100),
+  fixedFee: optionalDecimal(),
+  hybridThreshold: optionalDecimal(),
+  perRideFee: optionalDecimal(),
   settlementFrequency: z.enum(["WEEKLY", "BIWEEKLY", "MONTHLY"]),
   boltDriverId: z.string().optional(),
   uberDriverUuid: z.string().optional(),

@@ -47,3 +47,46 @@ export function formatEurOrDash(val: number | null | undefined): string {
 export function formatEurCsv(val: number): string {
   return val.toFixed(2).replace(".", ",");
 }
+
+/**
+ * Parse a decimal input string in Austrian/German format to a number.
+ * Accepts both comma and dot as decimal separator.
+ * Handles thousands separators (dots in Austrian format).
+ *
+ * Examples:
+ *   "1,50"     → 1.5
+ *   "1.234,56" → 1234.56
+ *   "1234.56"  → 1234.56  (also accepts dot-decimal)
+ *   "50"       → 50
+ *   ""         → undefined
+ */
+export function parseDecimalInput(
+  value: string | number | null | undefined,
+): number | undefined {
+  if (value === null || value === undefined || value === "") return undefined;
+  if (typeof value === "number") return isNaN(value) ? undefined : value;
+  const trimmed = value.trim();
+  if (trimmed === "") return undefined;
+
+  // If the string contains both dots and commas, determine which is the decimal separator.
+  // Austrian format: 1.234,56 (dot = thousands, comma = decimal)
+  // US format:       1,234.56 (comma = thousands, dot = decimal)
+  // We prioritize Austrian format: if the last separator is a comma, it's the decimal.
+  const lastComma = trimmed.lastIndexOf(",");
+  const lastDot = trimmed.lastIndexOf(".");
+
+  let cleaned: string;
+  if (lastComma > lastDot) {
+    // Austrian: dots are thousands, comma is decimal → "1.234,56" → "1234.56"
+    cleaned = trimmed.replace(/\./g, "").replace(",", ".");
+  } else if (lastDot > lastComma) {
+    // US-style or plain dot decimal → "1,234.56" → "1234.56" or "1.50" → "1.50"
+    cleaned = trimmed.replace(/,/g, "");
+  } else {
+    // No separators or only one type
+    cleaned = trimmed.replace(",", ".");
+  }
+
+  const num = parseFloat(cleaned);
+  return isNaN(num) ? undefined : num;
+}

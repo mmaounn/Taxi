@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { parseDecimalInput } from "@/lib/format";
 
 // Coerce to number but treat empty/blank strings as undefined
 const optionalInt = z.preprocess(
@@ -7,7 +8,7 @@ const optionalInt = z.preprocess(
 );
 
 const optionalDecimal = z.preprocess(
-  (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
+  (v) => (v === "" || v === null || v === undefined ? undefined : parseDecimalInput(v as string)),
   z.number().min(0).optional(),
 );
 

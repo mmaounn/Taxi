@@ -1,15 +1,21 @@
 import { z } from "zod";
+import { parseDecimalInput } from "@/lib/format";
+
+const decimalAmount = z.preprocess(
+  (v) => (v === "" || v === null || v === undefined ? undefined : parseDecimalInput(v as string)),
+  z.number().min(0.01, "Betrag muss positiv sein"),
+);
 
 export const lineItemCreateSchema = z.object({
   type: z.enum(["BONUS", "DEDUCTION"]),
   description: z.string().min(1, "Description is required"),
-  amount: z.coerce.number().min(0.01, "Amount must be positive"),
+  amount: decimalAmount,
 });
 
 export const lineItemTemplateCreateSchema = z.object({
   type: z.enum(["BONUS", "DEDUCTION"]),
   description: z.string().min(1, "Description is required"),
-  amount: z.coerce.number().min(0.01, "Amount must be positive"),
+  amount: decimalAmount,
   scope: z.enum(["MANUAL", "ALL_DRIVERS", "SPECIFIC_DRIVER"]).default("MANUAL"),
   driverId: z.string().optional(),
   isActive: z.boolean().optional().default(true),

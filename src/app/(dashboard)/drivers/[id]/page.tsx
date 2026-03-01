@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -33,7 +34,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Save, Wallet, Plus } from "lucide-react";
 import { toast } from "sonner";
-import { formatEur } from "@/lib/format";
+import { formatEur, parseDecimalInput } from "@/lib/format";
 import { DatePicker } from "@/components/ui/date-picker";
 
 interface DriverData {
@@ -177,10 +178,10 @@ export default function DriverDetailPage() {
           taxiLicenseExpiry: taxiLicenseExpiry || undefined,
           driversLicenseExpiry: driversLicenseExpiry || undefined,
           commissionModel,
-          commissionRate: commissionRate ? Number(commissionRate) : undefined,
-          fixedFee: fixedFee ? Number(fixedFee) : undefined,
-          hybridThreshold: hybridThreshold ? Number(hybridThreshold) : undefined,
-          perRideFee: perRideFee ? Number(perRideFee) : undefined,
+          commissionRate: commissionRate ? parseDecimalInput(commissionRate) : undefined,
+          fixedFee: fixedFee ? parseDecimalInput(fixedFee) : undefined,
+          hybridThreshold: hybridThreshold ? parseDecimalInput(hybridThreshold) : undefined,
+          perRideFee: perRideFee ? parseDecimalInput(perRideFee) : undefined,
           settlementFrequency,
         }),
       });
@@ -238,12 +239,11 @@ export default function DriverDetailPage() {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label>Betrag (EUR) — positiv zum Gutschreiben, negativ zum Belasten</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
+                    <CurrencyInput
                       value={adjustAmount}
-                      onChange={(e) => setAdjustAmount(e.target.value)}
-                      placeholder="z.B. 50.00 oder -25.00"
+                      onChange={setAdjustAmount}
+                      placeholder="z.B. 50,00 oder -25,00"
+                      allowNegative
                     />
                   </div>
                   <div className="space-y-2">
@@ -257,7 +257,7 @@ export default function DriverDetailPage() {
                   </div>
                   <Button
                     onClick={async () => {
-                      const amt = parseFloat(adjustAmount);
+                      const amt = parseDecimalInput(adjustAmount) ?? 0;
                       if (!amt || amt === 0) {
                         toast.error("Bitte einen gültigen Betrag eingeben");
                         return;
@@ -472,25 +472,25 @@ export default function DriverDetailPage() {
           {(commissionModel === "PERCENTAGE" || commissionModel === "HYBRID") && (
             <div className="space-y-2">
               <Label htmlFor="commissionRate">Provisionssatz (%)</Label>
-              <Input id="commissionRate" type="number" step="0.01" value={commissionRate} onChange={(e) => setCommissionRate(e.target.value)} />
+              <CurrencyInput id="commissionRate" placeholder="z.B. 25 oder 12,5" value={commissionRate} onChange={setCommissionRate} />
             </div>
           )}
           {(commissionModel === "FIXED" || commissionModel === "HYBRID") && (
             <div className="space-y-2">
               <Label htmlFor="fixedFee">Festgebühr (EUR)</Label>
-              <Input id="fixedFee" type="number" step="0.01" value={fixedFee} onChange={(e) => setFixedFee(e.target.value)} />
+              <CurrencyInput id="fixedFee" placeholder="z.B. 500,00" value={fixedFee} onChange={setFixedFee} />
             </div>
           )}
           {commissionModel === "HYBRID" && (
             <div className="space-y-2">
               <Label htmlFor="hybridThreshold">Schwellenwert (EUR)</Label>
-              <Input id="hybridThreshold" type="number" step="0.01" value={hybridThreshold} onChange={(e) => setHybridThreshold(e.target.value)} />
+              <CurrencyInput id="hybridThreshold" placeholder="z.B. 1.000,00" value={hybridThreshold} onChange={setHybridThreshold} />
             </div>
           )}
           {commissionModel === "PER_RIDE" && (
             <div className="space-y-2">
               <Label htmlFor="perRideFee">Gebühr pro Fahrt (EUR)</Label>
-              <Input id="perRideFee" type="number" step="0.01" value={perRideFee} onChange={(e) => setPerRideFee(e.target.value)} />
+              <CurrencyInput id="perRideFee" placeholder="z.B. 3,50" value={perRideFee} onChange={setPerRideFee} />
             </div>
           )}
         </CardContent>

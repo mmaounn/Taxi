@@ -18,6 +18,7 @@ import { Separator } from "@/components/ui/separator";
 import { driverCreateSchema, type DriverCreateInput } from "@/lib/validators/driver";
 import { toast } from "sonner";
 import { DatePicker } from "@/components/ui/date-picker";
+import { CurrencyInput } from "@/components/ui/currency-input";
 
 interface Vehicle {
   id: string;
@@ -191,44 +192,44 @@ export function DriverForm({ initialData, vehicles }: DriverFormProps) {
           {(commissionModel === "PERCENTAGE" || commissionModel === "HYBRID") && (
             <div className="space-y-2">
               <Label htmlFor="commissionRate">Provisionssatz (%)</Label>
-              <Input
+              <CurrencyInput
                 id="commissionRate"
-                type="number"
-                step="0.01"
-                {...register("commissionRate")}
+                placeholder="z.B. 25 oder 12,5"
+                value={watch("commissionRate")?.toString() || ""}
+                onChange={(v) => setValue("commissionRate", v as unknown as number)}
               />
             </div>
           )}
           {(commissionModel === "FIXED" || commissionModel === "HYBRID") && (
             <div className="space-y-2">
               <Label htmlFor="fixedFee">Festgebühr (EUR)</Label>
-              <Input
+              <CurrencyInput
                 id="fixedFee"
-                type="number"
-                step="0.01"
-                {...register("fixedFee")}
+                placeholder="z.B. 500,00"
+                value={watch("fixedFee")?.toString() || ""}
+                onChange={(v) => setValue("fixedFee", v as unknown as number)}
               />
             </div>
           )}
           {commissionModel === "HYBRID" && (
             <div className="space-y-2">
               <Label htmlFor="hybridThreshold">Schwellenwert (EUR)</Label>
-              <Input
+              <CurrencyInput
                 id="hybridThreshold"
-                type="number"
-                step="0.01"
-                {...register("hybridThreshold")}
+                placeholder="z.B. 1.000,00"
+                value={watch("hybridThreshold")?.toString() || ""}
+                onChange={(v) => setValue("hybridThreshold", v as unknown as number)}
               />
             </div>
           )}
           {commissionModel === "PER_RIDE" && (
             <div className="space-y-2">
               <Label htmlFor="perRideFee">Gebühr pro Fahrt (EUR)</Label>
-              <Input
+              <CurrencyInput
                 id="perRideFee"
-                type="number"
-                step="0.01"
-                {...register("perRideFee")}
+                placeholder="z.B. 3,50"
+                value={watch("perRideFee")?.toString() || ""}
+                onChange={(v) => setValue("perRideFee", v as unknown as number)}
               />
             </div>
           )}

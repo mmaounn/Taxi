@@ -33,7 +33,8 @@ import {
 } from "@/components/ui/select";
 import { CheckCircle, Download, RefreshCw, Euro, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { formatEur } from "@/lib/format";
+import { formatEur, parseDecimalInput } from "@/lib/format";
+import { CurrencyInput } from "@/components/ui/currency-input";
 
 interface LineItemData {
   id: string;
@@ -259,12 +260,10 @@ export function SettlementDetail({
                   </div>
                   <div className="space-y-2">
                     <Label>Betrag (EUR)</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      min="0.01"
+                    <CurrencyInput
+                      placeholder="z.B. 50,00"
                       value={newLineItemAmount}
-                      onChange={(e) => setNewLineItemAmount(e.target.value)}
+                      onChange={setNewLineItemAmount}
                     />
                   </div>
                   <Button
@@ -279,7 +278,7 @@ export function SettlementDetail({
                         body: JSON.stringify({
                           type: newLineItemType,
                           description: newLineItemDesc,
-                          amount: parseFloat(newLineItemAmount),
+                          amount: parseDecimalInput(newLineItemAmount) ?? 0,
                         }),
                       });
                       if (res.ok) {
@@ -372,11 +371,10 @@ export function SettlementDetail({
             <div className="space-y-2">
               <Label>Vom Fahrer eingezahltes Bargeld (EUR)</Label>
               <div className="flex gap-2">
-                <Input
-                  type="number"
-                  step="0.01"
+                <CurrencyInput
+                  placeholder="z.B. 150,00"
                   value={cashCollected}
-                  onChange={(e) => setCashCollected(e.target.value)}
+                  onChange={setCashCollected}
                   className="w-40"
                 />
                 <Button
@@ -384,7 +382,7 @@ export function SettlementDetail({
                   size="sm"
                   onClick={() =>
                     updateSettlement({
-                      cashCollectedByDriver: parseFloat(cashCollected) || 0,
+                      cashCollectedByDriver: parseDecimalInput(cashCollected) ?? 0,
                     })
                   }
                   disabled={saving}

@@ -13,6 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { parseDecimalInput } from "@/lib/format";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { toast } from "sonner";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 
@@ -94,7 +96,11 @@ export default function SettingsPage() {
   async function onSubmit(data: PartnerSettings) {
     setSaving(true);
     // Don't send empty credential fields (would clear configured values)
-    const payload: Record<string, unknown> = { ...data };
+    const payload: Record<string, unknown> = {
+      ...data,
+      defaultCommissionRate: parseDecimalInput(data.defaultCommissionRate) ?? null,
+      defaultFixedFee: parseDecimalInput(data.defaultFixedFee) ?? null,
+    };
     if (!data.boltClientId) delete payload.boltClientId;
     if (!data.boltClientSecret) delete payload.boltClientSecret;
     if (!data.uberClientId) delete payload.uberClientId;
@@ -185,11 +191,19 @@ export default function SettingsPage() {
             </div>
             <div className="space-y-2">
               <Label>Satz (%)</Label>
-              <Input type="number" step="0.01" {...register("defaultCommissionRate")} />
+              <CurrencyInput
+                placeholder="z.B. 25 oder 12,5"
+                value={watch("defaultCommissionRate")?.toString() || ""}
+                onChange={(v) => setValue("defaultCommissionRate", v as unknown as number | null)}
+              />
             </div>
             <div className="space-y-2">
               <Label>Festgebühr (EUR)</Label>
-              <Input type="number" step="0.01" {...register("defaultFixedFee")} />
+              <CurrencyInput
+                placeholder="z.B. 500,00"
+                value={watch("defaultFixedFee")?.toString() || ""}
+                onChange={(v) => setValue("defaultFixedFee", v as unknown as number | null)}
+              />
             </div>
           </CardContent>
         </Card>

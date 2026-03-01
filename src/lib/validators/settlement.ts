@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { parseDecimalInput } from "@/lib/format";
 
 export const settlementCreateSchema = z.object({
   driverId: z.string().min(1, "Driver is required"),
@@ -9,7 +10,10 @@ export const settlementCreateSchema = z.object({
 
 export const settlementUpdateSchema = z.object({
   status: z.enum(["DRAFT", "CALCULATED", "APPROVED", "PAID", "DISPUTED"]).optional(),
-  cashCollectedByDriver: z.coerce.number().min(0).optional(),
+  cashCollectedByDriver: z.preprocess(
+    (v) => (v === "" || v === null || v === undefined ? undefined : parseDecimalInput(v as string)),
+    z.number().min(0).optional(),
+  ),
   notes: z.string().optional(),
   payoutReference: z.string().optional(),
   payoutDate: z.string().optional(),

@@ -19,6 +19,7 @@ import { vehicleCreateSchema, type VehicleCreateInput } from "@/lib/validators/v
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { DatePicker } from "@/components/ui/date-picker";
+import { CurrencyInput } from "@/components/ui/currency-input";
 
 function ExpiryBadge({ dateStr }: { dateStr: string | undefined }) {
   if (!dateStr) return null;
@@ -201,29 +202,29 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
         <CardContent className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label htmlFor="monthlyRentalCost">Mietkosten (EUR)</Label>
-            <Input
+            <CurrencyInput
               id="monthlyRentalCost"
-              type="number"
-              step="0.01"
-              {...register("monthlyRentalCost")}
+              placeholder="z.B. 450,00"
+              value={watch("monthlyRentalCost")?.toString() || ""}
+              onChange={(v) => setValue("monthlyRentalCost", v as unknown as number)}
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="insuranceMonthlyCost">Versicherung (EUR)</Label>
-            <Input
+            <CurrencyInput
               id="insuranceMonthlyCost"
-              type="number"
-              step="0.01"
-              {...register("insuranceMonthlyCost")}
+              placeholder="z.B. 200,00"
+              value={watch("insuranceMonthlyCost")?.toString() || ""}
+              onChange={(v) => setValue("insuranceMonthlyCost", v as unknown as number)}
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="otherMonthlyCosts">Sonstige Kosten (EUR)</Label>
-            <Input
+            <CurrencyInput
               id="otherMonthlyCosts"
-              type="number"
-              step="0.01"
-              {...register("otherMonthlyCosts")}
+              placeholder="z.B. 50,00"
+              value={watch("otherMonthlyCosts")?.toString() || ""}
+              onChange={(v) => setValue("otherMonthlyCosts", v as unknown as number)}
             />
           </div>
         </CardContent>

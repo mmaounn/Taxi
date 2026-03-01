@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
     if (to) (where.completedAt as Record<string, unknown>).lte = new Date(to + "T23:59:59");
   }
 
-  const [rides, total] = await Promise.all([
+  const [rides, total, aggregates] = await Promise.all([
     db.rideData.findMany({
       where,
       include: {
@@ -41,6 +41,15 @@ export async function GET(req: NextRequest) {
       take: limit,
     }),
     db.rideData.count({ where }),
+    db.rideData.aggregate({
+      where,
+      _sum: {
+        distanceKm: true,
+        fareAmount: true,
+        tipAmount: true,
+        platformCommissionAmount: true,
+      },
+    }),
   ]);
 
   return NextResponse.json({
@@ -62,5 +71,11 @@ export async function GET(req: NextRequest) {
     limit,
     total,
     totalPages: Math.ceil(total / limit),
+    totals: {
+      distanceKm: aggregates._sum.distanceKm ? Number(aggregates._sum.distanceKm) : 0,
+      fareAmount: aggregates._sum.fareAmount ? Number(aggregates._sum.fareAmount) : 0,
+      tipAmount: aggregates._sum.tipAmount ? Number(aggregates._sum.tipAmount) : 0,
+      platformCommission: aggregates._sum.platformCommissionAmount ? Number(aggregates._sum.platformCommissionAmount) : 0,
+    },
   });
 }

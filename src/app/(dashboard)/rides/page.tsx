@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -13,14 +13,13 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Route, Banknote, HandCoins, Building2 } from "lucide-react";
 import { formatEur } from "@/lib/format";
 import { WeekPicker } from "@/components/ui/week-picker";
 import { getWeekBounds } from "@/lib/date-utils";
@@ -89,6 +88,14 @@ export default function RidesPage() {
         setPage(data.page);
         setTotalPages(data.totalPages);
         setTotal(data.total);
+        if (data.totals) {
+          setTotals({
+            km: data.totals.distanceKm,
+            fare: data.totals.fareAmount,
+            tip: data.totals.tipAmount,
+            commission: data.totals.platformCommission,
+          });
+        }
       }
     } catch {
       // silent
@@ -109,19 +116,7 @@ export default function RidesPage() {
     fetchRides(1);
   }, [fetchRides]);
 
-  const totals = useMemo(() => {
-    let km = 0;
-    let fare = 0;
-    let tip = 0;
-    let commission = 0;
-    for (const r of rides) {
-      km += r.distanceKm ?? 0;
-      fare += r.fareAmount ?? 0;
-      tip += r.tipAmount ?? 0;
-      commission += r.platformCommission ?? 0;
-    }
-    return { km, fare, tip, commission };
-  }, [rides]);
+  const [totals, setTotals] = useState({ km: 0, fare: 0, tip: 0, commission: 0 });
 
   return (
     <div className="space-y-6">
@@ -166,6 +161,56 @@ export default function RidesPage() {
         </Select>
         <WeekPicker value={week} onChange={setWeek} />
       </div>
+
+      {/* Summary cards */}
+      {total > 0 && (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <Card>
+            <CardContent className="flex items-center gap-3 p-4">
+              <div className="rounded-md bg-blue-50 p-2">
+                <Route className="h-4 w-4 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Kilometer</p>
+                <p className="text-lg font-semibold">{totals.km.toFixed(1)}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="flex items-center gap-3 p-4">
+              <div className="rounded-md bg-green-50 p-2">
+                <Banknote className="h-4 w-4 text-green-600" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Fahrpreis</p>
+                <p className="text-lg font-semibold">{formatEur(totals.fare)}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="flex items-center gap-3 p-4">
+              <div className="rounded-md bg-emerald-50 p-2">
+                <HandCoins className="h-4 w-4 text-emerald-600" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Trinkgeld</p>
+                <p className="text-lg font-semibold text-green-600">{formatEur(totals.tip)}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="flex items-center gap-3 p-4">
+              <div className="rounded-md bg-gray-100 p-2">
+                <Building2 className="h-4 w-4 text-gray-600" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Provision</p>
+                <p className="text-lg font-semibold text-gray-500">{formatEur(totals.commission)}</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Results */}
       <div className="flex items-center justify-between">
@@ -250,19 +295,6 @@ export default function RidesPage() {
             </Card>
           ))
         )}
-        {rides.length > 0 && (
-          <Card>
-            <CardContent className="p-4">
-              <p className="text-xs text-gray-500 mb-1">Summe</p>
-              <div className="grid grid-cols-4 gap-2 text-sm font-semibold">
-                <p>{totals.km.toFixed(1)} km</p>
-                <p>{formatEur(totals.fare)}</p>
-                <p className="text-green-600">{formatEur(totals.tip)}</p>
-                <p className="text-gray-500">{formatEur(totals.commission)}</p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
       </div>
 
       {/* Desktop: Table view */}
@@ -344,28 +376,6 @@ export default function RidesPage() {
               ))
             )}
           </TableBody>
-          {rides.length > 0 && (
-            <TableFooter>
-              <TableRow className="font-semibold">
-                <TableCell colSpan={5} className="text-sm">
-                  Summe
-                </TableCell>
-                <TableCell className="text-right text-sm">
-                  {totals.km.toFixed(1)}
-                </TableCell>
-                <TableCell className="text-right text-sm">
-                  {formatEur(totals.fare)}
-                </TableCell>
-                <TableCell className="text-right text-sm text-green-600">
-                  {formatEur(totals.tip)}
-                </TableCell>
-                <TableCell className="text-right text-sm text-gray-500">
-                  {formatEur(totals.commission)}
-                </TableCell>
-                <TableCell />
-              </TableRow>
-            </TableFooter>
-          )}
         </Table>
       </div>
 

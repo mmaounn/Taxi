@@ -12,9 +12,7 @@ export function Navbar() {
           <Button variant="ghost" asChild>
             <Link href="/login">Anmelden</Link>
           </Button>
-          <Button asChild>
-            <Link href="/register">Kostenlos starten</Link>
-          </Button>
+{/* Registration temporarily disabled */}
         </div>
       </div>
     </header>

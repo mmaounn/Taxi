@@ -114,9 +114,7 @@ export default function LandingPage() {
             Fahrerabrechnungen, Provisionen und Bargeldsalden automatisch.
           </p>
           <div className="mt-10 flex items-center justify-center gap-4">
-            <Button size="lg" asChild>
-              <Link href="/register">Kostenlos starten</Link>
-            </Button>
+{/* Registration temporarily disabled */}
             <Button size="lg" variant="outline" asChild>
               <Link href="/login">Anmelden</Link>
             </Button>
@@ -166,9 +164,7 @@ export default function LandingPage() {
             ))}
           </div>
           <div className="mt-12 text-center">
-            <Button size="lg" asChild>
-              <Link href="/register">Jetzt kostenlos starten</Link>
-            </Button>
+{/* Registration temporarily disabled */}
           </div>
         </div>
       </section>

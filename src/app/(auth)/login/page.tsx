@@ -4,7 +4,6 @@ import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -100,12 +99,7 @@ function LoginForm() {
             ) : "Anmelden"}
           </Button>
         </form>
-        <p className="mt-4 text-center text-sm text-gray-500">
-          Noch kein Konto?{" "}
-          <Link href="/register" className="text-gray-900 underline">
-            Registrieren
-          </Link>
-        </p>
+{/* Registration disabled — accounts are created by admins */}
       </CardContent>
     </Card>
   );
